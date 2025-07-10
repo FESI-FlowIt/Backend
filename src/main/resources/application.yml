@@ -12,3 +12,9 @@ spring:
       hibernate:
         dialect: ${HIBERNATE_DIALECT}
     show-sql: ${HIBERNATE_SHOW-SQL}
+
+springdoc:
+  swagger-ui:
+    path: ${SWAGGER_PATH}
+    disable-swagger-default-url: ${SWAGGER_DISABLE_DEFAULT_URL}
+    tags-sorter: ${SWAGGER_TAGS_SORTER}
