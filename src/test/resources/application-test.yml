@@ -10,3 +10,6 @@ spring:
     properties:
       hibernate:
         dialect: ${TEST_HIBERNATE_DIALECT}
+
+auth:
+  secret-key: ${TEST_SECRET_KEY}

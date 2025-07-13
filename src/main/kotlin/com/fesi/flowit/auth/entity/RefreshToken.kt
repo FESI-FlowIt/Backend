@@ -1,0 +1,38 @@
+package com.fesi.flowit.auth.entity
+
+import jakarta.persistence.*
+import java.time.LocalDateTime
+
+@Entity
+@Table(name = "tokens")
+class RefreshToken(
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long,
+    @Column(nullable = false)
+    var userId: Long,
+    @Column(nullable = false)
+    val token: String,
+    @Column(nullable = false)
+    val expiresAt: LocalDateTime,
+    @Column(nullable = false)
+    val revoked: Boolean = false
+) {
+    constructor(
+        userId: Long,
+        token: String,
+        expiresAt: LocalDateTime,
+        revoked: Boolean
+    ) : this(0L, userId, token, expiresAt, revoked)
+
+    companion object {
+        fun of(
+            userId: Long,
+            token: String,
+            expiresAt: LocalDateTime,
+            revoked: Boolean
+        ): RefreshToken {
+            return RefreshToken(userId, token, expiresAt, revoked)
+        }
+    }
+}

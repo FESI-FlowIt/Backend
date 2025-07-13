@@ -2,8 +2,9 @@ package com.fesi.flowit.common.auth
 
 import org.springframework.stereotype.Component
 
+
 @Component
-class JwtProcessor {
+class JwtProcessor() {
 
     fun x(token: String) {}
 }

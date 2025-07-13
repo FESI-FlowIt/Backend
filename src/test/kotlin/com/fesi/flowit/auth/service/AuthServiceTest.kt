@@ -1,0 +1,80 @@
+package com.fesi.flowit.auth.service
+
+import com.fesi.flowit.auth.exception.InvalidPasswordException
+import com.fesi.flowit.auth.exception.UserNotExistsException
+import com.fesi.flowit.auth.service.dto.SignInDto
+import com.fesi.flowit.common.auth.PasswordEncryptor
+import com.fesi.flowit.user.entity.User
+import com.fesi.flowit.user.repository.UserRepository
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.StringSpec
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
+import java.time.Instant
+import java.time.ZoneId
+
+class AuthServiceTest : StringSpec({
+    lateinit var repository: UserRepository
+    lateinit var encryptor: PasswordEncryptor
+    lateinit var service: AuthService
+    lateinit var jwtGenerator: JwtGenerator
+
+    beforeTest() {
+        repository = mockk<UserRepository>()
+        encryptor = mockk<PasswordEncryptor>(relaxed = true)
+        jwtGenerator = mockk<JwtGenerator>(relaxed = true)
+        service = AuthService(repository, encryptor, jwtGenerator)
+    }
+
+    "로그인 시 입력한 이메일로 db에 등록된 회원 정보를 검색한다" {
+        every { repository.findByEmail(ofType<String>()) } returns (mockk<User>(relaxed = true))
+
+        service.signIn(SignInDto("user@gmail.com", "password"))
+
+        verify { repository.findByEmail(ofType<String>()) }
+    }
+
+    "로그인 시 입력한 이메일로 등록된 회원이 없으면 로그인에 실패한다" {
+        every { repository.findByEmail(ofType<String>()) } returns (null)
+
+        shouldThrow<UserNotExistsException> {
+            service.signIn(SignInDto("user@gmail.com", "password"))
+        }
+
+        verify { repository.findByEmail(ofType<String>()) }
+    }
+
+    "로그인 시 입력한 비밀번호가 일치하지 않으면 로그인에 실패한다" {
+        val user = mockk<User> { every { password } returns "stored_in_db" }
+        every { repository.findByEmail(ofType<String>()) } returns (user)
+        every { encryptor.encrypt(ofType<String>()) } returns ("encrypted")
+
+        shouldThrow<InvalidPasswordException> {
+            service.signIn(SignInDto("user@gmail.com", "password"))
+        }
+
+        verify { repository.findByEmail(ofType<String>()) }
+        verify { encryptor.encrypt(ofType<String>()) }
+    }
+
+    "로그인 성공 시 jwt 토큰을 생성한다" {
+        val user = mockk<User>(relaxed = true) { every { password } returns "stored_in_db" }
+        every { repository.findByEmail(ofType<String>()) } returns (user)
+        every { encryptor.encrypt(ofType<String>()) } returns ("stored_in_db")
+
+        service.signIn(SignInDto("user@gmail.com", "password"))
+
+        verify { jwtGenerator.generateToken(ofType<User>()) }
+    }
+
+    "로그인 성공 시 상황에 맞게 jwt refresh 토큰을 처리한다" {
+        val user = mockk<User>(relaxed = true) { every { password } returns "stored_in_db" }
+        every { repository.findByEmail(ofType<String>()) } returns (user)
+        every { encryptor.encrypt(ofType<String>()) } returns ("stored_in_db")
+
+        service.signIn(SignInDto("user@gmail.com", "password"))
+
+        verify { jwtGenerator.handleRefreshToken(ofType<User>()) }
+    }
+})
