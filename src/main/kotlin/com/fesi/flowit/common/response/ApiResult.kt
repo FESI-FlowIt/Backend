@@ -1,6 +1,7 @@
 package com.fesi.flowit.common.response
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fesi.flowit.common.response.exceptions.BaseException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 
@@ -58,5 +59,21 @@ sealed class ApiResult<out T> (
         override val message: String = ApiResultCode.CREATED.message,
         override val httpStatus: HttpStatus = HttpStatus.CREATED,
         val result: T,
+    ) : ApiResult<T>(code, message, httpStatus)
+
+
+    /**
+     * Related to failed
+     */
+    data class Error<T>(
+        override val code: String,
+        override val message: String,
+        override val httpStatus: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
+    ) : ApiResult<T>(code, message, httpStatus)
+
+    data class Exception<T : BaseException>(
+        override val code: String,
+        override val message: String,
+        override val httpStatus: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
     ) : ApiResult<T>(code, message, httpStatus)
 }
