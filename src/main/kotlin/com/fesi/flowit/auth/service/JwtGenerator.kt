@@ -26,7 +26,7 @@ class JwtGenerator(
 
         return Jwts.builder()
             .subject(user.email)
-            .claim("userId", user.id)
+            .claim("userId", user.id.toString()) // claim은 Long 타입이 아니라 Integer 타입으로 생성되기 때문에 String<->Long 변환하기 위해
             .issuedAt(Date.from(now))
             .expiration(Date.from(expiration))
             .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)), Jwts.SIG.HS512)
@@ -91,7 +91,7 @@ class JwtGenerator(
         val expiration = now.plus(30, ChronoUnit.DAYS)
         val jwtRefreshToken = Jwts.builder()
             .subject(user.email)
-            .claim("userId", user.id)
+            .claim("userId", user.id.toString()) // claim은 Long 타입이 아니라 Integer 타입으로 생성되기 때문에 String<->Long 변환하기 위해
             .issuedAt(Date.from(now))
             .expiration(Date.from(expiration))
             .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)), Jwts.SIG.HS512)
