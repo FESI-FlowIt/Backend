@@ -10,13 +10,14 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
+import org.swyp.weddy.domain.auth.web.AuthApiSpec
 
 @RestController
 class AuthController(
     private val service: AuthService
-) {
+): AuthApiSpec {
     @PostMapping("/auths/signIn")
-    fun signIn(
+    override fun signIn(
         @RequestBody signInRequest: SignInRequest,
         response: HttpServletResponse
     ): ResponseEntity<SignInResponse> {

@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 class UserController(
     private val service: UserService
-) {
+) : UserApiSpec {
     @PostMapping("/users")
-    fun signUp(@RequestBody userRequest: UserRequest): ResponseEntity<UserResponse> {
+    override fun signUp(@RequestBody userRequest: UserRequest): ResponseEntity<UserResponse> {
         val dto = UserDto.from(userRequest)
         val response = service.add(dto)
         return ResponseEntity.ok().body(response)
