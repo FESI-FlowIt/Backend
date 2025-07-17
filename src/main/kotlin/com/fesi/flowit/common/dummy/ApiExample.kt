@@ -1,9 +1,10 @@
 package com.fesi.flowit.common.dummy
 
+import com.fesi.flowit.common.response.ApiResponse
+import com.fesi.flowit.common.response.ApiResult
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
-import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -17,6 +18,12 @@ data class DummyDto(
     val age: Int
 )
 
+data class DummyResDto(
+    val name: String,
+    val age: Int,
+    val msg: String
+)
+
 @RestController
 class ApiExample {
 
@@ -27,7 +34,7 @@ class ApiExample {
     )
     @ApiResponses(
         value = [
-            ApiResponse(
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
                 responseCode = "200",
                 description = "요청 성공",
                 content = [Content(
@@ -37,8 +44,8 @@ class ApiExample {
             )
         ]
     )
-    fun getExample(@PathVariable id: Int): ResponseEntity<String> {
-        return ResponseEntity.ok("GET > $id")
+    fun getExample(@PathVariable id: Int): ResponseEntity<ApiResult<String>> {
+        return ApiResponse.ok("GET > $id")
     }
 
     @PostMapping("/test")
@@ -55,7 +62,7 @@ class ApiExample {
     )
     @ApiResponses(
         value = [
-            ApiResponse(
+            io.swagger.v3.oas.annotations.responses.ApiResponse(
                 responseCode = "200",
                 description = "요청 성공",
                 content = [Content(
@@ -65,8 +72,9 @@ class ApiExample {
             )
         ]
     )
-    fun postExample(@RequestBody request: DummyDto): ResponseEntity<String> {
-        return ResponseEntity.ok("POST > name: $request.name, age: $request.age")
-    }
+    fun postExample(@RequestBody request: DummyDto): ResponseEntity<ApiResult<DummyResDto>> {
+        val result = DummyResDto(request.name, request.age, "API Response")
 
+        return ApiResponse.created(result)
+    }
 }
