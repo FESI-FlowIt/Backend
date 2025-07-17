@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestPropertySource(properties = arrayOf("spring.config.location=classpath:application-test.yml"))
@@ -21,7 +22,7 @@ class SecurityConfigTest @Autowired constructor(
     "화이트리스트에 포함되지 않은 api 호출은 무조건 인증한다" {
         mockMvc.perform(
             get("/nonexistent")
-        ).andExpect(status().isNotFound)
+        ).andExpect(status().isForbidden)
     }
 
     "화이트리스트에 포함된 api 호출은 인증을 건너뛴다" {
