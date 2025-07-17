@@ -10,7 +10,7 @@ fun BaseException.toApiResult() = ApiResult.Exception<BaseException>(
     httpStatus = httpStatus
 )
 
-sealed class BaseException(
+open class BaseException(
     open val code: ApiResultCode,
     open val httpStatus: HttpStatus,
     override val message: String = code.message

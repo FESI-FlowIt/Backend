@@ -1,5 +1,6 @@
 package com.fesi.flowit.user.web
 
+import com.fesi.flowit.common.response.ApiResult
 import com.fesi.flowit.user.web.request.UserRequest
 import com.fesi.flowit.user.web.response.UserResponse
 import io.swagger.v3.oas.annotations.Operation
@@ -55,5 +56,5 @@ interface UserApiSpec {
         ]
     )
     @PostMapping("/users")
-    fun signUp(@RequestBody userRequest: UserRequest): ResponseEntity<UserResponse>
+    fun signUp(@RequestBody userRequest: UserRequest): ResponseEntity<ApiResult<UserResponse>>
 }

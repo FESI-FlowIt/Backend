@@ -2,6 +2,7 @@ package org.swyp.weddy.domain.auth.web
 
 import com.fesi.flowit.auth.web.request.SignInRequest
 import com.fesi.flowit.auth.web.response.SignInResponse
+import com.fesi.flowit.common.response.ApiResult
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -58,5 +59,5 @@ interface AuthApiSpec {
     fun signIn(
         @RequestBody signInRequest: SignInRequest,
         response: HttpServletResponse
-    ): ResponseEntity<SignInResponse>
+    ): ResponseEntity<ApiResult<SignInResponse>>
 }

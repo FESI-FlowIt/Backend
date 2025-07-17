@@ -1,5 +1,7 @@
 package com.fesi.flowit.user.web
 
+import com.fesi.flowit.common.response.ApiResponse
+import com.fesi.flowit.common.response.ApiResult
 import com.fesi.flowit.user.service.UserService
 import com.fesi.flowit.user.service.dto.UserDto
 import com.fesi.flowit.user.web.request.UserRequest
@@ -14,9 +16,9 @@ class UserController(
     private val service: UserService
 ) : UserApiSpec {
     @PostMapping("/users")
-    override fun signUp(@RequestBody userRequest: UserRequest): ResponseEntity<UserResponse> {
+    override fun signUp(@RequestBody userRequest: UserRequest): ResponseEntity<ApiResult<UserResponse>> {
         val dto = UserDto.from(userRequest)
         val response = service.add(dto)
-        return ResponseEntity.ok().body(response)
+        return ApiResponse.ok(response)
     }
 }
