@@ -16,6 +16,11 @@ class UserService(
     private val repository: UserRepository,
     private val encryptor: PasswordEncryptor
 ) {
+    /**
+     * 회원가입
+     * 이미 등록된 회원일 경우 회원가입 실패
+     * 사용자 정보 db에 저장 시 비밀번호는 암호화한다
+     */
     fun add(dto: UserDto): UserResponse {
         val (email, name, password) = dto
 

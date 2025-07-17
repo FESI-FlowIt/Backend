@@ -16,6 +16,12 @@ class AuthService(
     private val encryptor: PasswordEncryptor,
     private val jwtGenerator: JwtGenerator
 ) {
+    /**
+     * 로그인
+     * 요청 정보의 이메일로 등록된 회원이 없거나 비밀번호가 다르면 로그인 실패
+     * access token은 로그인 시마다 생성
+     * refresh token은 상태에 따라 처리
+     */
     fun signIn(dto: SignInDto): Pair<SignInResponse, String> {
         val userFoundByEmail = repository.findByEmail(dto.email)
 
