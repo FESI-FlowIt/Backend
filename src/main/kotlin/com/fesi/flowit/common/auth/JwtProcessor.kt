@@ -1,5 +1,9 @@
 package com.fesi.flowit.common.auth
 
+import com.fesi.flowit.common.auth.dto.TokenInfo
+import com.fesi.flowit.common.auth.exception.FailToParseJwtException
+import com.fesi.flowit.common.auth.exception.InvalidUserException
+import com.fesi.flowit.common.auth.exception.TokenExpiredException
 import com.fesi.flowit.user.repository.UserRepository
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
@@ -71,17 +75,4 @@ class JwtProcessor(
     fun isTokenStored(tokenInfo: TokenInfo): Boolean {
         return userRepository.findById(tokenInfo.userId).isPresent
     }
-}
-
-class FailToParseJwtException : RuntimeException() {}
-class TokenExpiredException : RuntimeException() {}
-class InvalidUserException : RuntimeException() {}
-
-data class TokenInfo(
-    val email: String,
-    val userId: Long,
-    val issuedAt: Date,
-    val expiration: Date
-) {
-    companion object
 }

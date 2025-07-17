@@ -1,4 +1,4 @@
-import com.fesi.flowit.common.auth.FailToParseJwtException
+import com.fesi.flowit.common.auth.exception.FailToParseJwtException
 import com.fesi.flowit.common.auth.JwtAuthenticationFilter
 import com.fesi.flowit.common.auth.JwtProcessor
 import io.kotest.core.spec.style.StringSpec
