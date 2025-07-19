@@ -1,7 +1,7 @@
 package com.fesi.flowit.auth.service
 
-import com.fesi.flowit.auth.exception.InvalidPasswordException
-import com.fesi.flowit.auth.exception.UserNotExistsException
+import com.fesi.flowit.common.response.exceptions.InvalidPasswordException
+import com.fesi.flowit.common.response.exceptions.UserNotExistsException
 import com.fesi.flowit.auth.service.dto.SignInDto
 import com.fesi.flowit.common.auth.PasswordEncryptor
 import com.fesi.flowit.user.entity.User
@@ -11,8 +11,6 @@ import io.kotest.core.spec.style.StringSpec
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import java.time.Instant
-import java.time.ZoneId
 
 class AuthServiceTest : StringSpec({
     lateinit var repository: UserRepository

@@ -2,12 +2,11 @@ package com.fesi.flowit.user.service
 
 import com.fesi.flowit.common.auth.PasswordEncryptor
 import com.fesi.flowit.user.entity.User
-import com.fesi.flowit.user.exception.UserAlreadySignedUpException
+import com.fesi.flowit.common.response.exceptions.UserAlreadySignedUpException
 import com.fesi.flowit.user.repository.UserRepository
 import com.fesi.flowit.user.service.dto.UserDto
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
-import io.mockk.MockKSettings.relaxed
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify

@@ -2,13 +2,11 @@ package com.fesi.flowit.user.entity
 
 import jakarta.persistence.*
 import java.time.LocalDateTime
+import java.util.Objects
 
 @Entity
 @Table(name = "users")
 class User(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long,
     @Column(nullable = false)
     val email: String,
     @Column(nullable = false)
@@ -18,18 +16,15 @@ class User(
     @Column(nullable = false)
     val createdAt: LocalDateTime,
     @Column(nullable = true)
-    val updatedAt: LocalDateTime?,
+    val updatedAt: LocalDateTime,
     @Column(nullable = true)
-    val deletedAt: LocalDateTime?
+    val deletedAt: LocalDateTime?,
+    @Column(nullable = false)
+    val isDeleted: Boolean = false,
 ) {
-    constructor(
-        email: String,
-        name: String,
-        password: String,
-        createdAt: LocalDateTime,
-        updatedAt: LocalDateTime?,
-        deletedAt: LocalDateTime?
-    ) : this(0L, email, name, password, createdAt, updatedAt, deletedAt)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long = 0L
 
     companion object {
         fun of(
@@ -37,36 +32,25 @@ class User(
             name: String,
             encrypted: String,
             createdAt: LocalDateTime,
-            updatedAt: LocalDateTime?,
-            deletedAt: LocalDateTime?
+            updatedAt: LocalDateTime,
+            deletedAt: LocalDateTime?,
+            isDeleted: Boolean = false
         ): User {
-            return User(email, name, encrypted, createdAt, updatedAt, deletedAt)
+            return User(email, name, encrypted, createdAt, updatedAt, deletedAt, isDeleted)
         }
     }
 
     override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is User) return false
+        if (other == null) {
+            return false
+        }
 
-        if (id != other.id) return false
-        if (email != other.email) return false
-        if (name != other.name) return false
-        if (password != other.password) return false
-        if (createdAt != other.createdAt) return false
-        if (updatedAt != other.updatedAt) return false
-        if (deletedAt != other.deletedAt) return false
+        if (this::class != other::class) {
+            return false
+        }
 
-        return true
+        return id == (other as User).id
     }
 
-    override fun hashCode(): Int {
-        var result = id.hashCode()
-        result = 31 * result + email.hashCode()
-        result = 31 * result + name.hashCode()
-        result = 31 * result + password.hashCode()
-        result = 31 * result + createdAt.hashCode()
-        result = 31 * result + (updatedAt?.hashCode() ?: 0)
-        result = 31 * result + (deletedAt?.hashCode() ?: 0)
-        return result
-    }
+    override fun hashCode() = Objects.hashCode(id)
 }

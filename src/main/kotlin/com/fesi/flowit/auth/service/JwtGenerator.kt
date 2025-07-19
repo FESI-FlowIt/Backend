@@ -1,6 +1,6 @@
 package com.fesi.flowit.auth.service
 
-import com.fesi.flowit.auth.entity.RefreshToken
+import com.fesi.flowit.auth.vo.RefreshToken
 import com.fesi.flowit.auth.repository.TokenRepository
 import com.fesi.flowit.user.entity.User
 import io.jsonwebtoken.Jwts
@@ -29,7 +29,10 @@ class JwtGenerator(
 
         return Jwts.builder()
             .subject(user.email)
-            .claim("userId", user.id.toString()) // claim은 Long 타입이 아니라 Integer 타입으로 생성되기 때문에 String<->Long 변환하기 위해
+            .claim(
+                "userId",
+                user.id.toString()
+            ) // Long을 String으로 저장 (JWT에서 Long이 Integer로 변환되어 값 손실 방지)
             .issuedAt(Date.from(now))
             .expiration(Date.from(expiration))
             .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)), Jwts.SIG.HS512)
@@ -61,11 +64,7 @@ class JwtGenerator(
      * refresh token이 존재하는지 확인한다
      */
     private fun isRefreshTokenExists(user: User): Boolean {
-        val existingToken = tokenRepository.findByUserIdAndRevoked(user.id, false)
-
-        if (existingToken == null) {
-            return false
-        }
+        tokenRepository.findByUserIdAndRevoked(user.id, false) ?: return false
 
         return true
     }
@@ -97,7 +96,10 @@ class JwtGenerator(
         val expiration = now.plus(30, ChronoUnit.DAYS)
         val jwtRefreshToken = Jwts.builder()
             .subject(user.email)
-            .claim("userId", user.id.toString()) // claim은 Long 타입이 아니라 Integer 타입으로 생성되기 때문에 String<->Long 변환하기 위해
+            .claim(
+                "userId",
+                user.id.toString()
+            ) // Long을 String으로 저장 (JWT에서 Long이 Integer로 변환되어 값 손실 방지)
             .issuedAt(Date.from(now))
             .expiration(Date.from(expiration))
             .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)), Jwts.SIG.HS512)

@@ -1,6 +1,6 @@
 package com.fesi.flowit.auth.service
 
-import com.fesi.flowit.auth.entity.RefreshToken
+import com.fesi.flowit.auth.vo.RefreshToken
 import com.fesi.flowit.auth.repository.TokenRepository
 import com.fesi.flowit.user.entity.User
 import io.kotest.core.spec.style.StringSpec
@@ -114,15 +114,16 @@ private fun User.Companion.forTest(
     email: String,
     password: String
 ): User {
-    return User(
-        id = id,
+    val user = User(
         email = email,
         name = "testName",
         password = password,
         createdAt = LocalDateTime.now(),
-        updatedAt = null,
+        updatedAt = LocalDateTime.now(),
         deletedAt = null
     )
+    user.id = id
+    return user
 }
 
 private fun RefreshToken.Companion.created(user: User): RefreshToken {
@@ -154,11 +155,12 @@ private fun RefreshToken.Companion.forTest(
     expiresAt: LocalDateTime,
     revoked: Boolean = false
 ): RefreshToken {
-    return RefreshToken(
-        id = id,
+    val refreshToken = RefreshToken(
         userId = user.id,
         token = token,
         expiresAt = expiresAt,
         revoked = revoked
     )
+    refreshToken.id = id
+    return refreshToken
 }

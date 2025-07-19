@@ -1,4 +1,4 @@
-package com.fesi.flowit.auth.entity
+package com.fesi.flowit.auth.vo
 
 import jakarta.persistence.*
 import java.time.LocalDateTime
@@ -6,11 +6,8 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "tokens")
 class RefreshToken(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Long,
     @Column(nullable = false)
-    var userId: Long,
+    val userId: Long,
     @Column(nullable = false)
     val token: String,
     @Column(nullable = false)
@@ -18,12 +15,9 @@ class RefreshToken(
     @Column(nullable = false)
     val revoked: Boolean = false
 ) {
-    constructor(
-        userId: Long,
-        token: String,
-        expiresAt: LocalDateTime,
-        revoked: Boolean
-    ) : this(0L, userId, token, expiresAt, revoked)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long = 0L
 
     companion object {
         fun of(

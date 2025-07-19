@@ -8,7 +8,7 @@ data class UserResponse(
     val email: String,
     val name: String,
     val createdAt: LocalDateTime,
-    val updatedAt: LocalDateTime?
+    val updatedAt: LocalDateTime
 ) {
     companion object {
         fun from(user: User): UserResponse {

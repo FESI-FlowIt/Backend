@@ -1,11 +1,11 @@
 package com.fesi.flowit.common.response
 
-import com.fesi.flowit.auth.exception.InvalidPasswordException
-import com.fesi.flowit.auth.exception.UserNotExistsException
+import com.fesi.flowit.common.response.exceptions.InvalidPasswordException
+import com.fesi.flowit.common.response.exceptions.UserNotExistsException
 import com.fesi.flowit.common.response.exceptions.BaseException
 import com.fesi.flowit.common.response.exceptions.ValidationException
 import com.fesi.flowit.common.response.exceptions.toApiResult
-import com.fesi.flowit.user.exception.UserAlreadySignedUpException
+import com.fesi.flowit.common.response.exceptions.UserAlreadySignedUpException
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler

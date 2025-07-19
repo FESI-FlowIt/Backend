@@ -1,6 +1,6 @@
 package com.fesi.flowit.auth.repository
 
-import com.fesi.flowit.auth.entity.RefreshToken
+import com.fesi.flowit.auth.vo.RefreshToken
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query

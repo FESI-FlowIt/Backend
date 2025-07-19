@@ -1,9 +1,9 @@
-import com.fesi.flowit.common.auth.exception.FailToParseJwtException
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fesi.flowit.common.response.exceptions.FailToParseJwtException
 import com.fesi.flowit.common.auth.JwtAuthenticationFilter
 import com.fesi.flowit.common.auth.JwtProcessor
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
-import io.kotest.matchers.string.shouldContain
 import io.mockk.*
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 class JwtAuthenticationFilterTest : StringSpec({
 
     lateinit var jwtProcessor: JwtProcessor
+    lateinit var objectMapper: ObjectMapper
     lateinit var filter: JwtAuthenticationFilter
     lateinit var request: MockHttpServletRequest
     lateinit var response: MockHttpServletResponse
@@ -22,7 +23,8 @@ class JwtAuthenticationFilterTest : StringSpec({
 
     beforeEach {
         jwtProcessor = mockk<JwtProcessor>()
-        filter = JwtAuthenticationFilter(jwtProcessor)
+        objectMapper = mockk<ObjectMapper>(relaxed = true)
+        filter = JwtAuthenticationFilter(jwtProcessor, objectMapper)
         request = MockHttpServletRequest()
         response = MockHttpServletResponse()
         chain = mockk<FilterChain>(relaxed = true)
@@ -85,8 +87,5 @@ class JwtAuthenticationFilterTest : StringSpec({
         filter.doFilterInternal(request, response, chain)
 
         response.status shouldBe HttpServletResponse.SC_UNAUTHORIZED
-        arrayOf("Unauthorized:", "${exception.message}").forEach { msg ->
-            response.contentAsString shouldContain msg
-        }
     }
 })

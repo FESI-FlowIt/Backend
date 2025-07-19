@@ -1,7 +1,6 @@
-package com.fesi.flowit.user.exception
+package com.fesi.flowit.common.response.exceptions
 
 import com.fesi.flowit.common.response.ApiResultCode
-import com.fesi.flowit.common.response.exceptions.BaseException
 import org.springframework.http.HttpStatus
 
 class UserAlreadySignedUpException(

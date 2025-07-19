@@ -1,7 +1,7 @@
 package com.fesi.flowit.common.auth
 
 import com.fesi.flowit.common.auth.dto.TokenInfo
-import com.fesi.flowit.common.auth.exception.FailToParseJwtException
+import com.fesi.flowit.common.response.exceptions.FailToParseJwtException
 import com.fesi.flowit.user.repository.UserRepository
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys

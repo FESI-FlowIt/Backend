@@ -1,7 +1,7 @@
 package com.fesi.flowit.auth.service
 
-import com.fesi.flowit.auth.exception.InvalidPasswordException
-import com.fesi.flowit.auth.exception.UserNotExistsException
+import com.fesi.flowit.common.response.exceptions.InvalidPasswordException
+import com.fesi.flowit.common.response.exceptions.UserNotExistsException
 import com.fesi.flowit.auth.service.dto.SignInDto
 import com.fesi.flowit.auth.web.response.SignInResponse
 import com.fesi.flowit.common.auth.PasswordEncryptor
@@ -23,11 +23,7 @@ class AuthService(
      * refresh token은 상태에 따라 처리
      */
     fun signIn(dto: SignInDto): Pair<SignInResponse, String> {
-        val userFoundByEmail = repository.findByEmail(dto.email)
-
-        if (userFoundByEmail == null) {
-            throw UserNotExistsException()
-        }
+        val userFoundByEmail = repository.findByEmail(dto.email) ?: throw UserNotExistsException()
 
         if (!encryptor.encrypt(dto.password).equals(userFoundByEmail.password)) {
             throw InvalidPasswordException()

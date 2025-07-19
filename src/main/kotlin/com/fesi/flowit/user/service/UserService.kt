@@ -2,7 +2,7 @@ package com.fesi.flowit.user.service
 
 import com.fesi.flowit.common.auth.PasswordEncryptor
 import com.fesi.flowit.user.entity.User
-import com.fesi.flowit.user.exception.UserAlreadySignedUpException
+import com.fesi.flowit.common.response.exceptions.UserAlreadySignedUpException
 import com.fesi.flowit.user.repository.UserRepository
 import com.fesi.flowit.user.service.dto.UserDto
 import com.fesi.flowit.user.web.response.UserResponse
@@ -29,7 +29,7 @@ class UserService(
         }
 
         val encrypted = encryptor.encrypt(password)
-        val user = User.of(email, name, encrypted, LocalDateTime.now(), null, null)
+        val user = User.of(email, name, encrypted, LocalDateTime.now(), LocalDateTime.now(), null)
 
         val addedUser = repository.save(user)
 

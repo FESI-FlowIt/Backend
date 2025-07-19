@@ -1,9 +1,9 @@
 package com.fesi.flowit.common.auth
 
 import com.fesi.flowit.common.auth.dto.TokenInfo
-import com.fesi.flowit.common.auth.exception.FailToParseJwtException
-import com.fesi.flowit.common.auth.exception.InvalidUserException
-import com.fesi.flowit.common.auth.exception.TokenExpiredException
+import com.fesi.flowit.common.response.exceptions.FailToParseJwtException
+import com.fesi.flowit.common.response.exceptions.InvalidUserException
+import com.fesi.flowit.common.response.exceptions.TokenExpiredException
 import com.fesi.flowit.user.repository.UserRepository
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
@@ -54,18 +54,18 @@ class JwtProcessor(
                 .verifyWith(key)
                 .build()
                 .parseSignedClaims(token)
-
-            val claims = unpacked.payload
-
-            return TokenInfo(
-                email = claims.subject,
-                userId = (claims["userId"] as String).toLong(),
-                issuedAt = claims.issuedAt,
-                expiration = claims.expiration
-            )
         } catch (ex: JwtException) {
             throw FailToParseJwtException()
         }
+
+        val claims = unpacked.payload
+
+        return TokenInfo(
+            email = claims.subject,
+            userId = (claims["userId"] as String).toLong(), // String으로 저장된 userId를 Long으로 복원
+            issuedAt = claims.issuedAt,
+            expiration = claims.expiration
+        )
     }
 
     fun isTokenExpired(tokenInfo: TokenInfo): Boolean {
