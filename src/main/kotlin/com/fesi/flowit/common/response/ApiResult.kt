@@ -2,6 +2,7 @@ package com.fesi.flowit.common.response
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fesi.flowit.common.response.exceptions.BaseException
+import io.swagger.v3.oas.annotations.media.Schema
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 
@@ -72,7 +73,16 @@ sealed class ApiResult<out T> (
     ) : ApiResult<T>(code, message, httpStatus)
 
     data class Exception<T : BaseException>(
+        @field:Schema(
+            description = "에러 코드",
+            example = "0400",
+        )
         override val code: String,
+
+        @field:Schema(
+            description = "에러 메시지",
+            example = "Bad Request",
+        )
         override val message: String,
         override val httpStatus: HttpStatus = HttpStatus.BAD_REQUEST
     ) : ApiResult<T>(code, message, httpStatus)
