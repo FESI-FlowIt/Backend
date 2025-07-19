@@ -27,7 +27,7 @@ class GlobalExceptionHandler {
     fun handleException(ex: Exception): ResponseEntity<ApiResult<Error>> {
         return ApiResult.Error<Error>(
             code = ApiResultCode.INTERNAL_ERROR.code,
-            message = ApiResultCode.INTERNAL_ERROR.message,
+            message = ex.message ?: ApiResultCode.INTERNAL_ERROR.message,
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR
         ).toResponseEntity()
     }
