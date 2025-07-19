@@ -74,6 +74,6 @@ sealed class ApiResult<out T> (
     data class Exception<T : BaseException>(
         override val code: String,
         override val message: String,
-        override val httpStatus: HttpStatus = HttpStatus.INTERNAL_SERVER_ERROR
+        override val httpStatus: HttpStatus = HttpStatus.BAD_REQUEST
     ) : ApiResult<T>(code, message, httpStatus)
 }
