@@ -4,16 +4,13 @@ import com.fesi.flowit.common.auth.dto.TokenInfo
 import com.fesi.flowit.common.response.exceptions.FailToParseJwtException
 import com.fesi.flowit.common.response.exceptions.InvalidUserException
 import com.fesi.flowit.common.response.exceptions.TokenExpiredException
+import com.fesi.flowit.common.response.exceptions.UserNotExistsException
 import com.fesi.flowit.user.repository.UserRepository
-import io.jsonwebtoken.Claims
-import io.jsonwebtoken.Jws
-import io.jsonwebtoken.JwtException
-import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.*
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import java.util.*
 
 
 @Component
@@ -23,6 +20,32 @@ class JwtProcessor(
     private val userRepository: UserRepository
 ) {
     val key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey))
+
+    /**
+     * 토큰 재발급에 필요한 정보를 가져온다
+     * 클라이언트가 보낼 수 있는 토큰의 유효 기간이 만료된 상태일 수 있기 때문에 예외처리하지 않는다
+     */
+    fun verifyForRegenerate(token: String): String {
+        val claims = try {
+            Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .payload
+        } catch (e: ExpiredJwtException) {
+            e.claims
+        } catch (ex: JwtException) {
+            throw FailToParseJwtException()
+        }
+
+        val tokenInfo = TokenInfo.fromClaims(claims)
+
+        if (!isTokenStored(tokenInfo)) {
+            throw UserNotExistsException()
+        }
+
+        return tokenInfo.email
+    }
 
     /**
      * 인증이 필요한 API 호출 시 클라이언트로부터 받은 토큰을 처리한다
