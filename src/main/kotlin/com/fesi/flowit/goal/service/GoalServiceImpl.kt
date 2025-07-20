@@ -47,6 +47,10 @@ class GoalServiceImpl(
         return goalQRepository.findAllGoals()
     }
 
+    override fun findGoalById(goalId: Long): Goal? {
+        return goalRepository.findById(goalId).orElse(null)
+    }
+
     private fun isInvalidDueDateTime(dueDateTime: LocalDateTime, createDateTime: LocalDateTime): Boolean {
         return dueDateTime.isBefore(createDateTime)
     }

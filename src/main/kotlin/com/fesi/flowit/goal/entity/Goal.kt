@@ -1,10 +1,12 @@
 package com.fesi.flowit.goal.entity
 
+import com.fesi.flowit.todo.entity.Todo
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
+import jakarta.persistence.OneToMany
 import jakarta.persistence.Table
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
@@ -35,10 +37,13 @@ class Goal private constructor(
     var modifiedDateTime: LocalDateTime = LocalDateTime.now(),
 
     @Column(nullable = false)
-    val dueDateTime: LocalDateTime
+    val dueDateTime: LocalDateTime,
 ) {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
+
+    @OneToMany(mappedBy = "goal")
+    val todos: MutableList<Todo> = mutableListOf()
 
     companion object {
         fun of(
@@ -47,5 +52,9 @@ class Goal private constructor(
         ): Goal {
             return Goal(name, color, isPinned, createdDateTime, modifiedDateTime, dueDateTime)
         }
+    }
+
+    fun addTodo(todo: Todo) {
+        this.todos.add(todo)
     }
 }
