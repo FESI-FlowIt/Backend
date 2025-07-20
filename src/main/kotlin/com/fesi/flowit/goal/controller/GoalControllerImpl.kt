@@ -4,9 +4,11 @@ import com.fesi.flowit.common.response.ApiResponse
 import com.fesi.flowit.common.response.ApiResult
 import com.fesi.flowit.goal.dto.GoalCreateRequestDto
 import com.fesi.flowit.goal.dto.GoalCreateResponseDto
+import com.fesi.flowit.goal.dto.GoalFindAllResponseDto
 import com.fesi.flowit.goal.service.GoalService
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
@@ -28,4 +30,9 @@ class GoalControllerImpl(
         return ApiResponse.created(result)
     }
 
+    @GetMapping("/goals")
+    override fun findAllGoals(): ResponseEntity<ApiResult<List<GoalFindAllResponseDto>>> {
+        // @TODO user_id 필요
+        return ApiResponse.ok(goalService.findAllGoals())
+    }
 }
