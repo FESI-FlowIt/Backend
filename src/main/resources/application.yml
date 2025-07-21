@@ -18,3 +18,6 @@ springdoc:
     path: ${SWAGGER_PATH}
     disable-swagger-default-url: ${SWAGGER_DISABLE_DEFAULT_URL}
     tags-sorter: ${SWAGGER_TAGS_SORTER}
+
+auth:
+  secret-key: ${SECRET_KEY}
