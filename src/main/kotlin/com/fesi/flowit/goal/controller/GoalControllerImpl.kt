@@ -5,6 +5,7 @@ import com.fesi.flowit.common.response.ApiResult
 import com.fesi.flowit.goal.dto.GoalCreateRequestDto
 import com.fesi.flowit.goal.dto.GoalCreateResponseDto
 import com.fesi.flowit.goal.dto.GoalFindAllResponseDto
+import com.fesi.flowit.goal.dto.GoalSummaryResponseDto
 import com.fesi.flowit.goal.service.GoalService
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
@@ -31,8 +32,13 @@ class GoalControllerImpl(
     }
 
     @GetMapping("/goals")
-    override fun findAllGoals(): ResponseEntity<ApiResult<List<GoalFindAllResponseDto>>> {
+    override fun getAllGoals(): ResponseEntity<ApiResult<List<GoalFindAllResponseDto>>> {
         // @TODO user_id 필요
-        return ApiResponse.ok(goalService.findAllGoals())
+        return ApiResponse.ok(goalService.getAllGoals())
+    }
+
+    @GetMapping("/goals/todos")
+    override fun getGoalsSummary(): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>> {
+        return ApiResponse.ok(goalService.getGoalsSummaries())
     }
 }
