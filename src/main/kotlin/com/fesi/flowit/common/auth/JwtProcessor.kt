@@ -49,16 +49,11 @@ class JwtProcessor(
 
     /**
      * 인증이 필요한 API 호출 시 클라이언트로부터 받은 토큰을 처리한다
-     * unpack 메서드로 문자열 형태의 토큰을 파싱해 TokenInfo 타입 객체로 만들고,
-     * 이 객체를 받아서 토큰이 유효한지 검증한다
-     * 토큰의 유효 기간이 지났거나, 등록되지 않은 정보로 만들어진 토큰일 경우 예외 처리한다
+     * 등록되지 않은 정보로 만들어진 토큰일 경우 예외 처리한다
      */
     fun handle(token: String): TokenInfo {
         val tokenInfo = unpack(token)
 
-        if (isTokenExpired(tokenInfo)) {
-            throw TokenExpiredException()
-        }
         if (!isTokenStored(tokenInfo)) {
             throw InvalidUserException()
         }
@@ -77,6 +72,8 @@ class JwtProcessor(
                 .verifyWith(key)
                 .build()
                 .parseSignedClaims(token)
+        } catch (e: ExpiredJwtException) {
+            throw TokenExpiredException()
         } catch (ex: JwtException) {
             throw FailToParseJwtException()
         }
@@ -89,10 +86,6 @@ class JwtProcessor(
             issuedAt = claims.issuedAt,
             expiration = claims.expiration
         )
-    }
-
-    fun isTokenExpired(tokenInfo: TokenInfo): Boolean {
-        return tokenInfo.expiration.before(Date())
     }
 
     fun isTokenStored(tokenInfo: TokenInfo): Boolean {

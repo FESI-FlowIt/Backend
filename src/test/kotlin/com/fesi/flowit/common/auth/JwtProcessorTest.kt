@@ -59,19 +59,19 @@ class JwtProcessorTest : StringSpec({
     }
 
     "토큰이 만료되었을 때" {
-        val expiredTokenInfo = TokenInfo.expired()
+        val expiredToken = jwtProcessor.pack(TokenInfo.expired())
 
-        val result = jwtProcessor.isTokenExpired(expiredTokenInfo)
-
-        result shouldBe true
+        shouldThrow<TokenExpiredException> {
+            jwtProcessor.unpack(expiredToken)
+        }
     }
 
     "토큰이 만료되지 않았을 때" {
-        val validTokenInfo = TokenInfo.valid()
+        val freshToken = jwtProcessor.pack(TokenInfo.valid())
 
-        val result = jwtProcessor.isTokenExpired(validTokenInfo)
-
-        result shouldBe false
+        shouldNotThrow<TokenExpiredException> {
+            jwtProcessor.unpack(freshToken)
+        }
     }
 
     "토큰 정보로 등록된 사용자가 있을 때" {
