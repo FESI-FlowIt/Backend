@@ -8,10 +8,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: ${HIBERNATE_DDL_AUTO}
+      format_sql: ${HIBERNATE_FORMAT_SQL}
+      highlight_sql: ${HIBERNATE.HIGHLIGHT_SQL}
     properties:
       hibernate:
         dialect: ${HIBERNATE_DIALECT}
     show-sql: ${HIBERNATE_SHOW-SQL}
+    open-in-view: ${JPA_OSIV}
 
 springdoc:
   swagger-ui:
