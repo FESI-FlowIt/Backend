@@ -7,6 +7,7 @@ import com.fesi.flowit.auth.web.response.RegenerateResponse
 import com.fesi.flowit.auth.web.response.SignInResponse
 import com.fesi.flowit.common.response.ApiResponse
 import com.fesi.flowit.common.response.ApiResult
+import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.ResponseEntity
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import org.swyp.weddy.domain.auth.web.AuthApiSpec
 
+@Tag(name = "인증")
 @RestController
 class AuthController(
     private val service: AuthService
@@ -33,7 +35,7 @@ class AuthController(
     }
 
     @PostMapping("/auths/tokens")
-    fun regenerate(request: HttpServletRequest): ResponseEntity<ApiResult<RegenerateResponse>> {
+    override fun regenerate(request: HttpServletRequest): ResponseEntity<ApiResult<RegenerateResponse>> {
         val accessToken = request.getHeader("Authorization")
         val response = service.regenerate(accessToken)
         return ApiResponse.ok(response)
