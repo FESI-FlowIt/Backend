@@ -1,6 +1,7 @@
 package com.fesi.flowit.common.auth
 
 import com.fesi.flowit.common.auth.dto.TokenInfo
+import com.fesi.flowit.common.response.ApiResultCode
 import com.fesi.flowit.common.response.exceptions.FailToParseJwtException
 import com.fesi.flowit.common.response.exceptions.InvalidUserException
 import com.fesi.flowit.common.response.exceptions.TokenExpiredException
@@ -35,13 +36,19 @@ class JwtProcessor(
         } catch (e: ExpiredJwtException) {
             e.claims
         } catch (ex: JwtException) {
-            throw FailToParseJwtException()
+            throw FailToParseJwtException.fromCodeWithMsg(
+                ApiResultCode.AUTH_FAIL_TO_PARSE_JWT,
+                "Fail to parse JWT token for token regenerate"
+            )
         }
 
         val tokenInfo = TokenInfo.fromClaims(claims)
 
         if (!isTokenStored(tokenInfo)) {
-            throw UserNotExistsException()
+            throw UserNotExistsException.fromCodeWithMsg(
+                ApiResultCode.AUTH_USER_NOT_EXISTS,
+                "Cannot find user from given token"
+            )
         }
 
         return tokenInfo.email

@@ -7,6 +7,7 @@ import com.fesi.flowit.auth.web.response.RegenerateResponse
 import com.fesi.flowit.auth.web.response.SignInResponse
 import com.fesi.flowit.common.auth.JwtProcessor
 import com.fesi.flowit.common.auth.PasswordEncryptor
+import com.fesi.flowit.common.response.ApiResultCode
 import com.fesi.flowit.user.repository.UserRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
@@ -43,7 +44,9 @@ class AuthService(
      */
     fun regenerate(accessToken: String): RegenerateResponse {
         val userEmail = jwtProcessor.verifyForRegenerate(accessToken)
-        val user = repository.findByEmail(userEmail) ?: throw UserNotExistsException()
+        val user = repository.findByEmail(userEmail) ?: throw UserNotExistsException.fromCode(
+            ApiResultCode.AUTH_USER_NOT_EXISTS
+        )
 
         val newAccessToken = jwtGenerator.generateToken(user)
         jwtGenerator.handleRefreshToken(user)

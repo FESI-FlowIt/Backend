@@ -7,4 +7,14 @@ class FailToParseJwtException(
     override val code: ApiResultCode = ApiResultCode.UNAUTHORIZED,
     override val httpStatus: HttpStatus = HttpStatus.UNAUTHORIZED,
     override val message: String = "Failed to parse JWT"
-) : BaseException(code, httpStatus)
+) : BaseException(code, httpStatus) {
+    companion object {
+        fun fromCode(code: ApiResultCode): FailToParseJwtException {
+            return FailToParseJwtException(code = code, message = code.message)
+        }
+
+        fun fromCodeWithMsg(code: ApiResultCode, msg: String): FailToParseJwtException {
+            return FailToParseJwtException(code = code, message = msg)
+        }
+    }
+}

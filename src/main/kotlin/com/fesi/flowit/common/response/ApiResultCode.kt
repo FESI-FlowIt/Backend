@@ -16,4 +16,8 @@ enum class ApiResultCode(
     UNAUTHORIZED("0401", "Unauthorized"),
     CONFLICT("0409", "Conflict"),
     INTERNAL_ERROR("0500", "Unexpected Error"),
+
+    // 1001-1999: Auth
+    AUTH_USER_NOT_EXISTS("1001", "User not exists"),
+    AUTH_FAIL_TO_PARSE_JWT("1002", "Fail To Parse JWT"),
 }
