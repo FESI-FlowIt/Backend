@@ -3,8 +3,11 @@ package com.fesi.flowit.auth.service
 import com.fesi.flowit.common.response.exceptions.InvalidPasswordException
 import com.fesi.flowit.common.response.exceptions.UserNotExistsException
 import com.fesi.flowit.auth.service.dto.SignInDto
+import com.fesi.flowit.auth.web.response.RegenerateResponse
 import com.fesi.flowit.auth.web.response.SignInResponse
+import com.fesi.flowit.common.auth.JwtProcessor
 import com.fesi.flowit.common.auth.PasswordEncryptor
+import com.fesi.flowit.common.response.ApiResultCode
 import com.fesi.flowit.user.repository.UserRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
@@ -14,7 +17,8 @@ import org.springframework.stereotype.Service
 class AuthService(
     private val repository: UserRepository,
     private val encryptor: PasswordEncryptor,
-    private val jwtGenerator: JwtGenerator
+    private val jwtGenerator: JwtGenerator,
+    private val jwtProcessor: JwtProcessor
 ) {
     /**
      * 로그인
@@ -33,5 +37,20 @@ class AuthService(
         jwtGenerator.handleRefreshToken(userFoundByEmail)
 
         return Pair(SignInResponse.of(userFoundByEmail), accessToken)
+    }
+
+    /**
+     * 토큰을 재발급한다. refresh 토큰은 생성 후 db에만 저장하고, access token은 응답에 넣어서 클라이언트에 준다
+     */
+    fun regenerate(accessToken: String): RegenerateResponse {
+        val userEmail = jwtProcessor.verifyForRegenerate(accessToken)
+        val user = repository.findByEmail(userEmail) ?: throw UserNotExistsException.fromCode(
+            ApiResultCode.AUTH_USER_NOT_EXISTS
+        )
+
+        val newAccessToken = jwtGenerator.generateToken(user)
+        jwtGenerator.handleRefreshToken(user)
+
+        return RegenerateResponse.of(newAccessToken)
     }
 }
