@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="60">
+
+  <Properties>
+    <!-- 로그 형식: 날짜, 스레드, 레벨, 로거 이름, 라인번호, 메시지 -->
+    <Property name="LOG_PATTERN">
+      %style{%d{yyyy-MM-dd HH:mm:ss}} %-5level %style{[%15.15t]} %style{%-40.40logger{3}}{cyan} %style{:} %msg%n
+    </Property>
+
+    <!-- 로그 파일 경로 -->
+    <Property name="LOG_PATH">./logs</Property>
+  </Properties>
+
+  <Appenders>
+    <!-- Console: 개발 시 실시간 확인용 -->
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="${LOG_PATTERN}" disableAnsi="false"/>
+    </Console>
+
+    <!-- File: 메인 로그 파일 (일일 롤링) -->
+    <RollingFile name="FileAppender"
+      fileName="${LOG_PATH}/application.log"
+      filePattern="${LOG_PATH}/application.%d{yyyy-MM-dd}.%i.log.gz">
+
+      <PatternLayout pattern="${LOG_PATTERN}"/>
+
+      <Policies>
+        <!-- 매일 자정에 롤링 -->
+        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+        <!-- 50MB 넘으면 롤링 -->
+        <SizeBasedTriggeringPolicy size="50MB"/>
+      </Policies>
+
+      <!-- 최대 14개 파일 보관 (2주) -->
+      <DefaultRolloverStrategy max="14">
+        <Delete basePath="${LOG_PATH}" maxDepth="1">
+          <IfFileName glob="application.*.log.gz"/>
+          <!-- 14일 지난 파일 자동 삭제 -->
+          <IfLastModified age="14d"/>
+        </Delete>
+      </DefaultRolloverStrategy>
+    </RollingFile>
+  </Appenders>
+
+  <Loggers>
+    <!-- 애플리케이션 로거: 디버그 레벨로 상세 로그 -->
+    <Logger name="com.fesi.flowit" level="INFO" additivity="false">
+      <AppenderRef ref="Console"/>
+      <AppenderRef ref="FileAppender"/>
+    </Logger>
+
+    <!-- Hibernate SQL 로그 -->
+    <Logger name="org.hibernate.SQL" level="WARN" additivity="false">
+      <AppenderRef ref="Console"/>
+      <AppenderRef ref="FileAppender"/>
+    </Logger>
+
+    <!-- Spring Data JPA 관련 -->
+    <Logger name="org.springframework.data.jpa" level="WARN" additivity="false">
+      <AppenderRef ref="Console"/>
+      <AppenderRef ref="FileAppender"/>
+    </Logger>
+
+    <!-- 루트 로거: 나머지 모든 로그 처리 -->
+    <Root level="INFO">
+      <AppenderRef ref="Console"/>
+      <AppenderRef ref="FileAppender"/>
+    </Root>
+  </Loggers>
+</Configuration>
