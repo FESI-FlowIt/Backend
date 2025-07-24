@@ -1,11 +1,13 @@
 package com.fesi.flowit.goal.repository
 
+import com.fesi.flowit.goal.dto.GoalSummaryInCalender
 import com.fesi.flowit.goal.dto.TodoSummaryInGoal
 import com.fesi.flowit.goal.entity.Goal
 import com.fesi.flowit.goal.vo.GoalSummaryVo
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
+import java.time.LocalDateTime
 
 interface GoalRepository : JpaRepository<Goal, Long> {
     @Query("""
@@ -33,4 +35,18 @@ interface GoalRepository : JpaRepository<Goal, Long> {
             AND t.id is not null
     """)
     fun findTodoSummaryByGoalIds(@Param("goalIds") goalIds: List<Long>): List<TodoSummaryInGoal>
+
+    @Query("""
+      SELECT new com.fesi.flowit.goal.dto.GoalSummaryInCalender(
+             g.id, 
+             g.name,
+             g.color,
+             g.createdDateTime,
+             g.dueDateTime
+        ) 
+        FROM Goal g
+        WHERE g.dueDateTime BETWEEN :startOfMonth AND :endOfMonth
+    """)
+    fun findGoalsInCalenderByDueDateMonthly(@Param("startOfMonth") startOfMonth: LocalDateTime,
+                                            @Param("endOfMonth") endOfMonth: LocalDateTime): MutableList<GoalSummaryInCalender>
 }

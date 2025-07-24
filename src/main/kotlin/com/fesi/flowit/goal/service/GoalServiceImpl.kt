@@ -2,16 +2,15 @@ package com.fesi.flowit.goal.service
 
 import com.fesi.flowit.common.response.ApiResultCode
 import com.fesi.flowit.common.response.exceptions.GoalException
-import com.fesi.flowit.goal.dto.GoalCreateResponseDto
-import com.fesi.flowit.goal.dto.GoalFindAllResponseDto
-import com.fesi.flowit.goal.dto.GoalSummaryResponseDto
-import com.fesi.flowit.goal.dto.TodoSummaryInGoal
+import com.fesi.flowit.goal.dto.*
 import com.fesi.flowit.goal.entity.Goal
 import com.fesi.flowit.goal.repository.GoalQRepository
 import com.fesi.flowit.goal.repository.GoalRepository
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.YearMonth
 
 @Service
 class GoalServiceImpl(
@@ -80,6 +79,19 @@ class GoalServiceImpl(
                 progressRate   = progressRate
             )
         }
+    }
+
+    /**
+     * 월 별 목표 조회 (마감일 기준)
+     */
+    override fun getGoalSummariesByDueYearMonth(dueYearMonth: YearMonth): GoalsByMonthlyResponseDto {
+        val start = dueYearMonth.atDay(1).atStartOfDay()
+        val end = dueYearMonth.atEndOfMonth().atTime(LocalTime.MAX)
+
+        // 해당 월에 마감일이 있는 목표 조회
+        val goalsInCalenderByMonthly =  goalRepository.findGoalsInCalenderByDueDateMonthly(start, end)
+
+        return GoalsByMonthlyResponseDto.of(dueYearMonth, goalsInCalenderByMonthly)
     }
 
     override fun getGoalById(goalId: Long): Goal? {

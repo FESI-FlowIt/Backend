@@ -11,7 +11,6 @@ data class GoalCreateResponseDto(
         example = "목표 이름",
         minLength = 1,
         maxLength = 30,
-        requiredMode = Schema.RequiredMode.REQUIRED
     )
     var name: String,
 
