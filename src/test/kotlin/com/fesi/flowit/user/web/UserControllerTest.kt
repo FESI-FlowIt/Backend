@@ -1,9 +1,19 @@
 package com.fesi.flowit.user.web
 
+import com.fesi.flowit.common.response.ApiResult
+import com.fesi.flowit.user.entity.User
 import com.fesi.flowit.user.service.UserService
 import com.fesi.flowit.user.web.request.UserRequest
+import com.fesi.flowit.user.web.response.UserSignedUpResponse
+import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.collections.shouldBeOneOf
+import io.kotest.matchers.should
+import io.kotest.matchers.shouldBe
+import io.kotest.matchers.types.beInstanceOf
+import io.mockk.every
 import io.mockk.mockk
+import org.springframework.http.ResponseEntity
 
 class UserControllerTest : StringSpec({
 
@@ -12,5 +22,22 @@ class UserControllerTest : StringSpec({
         val request = UserRequest("user@gmail.com", "test", "password")
 
         controller.signUp(request)
+    }
+
+    "가입 여부를 확인하는 요청을 받을 수 있다" {
+        val controller = UserController(mockk<UserService>(relaxed = true))
+        val queryParam = "user@gmail.com"
+
+        controller.hasSignedUp(queryParam)
+    }
+
+    "가입 여부를 알 수 있는 응답을 내보낼 수 있다" {
+        val service = mockk<UserService>(relaxed = true)
+        every { service.hasUserWithEmail(ofType<String>()) } returns (UserSignedUpResponse(true))
+
+        val controller = UserController(service)
+        val queryParam = "user@gmail.com"
+
+        controller.hasSignedUp(queryParam) should beInstanceOf<ResponseEntity<ApiResult<UserSignedUpResponse>>>()
     }
 })

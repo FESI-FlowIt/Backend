@@ -5,8 +5,10 @@ import com.fesi.flowit.user.entity.User
 import com.fesi.flowit.common.response.exceptions.UserAlreadySignedUpException
 import com.fesi.flowit.user.repository.UserRepository
 import com.fesi.flowit.user.service.dto.UserDto
+import com.fesi.flowit.user.web.response.UserSignedUpResponse
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
+import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -48,5 +50,13 @@ class UserServiceTest : StringSpec({
         }
 
         verify { repository.findByEmail(ofType<String>()) }
+    }
+
+    "이메일로 등록된 회원이 있는지 확인한다" {
+        every { repository.findByEmail(ofType<String>()) } returns (mockk<User>(relaxed = true))
+        service.hasUserWithEmail("user@gmail.com") shouldBe(UserSignedUpResponse(true))
+
+        every { repository.findByEmail(ofType<String>()) } returns null
+        service.hasUserWithEmail("user@gmail.com") shouldBe(UserSignedUpResponse(false))
     }
 })
