@@ -24,7 +24,7 @@ class UserServiceTest : StringSpec({
         service = UserService(repository, encryptor)
     }
 
-    "db에 회원 정보 저장을 요청한다" {
+    "회원 등록 시 db에 회원 정보 저장을 요청한다" {
         every { repository.findByEmail(ofType<String>()) } returns null
         every { repository.save(ofType<User>()) } returns (mockk<User>(relaxed = true))
 
@@ -33,7 +33,7 @@ class UserServiceTest : StringSpec({
         verify { repository.save(ofType<User>()) }
     }
 
-    "등록할 회원의 비밀번호를 해싱한다" {
+    "회원 등록 시 등록할 회원의 비밀번호를 해싱한다" {
         every { repository.findByEmail(ofType<String>()) } returns null
         every { repository.save(ofType<User>()) } returns (mockk<User>(relaxed = true))
 
