@@ -7,6 +7,7 @@ import com.fesi.flowit.user.service.dto.UserDto
 import com.fesi.flowit.user.web.request.UserRequest
 import com.fesi.flowit.user.web.response.UserResponse
 import com.fesi.flowit.user.web.response.UserSignedUpResponse
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
+@Tag(name = "회원")
 @RestController
 class UserController(
     private val service: UserService
@@ -26,7 +28,7 @@ class UserController(
     }
 
     @GetMapping("/users")
-    fun hasSignedUp(@RequestParam email: String): ResponseEntity<ApiResult<UserSignedUpResponse>> {
+    override fun hasSignedUp(@RequestParam email: String): ResponseEntity<ApiResult<UserSignedUpResponse>> {
         val response = service.hasUserWithEmail(email)
         return ApiResponse.ok(response)
     }
