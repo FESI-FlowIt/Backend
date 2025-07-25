@@ -4,15 +4,14 @@ import com.fesi.flowit.common.response.ApiResult
 import com.fesi.flowit.user.entity.User
 import com.fesi.flowit.user.service.UserService
 import com.fesi.flowit.user.web.request.UserRequest
+import com.fesi.flowit.user.web.response.UserResponse
 import com.fesi.flowit.user.web.response.UserSignedUpResponse
-import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.collections.shouldBeOneOf
 import io.kotest.matchers.should
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.beInstanceOf
 import io.mockk.every
 import io.mockk.mockk
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.ResponseEntity
 
 class UserControllerTest : StringSpec({
@@ -39,5 +38,25 @@ class UserControllerTest : StringSpec({
         val queryParam = "user@gmail.com"
 
         controller.hasSignedUp(queryParam) should beInstanceOf<ResponseEntity<ApiResult<UserSignedUpResponse>>>()
+    }
+
+    "회원 정보 조회 요청을 받을 수 있다" {
+        val request = mockk<HttpServletRequest>() {
+            every { getHeader("Authorization") } returns "accessToken"
+        }
+        val controller = UserController(mockk<UserService>(relaxed = true))
+
+        controller.getUserInfo(request)
+    }
+
+    "회원 정보 조회 결과를 내보낼 수 있다" {
+        val request = mockk<HttpServletRequest>() {
+            every { getHeader("Authorization") } returns "accessToken"
+        }
+        val service = mockk<UserService>(relaxed = true)
+        every { service.findUserByToken(any()) } returns UserResponse.from(mockk<User>(relaxed = true))
+        val controller = UserController(service)
+
+        controller.getUserInfo(request) should beInstanceOf<ResponseEntity<ApiResult<UserResponse>>>()
     }
 })
