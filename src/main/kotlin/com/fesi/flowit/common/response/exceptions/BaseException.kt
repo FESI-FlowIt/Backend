@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus
 
 fun BaseException.toApiResult() = ApiResult.Exception<BaseException>(
     code = code.code,
-    message = code.message,
+    message = this.message.takeIf { it.isNotBlank() } ?: code.message,
     httpStatus = httpStatus
 )
 
