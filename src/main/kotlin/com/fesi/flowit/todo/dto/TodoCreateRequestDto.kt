@@ -6,6 +6,13 @@ import io.swagger.v3.oas.annotations.media.Schema
 
 data class TodoCreateRequestDto(
     @field:Schema(
+        description = "회원 ID",
+        example = "1",
+        requiredMode = Schema.RequiredMode.REQUIRED
+    )
+    val userId: Long,
+
+    @field:Schema(
         description = "할 일 이름",
         example = "할 일",
         minLength = 1,

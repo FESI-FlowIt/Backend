@@ -20,10 +20,11 @@ interface GoalRepository : JpaRepository<Goal, Long> {
              g.isPinned
         ) 
         FROM Goal g
+        WHERE g.user.id = :userId
         ORDER BY g.isPinned desc
         LIMIT 3
         """)
-    fun findGoalsInDashboard(): List<GoalSummaryVo>
+    fun findGoalsInDashboard(@Param("userId") userId: Long): List<GoalSummaryVo>
 
     @Query("""
         SELECT new com.fesi.flowit.goal.dto.TodoSummaryInGoal(t.id, g.id, t.name, t.isDone)
@@ -31,10 +32,12 @@ interface GoalRepository : JpaRepository<Goal, Long> {
         LEFT JOIN Todo t
             ON t.goal.id = g.id
         WHERE
-            g.id in (:goalIds)
+            g.user.id = :userId
+            AND g.id in (:goalIds)
             AND t.id is not null
     """)
-    fun findTodoSummaryByGoalIds(@Param("goalIds") goalIds: List<Long>): List<TodoSummaryInGoal>
+    fun findTodoSummaryByGoalIds(@Param("userId") userId: Long,
+                                 @Param("goalIds") goalIds: List<Long>): List<TodoSummaryInGoal>
 
     @Query("""
       SELECT new com.fesi.flowit.goal.dto.GoalSummaryInCalender(
@@ -45,8 +48,11 @@ interface GoalRepository : JpaRepository<Goal, Long> {
              g.dueDateTime
         ) 
         FROM Goal g
-        WHERE g.dueDateTime BETWEEN :startOfMonth AND :endOfMonth
+        WHERE 
+            g.user.id = :userId
+            AND g.dueDateTime BETWEEN :startOfMonth AND :endOfMonth
     """)
-    fun findGoalsInCalenderByDueDateMonthly(@Param("startOfMonth") startOfMonth: LocalDateTime,
+    fun findGoalsInCalenderByDueDateMonthly(@Param("userId") userId: Long,
+                                            @Param("startOfMonth") startOfMonth: LocalDateTime,
                                             @Param("endOfMonth") endOfMonth: LocalDateTime): MutableList<GoalSummaryInCalender>
 }

@@ -11,6 +11,13 @@ import java.time.LocalDateTime
 
 data class GoalCreateRequestDto(
     @field:Schema(
+        description = "회원 ID",
+        example = "1",
+        requiredMode = Schema.RequiredMode.REQUIRED
+    )
+    var userId: Long,
+
+    @field:Schema(
         description = "목표 이름",
         example = "목표 이름",
         minLength = 1,

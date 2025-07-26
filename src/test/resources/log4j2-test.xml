@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="60">
+
+  <Properties>
+    <!-- 로그 형식: 날짜, 스레드, 레벨, 로거 이름, 라인번호, 메시지 -->
+    <Property name="LOG_PATTERN">
+      %style{%d{yyyy-MM-dd HH:mm:ss}} %-5level %style{[%15.15t]} %style{%-40.40logger{3}}{cyan} %style{:} %msg%n
+    </Property>
+  </Properties>
+
+  <Appenders>
+    <!-- Console: 개발 시 실시간 확인용 -->
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="${LOG_PATTERN}" disableAnsi="false"/>
+    </Console>
+  </Appenders>
+
+  <Loggers>
+    <!-- 애플리케이션 로거: 디버그 레벨로 상세 로그 -->
+    <Logger name="com.fesi.flowit" level="DEBUG" additivity="false">
+      <AppenderRef ref="Console"/>
+    </Logger>
+
+    <!-- 루트 로거: 나머지 모든 로그 처리 -->
+    <Root level="DEBUG">
+      <AppenderRef ref="Console"/>
+    </Root>
+  </Loggers>
+</Configuration>
