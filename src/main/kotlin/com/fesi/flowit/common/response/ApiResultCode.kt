@@ -28,10 +28,9 @@ enum class ApiResultCode(
     TODO_INVALID_GOAL("4001", "Goal with todo is invalid"),
 
     // 9000-9999: Common Code
-    RGB_FORMAT_INVALID("9000", "Invalid RGB code format")
+    RGB_FORMAT_INVALID("9000", "Invalid RGB code format"),
     UNAUTHORIZED("0401", "Unauthorized"),
     CONFLICT("0409", "Conflict"),
-    INTERNAL_ERROR("0500", "Unexpected Error"),
 
   ;
 }
