@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -107,4 +108,63 @@ interface UserApiSpec {
         ]
     )
     fun hasSignedUp(@RequestParam email: String): ResponseEntity<ApiResult<UserSignedUpResponse>>
+
+    @Operation(
+        summary = "사용자 정보 조회",
+        description = """
+            [GET] http://IP:PORT/users/me
+        """
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "회원 정보 조회",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = UserResponse::class),
+                    examples = [ExampleObject(
+                        summary = "userInfo",
+                        name = "정상적으로 회원 정보를 조회한 경우",
+                        value = """{
+                            "code": "0000",
+                            "message": "OK",
+                            "result": {
+                              "id": 1,
+                              "email": "user@example.com",
+                              "name": "홍길동",
+                              "createdAt": "2025-07-26T13:43:24.893056",
+                              "updatedAt": "2025-07-26T13:43:24.893073"
+                            }
+                        }"""
+                    )]
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "잘못된 요청 데이터",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "인증 실패",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class),
+                    examples = [ExampleObject(
+                        summary = "tokenExpired",
+                        name = "액세스 토큰이 만료된 경우",
+                        value = """{
+                            "code": "0000",
+                            "message": "Token has expired",
+                        }"""
+                    )]
+                )]
+            ),
+        ]
+    )
+    fun getUserInfo(request: HttpServletRequest): ResponseEntity<ApiResult<UserResponse>>
 }
