@@ -1,7 +1,6 @@
 package com.fesi.flowit.todo.controller
 
 import com.fesi.flowit.common.response.ApiResult
-import com.fesi.flowit.goal.dto.GoalCreateResponseDto
 import com.fesi.flowit.todo.dto.TodoCreateRequestDto
 import com.fesi.flowit.todo.dto.TodoCreateResponseDto
 import io.swagger.v3.oas.annotations.Operation
@@ -24,7 +23,7 @@ interface TodoController {
                 description = "할 일 생성 성공",
                 content = [Content(
                     mediaType = "application/json",
-                    schema = Schema(implementation = GoalCreateResponseDto::class)
+                    schema = Schema(implementation = TodoCreateResponseDto::class)
                 )]
             ),
             ApiResponse(

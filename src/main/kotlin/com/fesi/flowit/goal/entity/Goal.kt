@@ -32,7 +32,7 @@ class Goal private constructor(
     var modifiedDateTime: LocalDateTime = LocalDateTime.now(),
 
     @Column(nullable = false)
-    val dueDateTime: LocalDateTime,
+    var dueDateTime: LocalDateTime,
 ) {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null

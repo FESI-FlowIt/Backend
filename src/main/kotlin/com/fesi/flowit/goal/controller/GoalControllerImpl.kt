@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -25,7 +26,7 @@ class GoalControllerImpl(
 ) : GoalController {
 
     @PostMapping("/goals")
-    override fun createGoal(@RequestBody request: GoalCreateRequestDto): ResponseEntity<ApiResult<GoalCreateResponseDto>> {
+    override fun createGoal(@RequestBody request: GoalCreateRequestDto): ResponseEntity<ApiResult<GoalInfoResponseDto>> {
         log.debug(">> request createGoal(${request})")
 
         val result = goalService.createGoal(
@@ -36,6 +37,21 @@ class GoalControllerImpl(
         )
 
         return ApiResponse.created(result)
+    }
+
+    @PatchMapping("/goals")
+    override fun modifyGoal(@RequestBody request: GoalModifyRequestDto): ResponseEntity<ApiResult<GoalInfoResponseDto>> {
+        log.debug(">> request modifyGoal(${request})")
+
+        val result = goalService.modifyGoal(
+            goalId = request.goalId,
+            userId = request.userId,
+            name = request.name,
+            color = request.color,
+            dueDateTime = request.dueDateTime
+        )
+
+        return ApiResponse.ok(result)
     }
 
     @GetMapping("/goals/{userId}")

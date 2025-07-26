@@ -26,7 +26,7 @@ class GoalServiceImpl(
      * 목표 생성
      */
     @Transactional
-    override fun createGoal(userId: Long, name: String, color: String, dueDateTime: LocalDateTime): GoalCreateResponseDto {
+    override fun createGoal(userId: Long, name: String, color: String, dueDateTime: LocalDateTime): GoalInfoResponseDto {
         val user: User = userRepository.findById(userId)
             .orElseThrow { UserNotExistsException.fromCode(ApiResultCode.AUTH_USER_NOT_EXISTS) }
 
@@ -45,7 +45,34 @@ class GoalServiceImpl(
             isPinned = false
         ))
 
-        return GoalCreateResponseDto.fromGoal(goal)
+        return GoalInfoResponseDto.fromGoal(goal)
+    }
+
+    /**
+     * 목표 수정
+     */
+    @Transactional
+    override fun modifyGoal(goalId: Long, userId: Long, name: String, color: String, dueDateTime: LocalDateTime): GoalInfoResponseDto {
+        val user: User = userRepository.findById(userId)
+            .orElseThrow { UserNotExistsException.fromCode(ApiResultCode.AUTH_USER_NOT_EXISTS) }
+
+        val goal: Goal = goalRepository.findById(goalId)
+            .orElseThrow { GoalException.fromCode(ApiResultCode.GOAL_NOT_FOUND) }
+
+        if (goal.user != user) {
+            throw GoalException.fromCode(ApiResultCode.GOAL_NOT_MATCH_USER)
+        }
+
+        if (isInvalidDueDateTime(dueDateTime, goal.createdDateTime)) {
+            throw GoalException.fromCode(ApiResultCode.GOAL_INVALID_DUE_DATETIME)
+        }
+
+        goal.name = name
+        goal.color = color
+        goal.dueDateTime = dueDateTime
+        goal.modifiedDateTime = LocalDateTime.now()
+
+        return GoalInfoResponseDto.fromGoal(goal)
     }
 
     /**

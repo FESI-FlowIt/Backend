@@ -21,9 +21,11 @@ enum class ApiResultCode(
     AUTH_FAIL_TO_PARSE_JWT("1002", "Fail To Parse JWT"),
 
     // 3000-3999: Goal
-    GOAL_INVALID_DUE_DATETIME("3000", "Due date must be later than the creation time"),
-    GOAL_INVALID_NAME_LENGTH("3001", "Goal name must be 30 characters or less"),
-    GOAL_ID_INVALID("3002", "Goal-id is invalid."),
+    GOAL_NOT_FOUND("3000", "Not found goal."),
+    GOAL_INVALID_DUE_DATETIME("3001", "Due date must be later than the creation time"),
+    GOAL_INVALID_NAME_LENGTH("3002", "Goal name must be 30 characters or less"),
+    GOAL_ID_INVALID("3003", "Goal-id is invalid."),
+    GOAL_NOT_MATCH_USER("3004", "The user has not this goal"),
 
     // 4000-4999: Todo
     TODO_NOT_FOUND("4000", "Not found Todo"),

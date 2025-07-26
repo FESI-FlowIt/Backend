@@ -24,7 +24,7 @@ interface GoalController {
                 description = "목표 생성 성공",
                 content = [Content(
                     mediaType = "application/json",
-                    schema = Schema(implementation = GoalCreateResponseDto::class)
+                    schema = Schema(implementation = GoalInfoResponseDto::class)
                 )]
             ),
         ApiResponse(
@@ -37,7 +37,32 @@ interface GoalController {
         )
         ]
     )
-    fun createGoal(@RequestBody request: GoalCreateRequestDto): ResponseEntity<ApiResult<GoalCreateResponseDto>>
+    fun createGoal(@RequestBody request: GoalCreateRequestDto): ResponseEntity<ApiResult<GoalInfoResponseDto>>
+    @Operation(
+        summary = "목표 수정",
+        description = "목표 수정 모달로부터 목표를 수정합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "목표 수정 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = GoalInfoResponseDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun modifyGoal(@RequestBody request: GoalModifyRequestDto): ResponseEntity<ApiResult<GoalInfoResponseDto>>
 
     @Operation(
         summary = "모든 목표 조회",
