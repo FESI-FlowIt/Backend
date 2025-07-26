@@ -40,12 +40,13 @@ class GoalControllerImpl(
         return ApiResponse.created(result)
     }
 
-    @PatchMapping("/goals")
-    override fun modifyGoal(@RequestBody request: GoalModifyRequestDto): ResponseEntity<ApiResult<GoalInfoResponseDto>> {
+    @PatchMapping("/goals/{goalId}")
+    override fun modifyGoal(@PathVariable("goalId") goalId: Long,
+                            @RequestBody request: GoalModifyRequestDto): ResponseEntity<ApiResult<GoalInfoResponseDto>> {
         log.debug(">> request modifyGoal(${request})")
 
         val result = goalService.modifyGoal(
-            goalId = request.goalId,
+            goalId = goalId,
             userId = request.userId,
             name = request.name,
             color = request.color,
@@ -66,21 +67,21 @@ class GoalControllerImpl(
         return ApiResponse.noContent()
     }
 
-    @GetMapping("/goals/{userId}")
-    override fun getAllGoals(@PathVariable userId: Long): ResponseEntity<ApiResult<List<GoalFindAllResponseDto>>> {
+    @GetMapping("/goals")
+    override fun getAllGoals(@RequestParam("userId") userId: Long): ResponseEntity<ApiResult<List<GoalFindAllResponseDto>>> {
         log.debug(">> request getAllGoals(userId=${userId}")
         return ApiResponse.ok(goalService.getAllGoals(userId))
     }
 
-    @GetMapping("/goals/todos/{userId}")
-    override fun getGoalsSummary(@PathVariable userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>> {
+    @GetMapping("/goals/todos")
+    override fun getGoalsSummary(@RequestParam("userId") userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>> {
         log.debug(">> request getGoalsSummary(userId=${userId}")
         return ApiResponse.ok(goalService.getGoalsSummaries(userId))
     }
 
     @GetMapping("/goals/todos/due-monthly")
     override fun getGoalsByDueMonth(
-        userId: Long,
+        @RequestParam("userId") userId: Long,
 
         @RequestParam(name = "date", required = true)
         @DateTimeFormat(pattern = "yyyy-MM")

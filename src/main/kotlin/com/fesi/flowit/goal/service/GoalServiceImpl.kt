@@ -101,7 +101,9 @@ class GoalServiceImpl(
      * 모든 목표 조회
      */
     override fun getAllGoals(userId: Long): List<GoalFindAllResponseDto> {
-        return goalQRepository.findAllGoals(userId)
+        val user: User = userService.findUserById(userId)
+
+        return goalQRepository.findAllGoalsByUser(user)
     }
 
     /**

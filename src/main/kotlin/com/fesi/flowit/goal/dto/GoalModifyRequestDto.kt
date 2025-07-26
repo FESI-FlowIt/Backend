@@ -18,13 +18,6 @@ data class GoalModifyRequestDto(
     var userId: Long,
 
     @field:Schema(
-        description = "목표 ID",
-        example = "10",
-        requiredMode = Schema.RequiredMode.REQUIRED
-    )
-    var goalId: Long,
-
-    @field:Schema(
         description = "목표 이름",
         example = "목표 이름",
         minLength = 1,

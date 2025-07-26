@@ -1,7 +1,8 @@
 package com.fesi.flowit.goal.repository
 
 import com.fesi.flowit.goal.dto.GoalFindAllResponseDto
+import com.fesi.flowit.user.entity.User
 
 interface GoalQRepository {
-    fun findAllGoals(userId: Long): List<GoalFindAllResponseDto>
+    fun findAllGoalsByUser(user: User): List<GoalFindAllResponseDto>
 }

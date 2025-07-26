@@ -3,6 +3,7 @@ package com.fesi.flowit.goal.repository
 import com.fesi.flowit.goal.dto.GoalFindAllResponseDto
 import com.fesi.flowit.goal.dto.QGoalFindAllResponseDto
 import com.fesi.flowit.goal.entity.QGoal
+import com.fesi.flowit.user.entity.User
 import com.querydsl.core.types.dsl.BooleanExpression
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.stereotype.Repository
@@ -13,16 +14,16 @@ class GoalQRepositoryImpl(
 ) : GoalQRepository {
     private val goal = QGoal.goal
 
-    override fun findAllGoals(userId: Long) : List<GoalFindAllResponseDto> {
+    override fun findAllGoalsByUser(user: User) : List<GoalFindAllResponseDto> {
         return queryFactory
             .select(QGoalFindAllResponseDto(goal.id, goal.name, goal.color, goal.isPinned))
             .from(goal)
-            .where(isSameUserId(userId))
+            .where(isOwnedBy(user))
             .orderBy(goal.isPinned.desc())
             .fetch()
     }
 
-    private fun isSameUserId(userId: Long): BooleanExpression {
-        return goal.user.id.eq(userId)
+    private fun isOwnedBy(user: User): BooleanExpression {
+        return goal.user.eq(user)
     }
 }

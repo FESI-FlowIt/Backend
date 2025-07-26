@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
@@ -64,7 +65,8 @@ interface GoalController {
             )
         ]
     )
-    fun modifyGoal(@RequestBody request: GoalModifyRequestDto): ResponseEntity<ApiResult<GoalInfoResponseDto>>
+    fun modifyGoal(@PathVariable("goalId") goalId: Long,
+                   @RequestBody request: GoalModifyRequestDto): ResponseEntity<ApiResult<GoalInfoResponseDto>>
 
     @Operation(
         summary = "목표 삭제",
@@ -121,7 +123,7 @@ interface GoalController {
             )
         ]
     )
-    fun getAllGoals(userId: Long): ResponseEntity<ApiResult<List<GoalFindAllResponseDto>>>
+    fun getAllGoals(@RequestParam("userId") userId: Long): ResponseEntity<ApiResult<List<GoalFindAllResponseDto>>>
 
     @Operation(
         summary = "목표 별 할 일",
@@ -147,7 +149,7 @@ interface GoalController {
             )
         ]
     )
-    fun getGoalsSummary(userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>>
+    fun getGoalsSummary(@RequestParam("userId") userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>>
 
     @Operation(
         summary = "월 별 목표 조회 (캘린더)",
@@ -173,5 +175,10 @@ interface GoalController {
             )
         ]
     )
-    fun getGoalsByDueMonth(userId: Long, dueYearMonth: YearMonth): ResponseEntity<ApiResult<GoalsByMonthlyResponseDto>>
+    fun getGoalsByDueMonth(@RequestParam("userId") userId: Long,
+
+                           @RequestParam(name = "date", required = true)
+                           @DateTimeFormat(pattern = "yyyy-MM")
+                           dueYearMonth: YearMonth
+    ): ResponseEntity<ApiResult<GoalsByMonthlyResponseDto>>
 }
