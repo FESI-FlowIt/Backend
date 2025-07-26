@@ -11,8 +11,9 @@ import java.time.YearMonth
 interface GoalService {
     fun createGoal(userId: Long, name: String, color: String, dueDateTime: LocalDateTime): GoalInfoResponseDto
     fun modifyGoal(goalId: Long, userId: Long, name: String, color: String, dueDateTime: LocalDateTime): GoalInfoResponseDto
+    fun deleteGoalById(userId: Long, goalId: Long)
     fun getAllGoals(userId: Long): List<GoalFindAllResponseDto>
-    fun getGoalById(goalId: Long): Goal?
+    fun getGoalById(goalId: Long): Goal
     fun getGoalsSummaries(userId: Long): List<GoalSummaryResponseDto>
     fun getGoalSummariesByDueYearMonth(userId: Long, dueYearMonth: YearMonth): GoalsByMonthlyResponseDto
 }

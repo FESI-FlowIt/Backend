@@ -27,7 +27,7 @@ class TodoServiceImpl(
         val user: User = userService.findUserById(userId)
 
         val createdDateTime = LocalDateTime.now()
-        val goal = goalService.getGoalById(goalId) ?: throw TodoException.fromCode(ApiResultCode.TODO_NOT_FOUND)
+        val goal = goalService.getGoalById(goalId)
 
         val todo = todoRepository.save(Todo.withGoal(
             user = user,

@@ -10,7 +10,7 @@ import java.time.LocalDateTime
 @Entity
 @Table(name = "goals")
 class Goal private constructor(
-    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     var user: User,
 
@@ -37,7 +37,7 @@ class Goal private constructor(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
 
-    @OneToMany(mappedBy = "goal")
+    @OneToMany(mappedBy = "goal", cascade = [CascadeType.ALL], orphanRemoval = true)
     val todos: MutableList<Todo> = mutableListOf()
 
     companion object {

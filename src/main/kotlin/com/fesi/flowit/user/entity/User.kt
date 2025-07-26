@@ -34,10 +34,10 @@ class User(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0L
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL])
     val goals: MutableList<Goal> = mutableListOf()
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL])
     val todos: MutableList<Todo> = mutableListOf()
 
     companion object {

@@ -19,6 +19,7 @@ fun <T> ApiResult<T>.toResponseEntity(): ResponseEntity<ApiResult<T>> {
 object ApiResponse {
     fun <T> ok(result: T): ResponseEntity<ApiResult<T>> = ApiResult.Success(result = result).toResponseEntity()
     fun <T> created(result: T): ResponseEntity<ApiResult<T>> = ApiResult.Created(result = result).toResponseEntity()
+    fun noContent(): ResponseEntity<ApiResult<Unit>> = ResponseEntity.noContent().build()
 }
 
 /**
@@ -61,7 +62,6 @@ sealed class ApiResult<out T> (
         override val httpStatus: HttpStatus = HttpStatus.CREATED,
         val result: T,
     ) : ApiResult<T>(code, message, httpStatus)
-
 
     /**
      * Related to failed

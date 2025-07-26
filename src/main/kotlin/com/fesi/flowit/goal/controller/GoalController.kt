@@ -8,7 +8,9 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 import java.time.YearMonth
 
 interface GoalController {
@@ -63,6 +65,32 @@ interface GoalController {
         ]
     )
     fun modifyGoal(@RequestBody request: GoalModifyRequestDto): ResponseEntity<ApiResult<GoalInfoResponseDto>>
+
+    @Operation(
+        summary = "목표 삭제",
+        description = "목표를 삭제합니다. 목표에 포함된 할 일도 모두 삭제됩니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "204",
+                description = "목표 및 목표에 포함된 할 일 삭제 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = Any::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun deleteGoal(@PathVariable("goalId") goalId: Long, @RequestParam("userId") userId: Long): ResponseEntity<ApiResult<Unit>>
 
     @Operation(
         summary = "모든 목표 조회",

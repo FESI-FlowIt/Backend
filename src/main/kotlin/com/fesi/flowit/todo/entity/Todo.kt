@@ -9,7 +9,7 @@ import java.time.LocalDateTime
 @Entity
 @Table(name ="todos")
 class Todo private constructor(
-    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     var user: User,
 
@@ -32,7 +32,7 @@ class Todo private constructor(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "goal_id")
     var goal: Goal? = null
         set(goal) {

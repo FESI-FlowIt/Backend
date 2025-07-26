@@ -8,6 +8,7 @@ import com.fesi.flowit.goal.service.GoalService
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -52,6 +53,17 @@ class GoalControllerImpl(
         )
 
         return ApiResponse.ok(result)
+    }
+
+    @DeleteMapping("/goals/{goalId}")
+    override fun deleteGoal(@PathVariable("goalId") goalId: Long,
+                            @RequestParam("userId") userId: Long
+    ): ResponseEntity<ApiResult<Unit>> {
+        log.debug(">> request deleteGoal(userId=${userId}, goalId=${goalId})")
+
+        goalService.deleteGoalById(userId, goalId)
+
+        return ApiResponse.noContent()
     }
 
     @GetMapping("/goals/{userId}")
