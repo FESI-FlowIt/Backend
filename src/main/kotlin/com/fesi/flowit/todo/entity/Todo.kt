@@ -14,7 +14,7 @@ class Todo private constructor(
     var user: User,
 
     @Column(nullable = false)
-    val name: String,
+    var name: String,
 
     @Column(nullable = false)
     val isDone: Boolean = false,

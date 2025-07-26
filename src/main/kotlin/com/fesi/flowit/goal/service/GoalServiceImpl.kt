@@ -152,16 +152,17 @@ class GoalServiceImpl(
         return GoalsByMonthlyResponseDto.of(dueYearMonth, goalsInCalenderByMonthly)
     }
 
+
     override fun getGoalById(goalId: Long): Goal {
         return goalRepository.findById(goalId)
             .orElseThrow { GoalException.fromCode(ApiResultCode.GOAL_NOT_FOUND) }
     }
-    
-    private fun isInvalidDueDateTime(dueDateTime: LocalDateTime, createDateTime: LocalDateTime): Boolean {
-        return dueDateTime.isBefore(createDateTime)
+
+    override fun doesNotUserOwnGoal(user: User, goal: Goal): Boolean {
+        return goal.user != user
     }
 
-    private fun doesNotUserOwnGoal(user: User, goal: Goal): Boolean {
-        return goal.user != user
+    private fun isInvalidDueDateTime(dueDateTime: LocalDateTime, createDateTime: LocalDateTime): Boolean {
+        return dueDateTime.isBefore(createDateTime)
     }
 }
