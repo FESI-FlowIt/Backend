@@ -12,6 +12,8 @@ enum class ApiResultCode(
     SUCCESS("0000", "OK"),
     CREATED("0201", "Created"),
     BAD_REQUEST("0400", "Bad Request"),
+    UNAUTHORIZED("0401", "Unauthorized"),
+    CONFLICT("0409", "Conflict"),
     INTERNAL_ERROR("0500", "Unexpected Error"),
   
     // 1001-1999: Auth
@@ -29,8 +31,6 @@ enum class ApiResultCode(
 
     // 9000-9999: Common Code
     RGB_FORMAT_INVALID("9000", "Invalid RGB code format"),
-    UNAUTHORIZED("0401", "Unauthorized"),
-    CONFLICT("0409", "Conflict"),
 
-  ;
+    ;
 }
