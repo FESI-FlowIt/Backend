@@ -44,7 +44,7 @@
 
   <Loggers>
     <!-- 애플리케이션 로거: 디버그 레벨로 상세 로그 -->
-    <Logger name="com.fesi.flowit" level="INFO" additivity="false">
+    <Logger name="com.fesi.flowit" level="DEBUG" additivity="false">
       <AppenderRef ref="Console"/>
       <AppenderRef ref="FileAppender"/>
     </Logger>

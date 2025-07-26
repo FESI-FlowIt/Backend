@@ -6,6 +6,12 @@ import io.swagger.v3.oas.annotations.media.Schema
 
 class GoalFindAllResponseDto @QueryProjection constructor(
     @field:Schema(
+        description = "목표 ID",
+        example = "1",
+    )
+    var goalId: Long,
+
+    @field:Schema(
         description = "목표 이름",
         example = "목표 이름",
         minLength = 1,
@@ -26,5 +32,4 @@ class GoalFindAllResponseDto @QueryProjection constructor(
         example = "true | false",
     )
     var isPinned: Boolean
-) {
-}
+)

@@ -9,7 +9,7 @@ import com.fesi.flowit.common.util.isRGBColor
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
 
-data class GoalCreateRequestDto(
+data class GoalModifyRequestDto(
     @field:Schema(
         description = "회원 ID",
         example = "1",
