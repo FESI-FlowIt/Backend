@@ -68,7 +68,7 @@ interface GoalController {
             )
         ]
     )
-    fun getAllGoals(): ResponseEntity<ApiResult<List<GoalFindAllResponseDto>>>
+    fun getAllGoals(userId: Long): ResponseEntity<ApiResult<List<GoalFindAllResponseDto>>>
 
     @Operation(
         summary = "목표 별 할 일",
@@ -94,7 +94,7 @@ interface GoalController {
             )
         ]
     )
-    fun getGoalsSummary(): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>>
+    fun getGoalsSummary(userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>>
 
     @Operation(
         summary = "월 별 목표 조회 (캘린더)",
@@ -120,5 +120,5 @@ interface GoalController {
             )
         ]
     )
-    fun getGoalsByDueMonth(dueYearMonth: YearMonth): ResponseEntity<ApiResult<GoalsByMonthlyResponseDto>>
+    fun getGoalsByDueMonth(userId: Long, dueYearMonth: YearMonth): ResponseEntity<ApiResult<GoalsByMonthlyResponseDto>>
 }

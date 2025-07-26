@@ -9,9 +9,9 @@ import java.time.LocalDateTime
 import java.time.YearMonth
 
 interface GoalService {
-    fun createGoal(name: String, color: String, dueDateTime: LocalDateTime): GoalCreateResponseDto
-    fun getAllGoals(): List<GoalFindAllResponseDto>
+    fun createGoal(userId: Long, name: String, color: String, dueDateTime: LocalDateTime): GoalCreateResponseDto
+    fun getAllGoals(userId: Long): List<GoalFindAllResponseDto>
     fun getGoalById(goalId: Long): Goal?
-    fun getGoalsSummaries(): List<GoalSummaryResponseDto>
-    fun getGoalSummariesByDueYearMonth(dueYearMonth: YearMonth): GoalsByMonthlyResponseDto
+    fun getGoalsSummaries(userId: Long): List<GoalSummaryResponseDto>
+    fun getGoalSummariesByDueYearMonth(userId: Long, dueYearMonth: YearMonth): GoalsByMonthlyResponseDto
 }

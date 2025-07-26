@@ -1,11 +1,19 @@
 package com.fesi.flowit.goal.dto
 
+import com.fesi.flowit.common.response.ApiResultCode
+import com.fesi.flowit.common.response.exceptions.GoalException
 import com.fesi.flowit.common.util.REGEX_RGB_CODE
 import com.fesi.flowit.goal.entity.Goal
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
 
 data class GoalCreateResponseDto(
+    @field:Schema(
+        description = "목표 ID",
+        example = "1",
+    )
+    var goalId: Long,
+
     @field:Schema(
         description = "목표 이름",
         example = "목표 이름",
@@ -42,6 +50,7 @@ data class GoalCreateResponseDto(
     companion object {
         fun fromGoal(goal: Goal): GoalCreateResponseDto {
             return GoalCreateResponseDto(
+                goalId = goal.id ?: throw GoalException.fromCodeWithMsg(ApiResultCode.GOAL_ID_INVALID, "Failed to create goal."),
                 name = goal.name,
                 color = goal.color,
                 createdDateTime = goal.createdDateTime,
