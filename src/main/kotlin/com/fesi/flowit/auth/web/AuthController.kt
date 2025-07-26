@@ -7,6 +7,7 @@ import com.fesi.flowit.auth.web.response.RegenerateResponse
 import com.fesi.flowit.auth.web.response.SignInResponse
 import com.fesi.flowit.common.response.ApiResponse
 import com.fesi.flowit.common.response.ApiResult
+import com.fesi.flowit.common.util.extractAccessToken
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -36,7 +37,9 @@ class AuthController(
 
     @PostMapping("/auths/tokens")
     override fun regenerate(request: HttpServletRequest): ResponseEntity<ApiResult<RegenerateResponse>> {
-        val accessToken = request.getHeader("Authorization")
+        val authHeader = request.getHeader("Authorization")
+        val accessToken = authHeader.extractAccessToken()
+
         val response = service.regenerate(accessToken)
         return ApiResponse.ok(response)
     }

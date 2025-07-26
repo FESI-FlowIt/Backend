@@ -1,6 +1,9 @@
 package com.fesi.flowit.common.auth
 
 import com.fesi.flowit.common.auth.dto.TokenInfo
+import com.fesi.flowit.common.auth.dto.expired
+import com.fesi.flowit.common.auth.dto.notexists
+import com.fesi.flowit.common.auth.dto.valid
 import com.fesi.flowit.common.response.exceptions.FailToParseJwtException
 import com.fesi.flowit.common.response.exceptions.TokenExpiredException
 import com.fesi.flowit.user.repository.UserRepository
@@ -111,35 +114,6 @@ private fun canFindUser(userRepository: UserRepository) {
 
 private fun cannotFindUser(userRepository: UserRepository) {
     every { userRepository.findById(any()) } returns Optional.empty()
-}
-
-private fun TokenInfo.Companion.valid(): TokenInfo {
-    return TokenInfo.forTest()
-}
-
-private fun TokenInfo.Companion.notexists(): TokenInfo {
-    return TokenInfo.forTest(userId = 999L)
-}
-
-private fun TokenInfo.Companion.expired(): TokenInfo {
-    return TokenInfo.forTest(
-        issuedAt = Date(System.currentTimeMillis() - 7200000),
-        expiration = Date(System.currentTimeMillis() - 3600000) // 1시간 전 만료
-    )
-}
-
-private fun TokenInfo.Companion.forTest(
-    email: String = "test@example.com",
-    userId: Long = 1L,
-    issuedAt: Date = Date(System.currentTimeMillis() - 3600000), // 1시간 전
-    expiration: Date = Date(System.currentTimeMillis() + 3600000) // 1시간 후
-): TokenInfo {
-    return TokenInfo(
-        email = email,
-        userId = userId,
-        issuedAt = issuedAt,
-        expiration = expiration
-    )
 }
 
 private fun JwtProcessor.pack(tokenInfo: TokenInfo): String {

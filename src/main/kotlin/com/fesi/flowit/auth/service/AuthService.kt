@@ -29,7 +29,7 @@ class AuthService(
     fun signIn(dto: SignInDto): Pair<SignInResponse, String> {
         val userFoundByEmail = repository.findByEmail(dto.email) ?: throw UserNotExistsException()
 
-        if (!encryptor.encrypt(dto.password).equals(userFoundByEmail.password)) {
+        if (!encryptor.matches(dto.password, userFoundByEmail.password)) {
             throw InvalidPasswordException()
         }
 
