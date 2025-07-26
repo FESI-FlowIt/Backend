@@ -1,5 +1,7 @@
 package com.fesi.flowit.user.entity
 
+import com.fesi.flowit.goal.entity.Goal
+import com.fesi.flowit.todo.entity.Todo
 import jakarta.persistence.*
 import java.time.LocalDateTime
 import java.util.Objects
@@ -9,22 +11,34 @@ import java.util.Objects
 class User(
     @Column(nullable = false)
     val email: String,
+
     @Column(nullable = false)
     val name: String,
+
     @Column(nullable = false)
     val password: String,
+
     @Column(nullable = false)
     val createdAt: LocalDateTime,
+
     @Column(nullable = true)
     val updatedAt: LocalDateTime,
+
     @Column(nullable = true)
     val deletedAt: LocalDateTime?,
+
     @Column(nullable = false)
     val isDeleted: Boolean = false,
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0L
+
+    @OneToMany(mappedBy = "user")
+    val goals: MutableList<Goal> = mutableListOf()
+
+    @OneToMany(mappedBy = "user")
+    val todos: MutableList<Todo> = mutableListOf()
 
     companion object {
         fun of(
@@ -38,6 +52,14 @@ class User(
         ): User {
             return User(email, name, encrypted, createdAt, updatedAt, deletedAt, isDeleted)
         }
+    }
+
+    fun addGoal(goal: Goal) {
+        this.goals.add(goal)
+    }
+
+    fun addTodo(todo: Todo) {
+        this.todos.add(todo)
     }
 
     override fun equals(other: Any?): Boolean {
