@@ -1,9 +1,7 @@
 package com.fesi.flowit.goal.controller
 
 import com.fesi.flowit.common.response.ApiResult
-import com.fesi.flowit.goal.dto.GoalCreateRequestDto
-import com.fesi.flowit.goal.dto.GoalCreateResponseDto
-import com.fesi.flowit.goal.dto.GoalFindAllResponseDto
+import com.fesi.flowit.goal.dto.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -11,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RequestBody
+import java.time.YearMonth
 
 interface GoalController {
 
@@ -69,5 +68,57 @@ interface GoalController {
             )
         ]
     )
-    fun findAllGoals(): ResponseEntity<ApiResult<List<GoalFindAllResponseDto>>>
+    fun getAllGoals(): ResponseEntity<ApiResult<List<GoalFindAllResponseDto>>>
+
+    @Operation(
+        summary = "목표 별 할 일",
+        description = "목표와 관련된 정보를 반환합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "조회 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = GoalSummaryResponseDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun getGoalsSummary(): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>>
+
+    @Operation(
+        summary = "월 별 목표 조회 (캘린더)",
+        description = "해당 월에 마감되는 목표를 조회합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "조회 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = GoalsByMonthlyResponseDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun getGoalsByDueMonth(dueYearMonth: YearMonth): ResponseEntity<ApiResult<GoalsByMonthlyResponseDto>>
 }

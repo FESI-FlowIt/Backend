@@ -2,16 +2,17 @@ package com.fesi.flowit.goal.controller
 
 import com.fesi.flowit.common.response.ApiResponse
 import com.fesi.flowit.common.response.ApiResult
-import com.fesi.flowit.goal.dto.GoalCreateRequestDto
-import com.fesi.flowit.goal.dto.GoalCreateResponseDto
-import com.fesi.flowit.goal.dto.GoalFindAllResponseDto
+import com.fesi.flowit.goal.dto.*
 import com.fesi.flowit.goal.service.GoalService
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.time.YearMonth
 
 @Tag(name = "목표")
 @RestController
@@ -31,8 +32,22 @@ class GoalControllerImpl(
     }
 
     @GetMapping("/goals")
-    override fun findAllGoals(): ResponseEntity<ApiResult<List<GoalFindAllResponseDto>>> {
+    override fun getAllGoals(): ResponseEntity<ApiResult<List<GoalFindAllResponseDto>>> {
         // @TODO user_id 필요
-        return ApiResponse.ok(goalService.findAllGoals())
+        return ApiResponse.ok(goalService.getAllGoals())
+    }
+
+    @GetMapping("/goals/todos")
+    override fun getGoalsSummary(): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>> {
+        return ApiResponse.ok(goalService.getGoalsSummaries())
+    }
+
+    @GetMapping("/goals/todos/due-monthly")
+    override fun getGoalsByDueMonth(
+        @RequestParam(name = "date", required = true)
+        @DateTimeFormat(pattern = "yyyy-MM")
+        dueYearMonth: YearMonth
+    ): ResponseEntity<ApiResult<GoalsByMonthlyResponseDto>> {
+        return ApiResponse.ok(goalService.getGoalSummariesByDueYearMonth(dueYearMonth))
     }
 }

@@ -22,7 +22,7 @@ class TodoServiceImpl(
     @Transactional
     override fun createTodo(name: String, goalId: Long): TodoCreateResponseDto {
         val createdDateTime = LocalDateTime.now()
-        val goal = goalService.findGoalById(goalId) ?: throw TodoException.fromCode(ApiResultCode.TODO_NOT_FOUND)
+        val goal = goalService.getGoalById(goalId) ?: throw TodoException.fromCode(ApiResultCode.TODO_NOT_FOUND)
 
         val todo = todoRepository.save(Todo.withGoal(
             name = name,
