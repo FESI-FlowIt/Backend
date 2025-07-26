@@ -25,11 +25,10 @@ class SecurityConfig(
             .authorizeHttpRequests {
                 it
                     .requestMatchers(
-//                        "/users/**", "/auths/**", // 로그인/회원가입/토큰 재발급 등
-//                        "/swagger-ui/**",          // Swagger UI 정적 리소스
-//                        "/v3/api-docs/**",         // Swagger 문서 API
-//                        "/api-doc/**"
-                        "**"
+                        "/users/**", "/auths/**", // 로그인/회원가입/토큰 재발급 등
+                        "/swagger-ui/**",          // Swagger UI 정적 리소스
+                        "/v3/api-docs/**",         // Swagger 문서 API
+                        "/api-doc/**"
                     ).permitAll()
                     .anyRequest().authenticated()
             }
