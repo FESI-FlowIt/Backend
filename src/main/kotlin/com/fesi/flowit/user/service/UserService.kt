@@ -64,4 +64,8 @@ class UserService(
 
         return UserResponse.from(user)
     }
+
+    fun findUserById(userId: Long): User {
+        return repository.findById(userId).orElseThrow { UserNotExistsException.fromCode(ApiResultCode.AUTH_USER_NOT_EXISTS) }
+    }
 }
