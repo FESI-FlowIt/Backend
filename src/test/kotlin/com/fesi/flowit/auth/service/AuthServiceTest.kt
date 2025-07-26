@@ -28,6 +28,7 @@ class AuthServiceTest : StringSpec({
 
     "로그인 시 입력한 이메일로 db에 등록된 회원 정보를 검색한다" {
         every { repository.findByEmail(ofType<String>()) } returns (mockk<User>(relaxed = true))
+        every { encryptor.matches(any(), any()) } returns true
 
         service.signIn(SignInDto("user@gmail.com", "password"))
 
@@ -47,20 +48,20 @@ class AuthServiceTest : StringSpec({
     "로그인 시 입력한 비밀번호가 일치하지 않으면 로그인에 실패한다" {
         val user = mockk<User> { every { password } returns "stored_in_db" }
         every { repository.findByEmail(ofType<String>()) } returns (user)
-        every { encryptor.encrypt(ofType<String>()) } returns ("encrypted")
+        every { encryptor.matches(any(), any()) } returns false
 
         shouldThrow<InvalidPasswordException> {
             service.signIn(SignInDto("user@gmail.com", "password"))
         }
 
         verify { repository.findByEmail(ofType<String>()) }
-        verify { encryptor.encrypt(ofType<String>()) }
+        verify { encryptor.matches(any(), any()) }
     }
 
     "로그인 성공 시 jwt 토큰을 생성한다" {
         val user = mockk<User>(relaxed = true) { every { password } returns "stored_in_db" }
         every { repository.findByEmail(ofType<String>()) } returns (user)
-        every { encryptor.encrypt(ofType<String>()) } returns ("stored_in_db")
+        every { encryptor.matches(any(), any()) } returns true
 
         service.signIn(SignInDto("user@gmail.com", "password"))
 
@@ -70,7 +71,7 @@ class AuthServiceTest : StringSpec({
     "로그인 성공 시 상황에 맞게 jwt refresh 토큰을 처리한다" {
         val user = mockk<User>(relaxed = true) { every { password } returns "stored_in_db" }
         every { repository.findByEmail(ofType<String>()) } returns (user)
-        every { encryptor.encrypt(ofType<String>()) } returns ("stored_in_db")
+        every { encryptor.matches(any(), any()) } returns true
 
         service.signIn(SignInDto("user@gmail.com", "password"))
 
