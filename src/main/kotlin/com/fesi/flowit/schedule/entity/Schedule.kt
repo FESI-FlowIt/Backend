@@ -34,4 +34,11 @@ class Schedule private constructor(
 ) {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
+
+    companion object {
+        fun of(user: User, todo: Todo,
+               startedDateTime: LocalDateTime, endedDateTime: LocalDateTime, createdDateTime: LocalDateTime): Schedule {
+            return Schedule(user, todo, startedDateTime, endedDateTime, createdDateTime, modifiedDateTime = createdDateTime)
+        }
+    }
 }

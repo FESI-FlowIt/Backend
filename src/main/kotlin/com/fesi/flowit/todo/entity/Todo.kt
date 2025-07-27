@@ -55,4 +55,8 @@ class Todo private constructor(
             return todo
         }
     }
+
+    fun doesNotUserOwnTodo(user: User): Boolean {
+        return this.user != user
+    }
 }
