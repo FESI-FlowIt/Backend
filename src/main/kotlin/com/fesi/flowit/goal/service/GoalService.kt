@@ -1,11 +1,14 @@
 package com.fesi.flowit.goal.service
 
+import com.fesi.flowit.common.response.PageResponse
 import com.fesi.flowit.goal.dto.GoalsByMonthlyResponseDto
 import com.fesi.flowit.goal.dto.GoalInfoResponseDto
 import com.fesi.flowit.goal.dto.GoalFindAllResponseDto
 import com.fesi.flowit.goal.dto.GoalSummaryResponseDto
 import com.fesi.flowit.goal.entity.Goal
+import com.fesi.flowit.goal.search.GoalWidgetCondition
 import com.fesi.flowit.user.entity.User
+import org.springframework.data.domain.Pageable
 import java.time.LocalDateTime
 import java.time.YearMonth
 
@@ -16,6 +19,7 @@ interface GoalService {
     fun getAllGoals(userId: Long): List<GoalFindAllResponseDto>
     fun getGoalById(goalId: Long): Goal
     fun doesNotUserOwnGoal(user: User, goal: Goal): Boolean
-    fun getGoalsSummaries(userId: Long): List<GoalSummaryResponseDto>
+    fun getGoalsSummariesInDashboard(userId: Long): List<GoalSummaryResponseDto>
     fun getGoalSummariesByDueYearMonth(userId: Long, dueYearMonth: YearMonth): GoalsByMonthlyResponseDto
+    fun searchGoalSummaries(cond: GoalWidgetCondition, pageable: Pageable): PageResponse<GoalSummaryResponseDto>
 }

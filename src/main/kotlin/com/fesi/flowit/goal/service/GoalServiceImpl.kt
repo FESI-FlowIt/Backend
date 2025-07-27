@@ -2,14 +2,19 @@ package com.fesi.flowit.goal.service
 
 import com.fesi.flowit.common.logging.loggerFor
 import com.fesi.flowit.common.response.ApiResultCode
+import com.fesi.flowit.common.response.PageResponse
 import com.fesi.flowit.common.response.exceptions.GoalException
 import com.fesi.flowit.goal.dto.*
 import com.fesi.flowit.goal.entity.Goal
 import com.fesi.flowit.goal.repository.GoalQRepository
 import com.fesi.flowit.goal.repository.GoalRepository
+import com.fesi.flowit.goal.vo.GoalSummaryVo
+import com.fesi.flowit.goal.search.GoalWidgetCondition
 import com.fesi.flowit.user.entity.User
 import com.fesi.flowit.user.service.UserService
 import jakarta.transaction.Transactional
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -111,7 +116,7 @@ class GoalServiceImpl(
      * 고정되어 있는 목표 우선, 이후 최신순으로 정렬해 최대 3개 반환
      */
     @Transactional
-    override fun getGoalsSummaries(userId: Long): List<GoalSummaryResponseDto> {
+    override fun getGoalsSummariesInDashboard(userId: Long): List<GoalSummaryResponseDto> {
         // 대상 목표 조회
         val goalsInDashboard = goalRepository.findGoalsInDashboard(userId)
         val goalIds: List<Long> = goalsInDashboard.map { it.goalId }
@@ -121,22 +126,26 @@ class GoalServiceImpl(
         val todoMapByGoalId: Map<Long, List<TodoSummaryInGoal>> = todoSummariesByGoalIds.groupBy { it.goalId }
 
         // 결과 반환
-        return goalsInDashboard.map { goal ->
-            val todos = todoMapByGoalId[goal.goalId].orEmpty()
-            val doneCount = todos.count { it.isDone }
-            val progressRate = if (todos.isNotEmpty()) (doneCount.toDouble() / todos.size * 100).toInt() else 0
+        return convertGoalSummariesFromTodoMap(goalsInDashboard, todoMapByGoalId)
+    }
 
-            GoalSummaryResponseDto.fromTodoSummaryAndProgressRate(
-                goalId         = goal.goalId,
-                goalName       = goal.goalName,
-                color          = goal.color,
-                createDateTime = goal.createDateTime,
-                dueDateTime    = goal.dueDateTime,
-                isPinned       = goal.isPinned,
-                todos          = todos,
-                progressRate   = progressRate
-            )
-        }
+    /**
+     * 목표 검색
+     */
+    override fun searchGoalSummaries(cond: GoalWidgetCondition, pageable: Pageable): PageResponse<GoalSummaryResponseDto> {
+        val user: User = userService.findUserById(cond.userId)
+
+        // 대상 목표 탐색
+        val goalsPage: Page<GoalSummaryVo> = goalQRepository.searchGoals(user, cond, pageable)
+
+        // 목표 별 할 일 조회
+        val goalIds = goalsPage.content.map { it.goalId }
+        val todoSummariesByGoalIds = goalRepository.findTodoSummaryByGoalIds(cond.userId, goalIds)
+        val todoMapByGoalId: Map<Long, List<TodoSummaryInGoal>> = todoSummariesByGoalIds.groupBy { it.goalId }
+
+        // 결과 반환
+        val results = convertGoalSummariesFromTodoMap(goalsPage.content, todoMapByGoalId)
+        return PageResponse.fromPageWithContents(results, goalsPage)
     }
 
     /**
@@ -165,4 +174,26 @@ class GoalServiceImpl(
     private fun isInvalidDueDateTime(dueDateTime: LocalDateTime, createDateTime: LocalDateTime): Boolean {
         return dueDateTime.isBefore(createDateTime)
     }
+
+    private fun convertGoalSummariesFromTodoMap(
+        goals: List<GoalSummaryVo>, todoMap: Map<Long, List<TodoSummaryInGoal>>
+    ): List<GoalSummaryResponseDto> {
+        return goals.map { goal ->
+            val todos = todoMap[goal.goalId].orEmpty()
+            val doneCount = todos.count { it.isDone }
+            val progressRate = if (todos.isNotEmpty()) (doneCount.toDouble() / todos.size * 100).toInt() else 0
+
+            GoalSummaryResponseDto.fromTodoSummaryAndProgressRate(
+                goalId = goal.goalId,
+                goalName = goal.goalName,
+                color = goal.color,
+                createDateTime = goal.createDateTime,
+                dueDateTime = goal.dueDateTime,
+                isPinned = goal.isPinned,
+                todos = todos,
+                progressRate = progressRate
+            )
+        }
+    }
+
 }

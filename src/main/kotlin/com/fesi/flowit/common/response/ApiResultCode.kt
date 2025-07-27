@@ -33,6 +33,11 @@ enum class ApiResultCode(
     TODO_INVALID_GOAL("4002", "Goal with todo is invalid"),
     TODO_NOT_MATCH_USER("4003", "The user has not this todo"),
 
+    // 5000-5999: Schedule
+    SCHED_NOT_FOUND("5000", "Not found schedule"),
+    SCHED_INVALID_ID("5001", "Schedule-id is invalid"),
+    SCHED_INVALID_TODO("5002", "Invalid todo in schedule"),
+
     // 9000-9999: Common Code
     RGB_FORMAT_INVALID("9000", "Invalid RGB code format"),
 
