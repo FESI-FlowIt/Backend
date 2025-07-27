@@ -53,7 +53,7 @@ class TodoServiceImpl(
         val user: User = userService.findUserById(userId)
         val todo: Todo = getTodoById(todoId)
 
-        if (doesNotUserOwnTodo(user, todo)) {
+        if (todo.doesNotUserOwnTodo(user)) {
             throw TodoException.fromCode(ApiResultCode.TODO_NOT_MATCH_USER)
         }
 
@@ -83,7 +83,7 @@ class TodoServiceImpl(
         val user: User = userService.findUserById(userId)
         val todo: Todo = getTodoById(todoId)
 
-        if (doesNotUserOwnTodo(user, todo)) {
+        if (todo.doesNotUserOwnTodo(user)) {
             throw TodoException.fromCode(ApiResultCode.TODO_NOT_MATCH_USER)
         }
 
@@ -91,8 +91,8 @@ class TodoServiceImpl(
         log.debug("Deleted todo(id=${todo.id}, name=${todo.name}, isDone=${todo.isDone}")
     }
 
-    private fun doesNotUserOwnTodo(user: User, todo: Todo): Boolean {
-        return todo.user != user
+    override fun getTodosByIds(todoIds: List<Long>): List<Todo> {
+        return todoRepository.findAllById(todoIds)
     }
 
     private fun getTodoById(todoId: Long): Todo {

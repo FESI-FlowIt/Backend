@@ -1,6 +1,7 @@
 package com.fesi.flowit.user.entity
 
 import com.fesi.flowit.goal.entity.Goal
+import com.fesi.flowit.schedule.entity.Schedule
 import com.fesi.flowit.todo.entity.Todo
 import jakarta.persistence.*
 import java.time.LocalDateTime
@@ -39,6 +40,9 @@ class User(
 
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL])
     val todos: MutableList<Todo> = mutableListOf()
+
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL])
+    val schedules: MutableList<Schedule> = mutableListOf()
 
     companion object {
         fun of(
