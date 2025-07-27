@@ -3,9 +3,13 @@ package com.fesi.flowit.goal.controller
 import com.fesi.flowit.common.logging.loggerFor
 import com.fesi.flowit.common.response.ApiResponse
 import com.fesi.flowit.common.response.ApiResult
+import com.fesi.flowit.common.response.PageResponse
 import com.fesi.flowit.goal.dto.*
+import com.fesi.flowit.goal.search.GoalSortCriteria
 import com.fesi.flowit.goal.service.GoalService
+import com.fesi.flowit.goal.search.GoalWidgetCondition
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.data.domain.Pageable
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -73,10 +77,23 @@ class GoalControllerImpl(
         return ApiResponse.ok(goalService.getAllGoals(userId))
     }
 
+    @GetMapping("/goals/dashboard")
+    override fun getGoalsInDashboard(@RequestParam("userId") userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>> {
+        log.debug(">> request getGoalsInDashboard(userId=${userId}")
+        return ApiResponse.ok(goalService.getGoalsSummariesInDashboard(userId))
+    }
+
     @GetMapping("/goals/todos")
-    override fun getGoalsSummary(@RequestParam("userId") userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>> {
-        log.debug(">> request getGoalsSummary(userId=${userId}")
-        return ApiResponse.ok(goalService.getGoalsSummaries(userId))
+    override fun searchGoalSummaries(
+        @RequestParam("userId") userId: Long,
+        @RequestParam("isPinned") isPinned: Boolean,
+        @RequestParam("sortedBy") sortedBy: GoalSortCriteria,
+        pageable: Pageable
+    ): ResponseEntity<ApiResult<PageResponse<GoalSummaryResponseDto>>> {
+        log.debug(">> request searchGoalSummaries(userId=${userId}, isPinned=${isPinned}, sortedBy=${sortedBy} page=${pageable}}")
+
+        val searchCond = GoalWidgetCondition(userId, sortedBy, isPinned)
+        return ApiResponse.ok(goalService.searchGoalSummaries(searchCond, pageable))
     }
 
     @GetMapping("/goals/todos/due-monthly")
