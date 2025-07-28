@@ -85,6 +85,21 @@ class GoalServiceImpl(
         return GoalInfoResponseDto.fromGoal(goal)
     }
 
+    @Transactional
+    override fun changePinStatus(goalId: Long, userId: Long, isPinned: Boolean): GoalChangePinResponseDto {
+        val user: User = userService.findUserById(userId)
+        val goal: Goal = getGoalById(goalId)
+
+        if (doesNotUserOwnGoal(user, goal)) {
+            throw GoalException.fromCode(ApiResultCode.GOAL_NOT_MATCH_USER)
+        }
+
+        goal.isPinned = isPinned
+        log.debug("Goal(id=${goalId}) is changed isPinned status to ${isPinned}")
+
+        return GoalChangePinResponseDto.of(goalId, isPinned)
+    }
+
     /**
      * 목표 삭제
      */
@@ -109,6 +124,38 @@ class GoalServiceImpl(
         val user: User = userService.findUserById(userId)
 
         return goalQRepository.findAllGoalsByUser(user)
+    }
+
+    /**
+     * 목표 별 할 일 단 건 조회
+     */
+    @Transactional
+    override fun getGoalsSummary(userId: Long, goalId: Long): GoalSummaryResponseDto {
+        val user: User = userService.findUserById(userId)
+        val goal: Goal = goalRepository.findById(goalId).orElseThrow { GoalException.fromCode(ApiResultCode.GOAL_NOT_FOUND) }
+
+        if (doesNotUserOwnGoal(user, goal)) {
+            throw GoalException.fromCode(ApiResultCode.GOAL_NOT_MATCH_USER)
+        }
+
+        // 할 일 관련 정보 조회
+        val todoSummariesByGoalIds = goalRepository.findTodoSummaryByGoalIds(userId, listOf(goalId))
+
+        // 달성률 계산
+        val todos = goal.todos
+        val doneCount = todos.count { it.isDone }
+        val progressRate = if (todos.isNotEmpty()) (doneCount.toDouble() / todos.size * 100).toInt() else 0
+
+        return GoalSummaryResponseDto.fromTodoSummaryAndProgressRate(
+            goalId = goal.id ?: throw GoalException.fromCode(ApiResultCode.GOAL_ID_INVALID),
+            goalName = goal.name,
+            color = goal.color,
+            createDateTime = goal.createdDateTime,
+            dueDateTime = goal.dueDateTime,
+            isPinned = goal.isPinned,
+            todos = todoSummariesByGoalIds,
+            progressRate = progressRate
+        )
     }
 
     /**

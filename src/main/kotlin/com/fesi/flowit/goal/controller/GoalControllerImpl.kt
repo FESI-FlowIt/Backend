@@ -60,6 +60,14 @@ class GoalControllerImpl(
         return ApiResponse.ok(result)
     }
 
+    @PatchMapping("/goals/{goalId}/pin")
+    override fun changePinStatus(@PathVariable("goalId") goalId: Long,
+                                 @RequestBody request: GoalChangePinRequestDto): ResponseEntity<ApiResult<GoalChangePinResponseDto>> {
+        log.debug(">> request changePinStatus(goalId=${goalId}, request=${request})")
+
+        return ApiResponse.ok(goalService.changePinStatus(goalId, request.userId, request.isPinned))
+    }
+
     @DeleteMapping("/goals/{goalId}")
     override fun deleteGoal(@PathVariable("goalId") goalId: Long,
                             @RequestParam("userId") userId: Long
@@ -73,24 +81,32 @@ class GoalControllerImpl(
 
     @GetMapping("/goals")
     override fun getAllGoals(@RequestParam("userId") userId: Long): ResponseEntity<ApiResult<List<GoalFindAllResponseDto>>> {
-        log.debug(">> request getAllGoals(userId=${userId}")
+        log.debug(">> request getAllGoals(userId=${userId})")
         return ApiResponse.ok(goalService.getAllGoals(userId))
     }
 
-    @GetMapping("/goals/dashboard")
-    override fun getGoalsInDashboard(@RequestParam("userId") userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>> {
-        log.debug(">> request getGoalsInDashboard(userId=${userId}")
+    @GetMapping("/goals/{goalId}/summary")
+    override fun getGoalSummary(@PathVariable("goalId") goalId: Long,
+                       @RequestParam("userId") userId: Long): ResponseEntity<ApiResult<GoalSummaryResponseDto>> {
+        log.debug(">> request getGoalSummary(userId=${userId}, goalId=${goalId})")
+
+        return ApiResponse.ok(goalService.getGoalsSummary(userId, goalId))
+    }
+
+    @GetMapping("/goals/dashboard/summaries")
+    override fun getGoalSummariesInDashboard(@RequestParam("userId") userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>> {
+        log.debug(">> request getGoalSummariesInDashboard(userId=${userId})")
         return ApiResponse.ok(goalService.getGoalsSummariesInDashboard(userId))
     }
 
-    @GetMapping("/goals/todos")
+    @GetMapping("/goals/summaries")
     override fun searchGoalSummaries(
         @RequestParam("userId") userId: Long,
         @RequestParam("isPinned") isPinned: Boolean,
         @RequestParam("sortedBy") sortedBy: GoalSortCriteria,
         pageable: Pageable
     ): ResponseEntity<ApiResult<PageResponse<GoalSummaryResponseDto>>> {
-        log.debug(">> request searchGoalSummaries(userId=${userId}, isPinned=${isPinned}, sortedBy=${sortedBy} page=${pageable}}")
+        log.debug(">> request searchGoalSummaries(userId=${userId}, isPinned=${isPinned}, sortedBy=${sortedBy} page=${pageable})")
 
         val searchCond = GoalWidgetCondition(userId, sortedBy, isPinned)
         return ApiResponse.ok(goalService.searchGoalSummaries(searchCond, pageable))
@@ -104,7 +120,7 @@ class GoalControllerImpl(
         @DateTimeFormat(pattern = "yyyy-MM")
         dueYearMonth: YearMonth
     ): ResponseEntity<ApiResult<GoalsByMonthlyResponseDto>> {
-        log.debug(">> request getGoalsByDueMonth(userId=${userId}")
+        log.debug(">> request getGoalsByDueMonth(userId=${userId})")
         return ApiResponse.ok(goalService.getGoalSummariesByDueYearMonth(userId, dueYearMonth))
     }
 }
