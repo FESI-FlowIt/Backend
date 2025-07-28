@@ -72,6 +72,33 @@ interface GoalController {
                    @RequestBody request: GoalModifyRequestDto): ResponseEntity<ApiResult<GoalInfoResponseDto>>
 
     @Operation(
+        summary = "목표 고정 상태 변경",
+        description = "목표 고정 상태를 변경합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "목표 고정 상태 변경 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = GoalChangePinResponseDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun changePinStatus(@PathVariable("goalId") goalId: Long,
+                        @RequestBody request: GoalChangePinRequestDto): ResponseEntity<ApiResult<GoalChangePinResponseDto>>
+
+    @Operation(
         summary = "목표 삭제",
         description = "목표를 삭제합니다. 목표에 포함된 할 일도 모두 삭제됩니다."
     )
@@ -139,7 +166,8 @@ interface GoalController {
                 description = "조회 성공",
                 content = [Content(
                     mediaType = "application/json",
-                    schema = Schema(implementation = GoalSummaryResponseDto::class)
+                    schema = Schema(implementation = PageResponse::class, subTypes = [GoalSummaryResponseDto::class])
+
                 )]
             ),
             ApiResponse(

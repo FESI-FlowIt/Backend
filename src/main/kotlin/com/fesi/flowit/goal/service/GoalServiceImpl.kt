@@ -85,6 +85,21 @@ class GoalServiceImpl(
         return GoalInfoResponseDto.fromGoal(goal)
     }
 
+    @Transactional
+    override fun changePinStatus(goalId: Long, userId: Long, isPinned: Boolean): GoalChangePinResponseDto {
+        val user: User = userService.findUserById(userId)
+        val goal: Goal = getGoalById(goalId)
+
+        if (doesNotUserOwnGoal(user, goal)) {
+            throw GoalException.fromCode(ApiResultCode.GOAL_NOT_MATCH_USER)
+        }
+
+        goal.isPinned = isPinned
+        log.debug("Goal(id=${goalId}) is changed isPinned status to ${isPinned}")
+
+        return GoalChangePinResponseDto.of(goalId, isPinned)
+    }
+
     /**
      * 목표 삭제
      */

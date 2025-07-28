@@ -60,6 +60,14 @@ class GoalControllerImpl(
         return ApiResponse.ok(result)
     }
 
+    @PatchMapping("/goals/{goalId}/pin")
+    override fun changePinStatus(@PathVariable("goalId") goalId: Long,
+                                 @RequestBody request: GoalChangePinRequestDto): ResponseEntity<ApiResult<GoalChangePinResponseDto>> {
+        log.debug(">> request changePinStatus(goalId=${goalId}, request=${request})")
+
+        return ApiResponse.ok(goalService.changePinStatus(goalId, request.userId, request.isPinned))
+    }
+
     @DeleteMapping("/goals/{goalId}")
     override fun deleteGoal(@PathVariable("goalId") goalId: Long,
                             @RequestParam("userId") userId: Long
