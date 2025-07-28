@@ -13,6 +13,7 @@ enum class ApiResultCode(
     CREATED("0201", "Created"),
     BAD_REQUEST("0400", "Bad Request"),
     UNAUTHORIZED("0401", "Unauthorized"),
+    FORBIDDEN("0403", "Forbidden"),
     CONFLICT("0409", "Conflict"),
     INTERNAL_ERROR("0500", "Unexpected Error"),
   

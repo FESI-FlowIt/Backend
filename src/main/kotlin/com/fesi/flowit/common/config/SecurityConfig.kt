@@ -18,7 +18,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @Configuration
 @EnableWebSecurity
 class SecurityConfig(
-    private val jwtAuthenticationFilter: JwtAuthenticationFilter
+    private val jwtAuthenticationFilter: JwtAuthenticationFilter,
+    private val accessDeniedHandler: CustomAccessDeniedHandler,
+    private val authenticationEntryPoint: CustomAuthenticationEntryPoint
 ) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -35,6 +37,10 @@ class SecurityConfig(
                         "/api-doc/**"
                     ).permitAll()
                     .anyRequest().authenticated()
+            }
+            .exceptionHandling {
+                it.authenticationEntryPoint(authenticationEntryPoint)
+                    .accessDeniedHandler(accessDeniedHandler)
             }
             .addFilterBefore(
                 jwtAuthenticationFilter,
