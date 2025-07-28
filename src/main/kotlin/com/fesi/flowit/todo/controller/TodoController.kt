@@ -1,10 +1,7 @@
 package com.fesi.flowit.todo.controller
 
 import com.fesi.flowit.common.response.ApiResult
-import com.fesi.flowit.todo.dto.TodoCreateRequestDto
-import com.fesi.flowit.todo.dto.TodoCreateResponseDto
-import com.fesi.flowit.todo.dto.TodoModifyRequestDto
-import com.fesi.flowit.todo.dto.TodoModifyResponseDto
+import com.fesi.flowit.todo.dto.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -69,6 +66,34 @@ interface TodoController {
     fun modifyTodo(@PathVariable("todoId") todoId: Long,
                    @RequestBody request: TodoModifyRequestDto
     ): ResponseEntity<ApiResult<TodoModifyResponseDto>>
+
+    @Operation(
+        summary = "할 일 완료 상태 변경",
+        description = "할 일 완료 상태를 변경합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "할 일 완료 상태 변경 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = TodoChangeDoneResponseDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun changeDoneStatus(@PathVariable("todoId") todoId: Long,
+                         @RequestBody request: TodoChangeDoneRequestDto
+    ): ResponseEntity<ApiResult<TodoChangeDoneResponseDto>>
 
     @Operation(
         summary = "할 일 삭제",
