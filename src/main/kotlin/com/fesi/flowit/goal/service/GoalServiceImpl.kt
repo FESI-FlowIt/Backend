@@ -127,6 +127,38 @@ class GoalServiceImpl(
     }
 
     /**
+     * 목표 별 할 일 단 건 조회
+     */
+    @Transactional
+    override fun getGoalsSummary(userId: Long, goalId: Long): GoalSummaryResponseDto {
+        val user: User = userService.findUserById(userId)
+        val goal: Goal = goalRepository.findById(goalId).orElseThrow { GoalException.fromCode(ApiResultCode.GOAL_NOT_FOUND) }
+
+        if (doesNotUserOwnGoal(user, goal)) {
+            throw GoalException.fromCode(ApiResultCode.GOAL_NOT_MATCH_USER)
+        }
+
+        // 할 일 관련 정보 조회
+        val todoSummariesByGoalIds = goalRepository.findTodoSummaryByGoalIds(userId, listOf(goalId))
+
+        // 달성률 계산
+        val todos = goal.todos
+        val doneCount = todos.count { it.isDone }
+        val progressRate = if (todos.isNotEmpty()) (doneCount.toDouble() / todos.size * 100).toInt() else 0
+
+        return GoalSummaryResponseDto.fromTodoSummaryAndProgressRate(
+            goalId = goal.id ?: throw GoalException.fromCode(ApiResultCode.GOAL_ID_INVALID),
+            goalName = goal.name,
+            color = goal.color,
+            createDateTime = goal.createdDateTime,
+            dueDateTime = goal.dueDateTime,
+            isPinned = goal.isPinned,
+            todos = todoSummariesByGoalIds,
+            progressRate = progressRate
+        )
+    }
+
+    /**
      * 목표 요약 정보 조회 (목표 별 할 일)
      * 고정되어 있는 목표 우선, 이후 최신순으로 정렬해 최대 3개 반환
      */

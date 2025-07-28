@@ -17,7 +17,8 @@ interface GoalService {
     fun getAllGoals(userId: Long): List<GoalFindAllResponseDto>
     fun getGoalById(goalId: Long): Goal
     fun doesNotUserOwnGoal(user: User, goal: Goal): Boolean
+    fun getGoalsSummary(userId: Long, goalId: Long): GoalSummaryResponseDto
     fun getGoalsSummariesInDashboard(userId: Long): List<GoalSummaryResponseDto>
-    fun getGoalSummariesByDueYearMonth(userId: Long, dueYearMonth: YearMonth): GoalsByMonthlyResponseDto
     fun searchGoalSummaries(cond: GoalWidgetCondition, pageable: Pageable): PageResponse<GoalSummaryResponseDto>
+    fun getGoalSummariesByDueYearMonth(userId: Long, dueYearMonth: YearMonth): GoalsByMonthlyResponseDto
 }
