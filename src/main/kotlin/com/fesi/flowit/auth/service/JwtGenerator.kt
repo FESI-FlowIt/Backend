@@ -7,6 +7,7 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.time.LocalDateTime
@@ -39,6 +40,24 @@ class JwtGenerator(
             .compact()
     }
 
+    fun generateTokenWith(authentication: Authentication): String {
+        val principal = authentication.principal as User
+
+        val now = Instant.now()
+        val expiration = now.plus(15, ChronoUnit.MINUTES)
+
+        return Jwts.builder()
+            .subject(principal.email)
+            .claim(
+                "userId",
+                principal.id.toString()
+            ) // Long을 String으로 저장 (JWT에서 Long이 Integer로 변환되어 값 손실 방지)
+            .issuedAt(Date.from(now))
+            .expiration(Date.from(expiration))
+            .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)), Jwts.SIG.HS512)
+            .compact()
+    }
+
     /**
      * refresh token의 상태에 따라 처리한다
      * refresh token이 없으면 새 토큰을 생성하고 저장한다
@@ -57,6 +76,23 @@ class JwtGenerator(
 
         revokeRefreshToken(user)
         val refreshToken = generateRefreshToken(user)
+        storeRefreshToken(refreshToken)
+    }
+
+    fun handleRefreshTokenWith(authentication: Authentication) {
+        val principal = authentication.principal as User
+
+        if (!isRefreshTokenExists(principal)) {
+            val refreshToken = generateRefreshToken(principal)
+            storeRefreshToken(refreshToken)
+            return
+        }
+        if (!isRefreshTokenExpired(principal)) {
+            return
+        }
+
+        revokeRefreshToken(principal)
+        val refreshToken = generateRefreshToken(principal)
         storeRefreshToken(refreshToken)
     }
 

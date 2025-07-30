@@ -8,8 +8,14 @@ import com.fesi.flowit.auth.web.response.SignInResponse
 import com.fesi.flowit.common.auth.JwtProcessor
 import com.fesi.flowit.common.auth.PasswordEncryptor
 import com.fesi.flowit.common.response.ApiResultCode
+import com.fesi.flowit.common.response.exceptions.AuthException
+import com.fesi.flowit.user.entity.User
 import com.fesi.flowit.user.repository.UserRepository
 import jakarta.transaction.Transactional
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.AuthenticationException
 import org.springframework.stereotype.Service
 
 @Transactional
@@ -18,7 +24,8 @@ class AuthService(
     private val repository: UserRepository,
     private val encryptor: PasswordEncryptor,
     private val jwtGenerator: JwtGenerator,
-    private val jwtProcessor: JwtProcessor
+    private val jwtProcessor: JwtProcessor,
+    private val authenticationManager: AuthenticationManager
 ) {
     /**
      * 로그인
@@ -27,16 +34,19 @@ class AuthService(
      * refresh token은 상태에 따라 처리
      */
     fun signIn(dto: SignInDto): Pair<SignInResponse, String> {
-        val userFoundByEmail = repository.findByEmail(dto.email) ?: throw UserNotExistsException()
+        val authenticationToken = UsernamePasswordAuthenticationToken(dto.email, dto.password)
 
-        if (!encryptor.matches(dto.password, userFoundByEmail.password)) {
-            throw InvalidPasswordException()
+        val accessToken: String
+        val authentication: Authentication
+        try {
+            authentication = authenticationManager.authenticate(authenticationToken)
+            accessToken = jwtGenerator.generateTokenWith(authentication)
+            jwtGenerator.handleRefreshTokenWith(authentication)
+        } catch (e: AuthenticationException) {
+            throw AuthException.fromCode(ApiResultCode.UNAUTHORIZED)
         }
 
-        val accessToken = jwtGenerator.generateToken(userFoundByEmail)
-        jwtGenerator.handleRefreshToken(userFoundByEmail)
-
-        return Pair(SignInResponse.of(userFoundByEmail), accessToken)
+        return Pair(SignInResponse.of(authentication.principal as User), accessToken)
     }
 
     /**

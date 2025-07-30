@@ -3,13 +3,13 @@ package com.fesi.flowit.auth.service
 import com.fesi.flowit.auth.service.dto.SignInDto
 import com.fesi.flowit.common.auth.JwtProcessor
 import com.fesi.flowit.common.auth.PasswordEncryptor
-import com.fesi.flowit.common.response.exceptions.InvalidPasswordException
-import com.fesi.flowit.common.response.exceptions.UserNotExistsException
 import com.fesi.flowit.user.entity.User
 import com.fesi.flowit.user.repository.UserRepository
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.mockk.*
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.core.Authentication
 
 class AuthServiceTest : StringSpec({
     lateinit var repository: UserRepository
@@ -17,65 +17,44 @@ class AuthServiceTest : StringSpec({
     lateinit var service: AuthService
     lateinit var jwtGenerator: JwtGenerator
     lateinit var jwtProcessor: JwtProcessor
+    lateinit var authenticationManager: AuthenticationManager
 
     beforeTest() {
         repository = mockk<UserRepository>()
         encryptor = mockk<PasswordEncryptor>(relaxed = true)
         jwtGenerator = mockk<JwtGenerator>(relaxed = true)
         jwtProcessor = mockk<JwtProcessor>(relaxed = true)
-        service = AuthService(repository, encryptor, jwtGenerator, jwtProcessor)
+        authenticationManager = mockk<AuthenticationManager>()
+        service =
+            AuthService(repository, encryptor, jwtGenerator, jwtProcessor, authenticationManager)
     }
 
-    "로그인 시 입력한 이메일로 db에 등록된 회원 정보를 검색한다" {
-        every { repository.findByEmail(ofType<String>()) } returns (mockk<User>(relaxed = true))
-        every { encryptor.matches(any(), any()) } returns true
+    "로그인 시 입력한 정보로 인증에 실패하면 로그인에 실패한다" {
+        every { authenticationManager.authenticate(any()) } throws RuntimeException()
 
-        service.signIn(SignInDto("user@gmail.com", "password"))
-
-        verify { repository.findByEmail(ofType<String>()) }
-    }
-
-    "로그인 시 입력한 이메일로 등록된 회원이 없으면 로그인에 실패한다" {
-        every { repository.findByEmail(ofType<String>()) } returns (null)
-
-        shouldThrow<UserNotExistsException> {
+        shouldThrow<RuntimeException> {
             service.signIn(SignInDto("user@gmail.com", "password"))
         }
-
-        verify { repository.findByEmail(ofType<String>()) }
-    }
-
-    "로그인 시 입력한 비밀번호가 일치하지 않으면 로그인에 실패한다" {
-        val user = mockk<User> { every { password } returns "stored_in_db" }
-        every { repository.findByEmail(ofType<String>()) } returns (user)
-        every { encryptor.matches(any(), any()) } returns false
-
-        shouldThrow<InvalidPasswordException> {
-            service.signIn(SignInDto("user@gmail.com", "password"))
-        }
-
-        verify { repository.findByEmail(ofType<String>()) }
-        verify { encryptor.matches(any(), any()) }
     }
 
     "로그인 성공 시 jwt 토큰을 생성한다" {
-        val user = mockk<User>(relaxed = true) { every { password } returns "stored_in_db" }
-        every { repository.findByEmail(ofType<String>()) } returns (user)
-        every { encryptor.matches(any(), any()) } returns true
+        val authentication = mockk<Authentication>(relaxed = true)
+        every { authentication.principal } returns mockk<User>(relaxed = true)
+        every { authenticationManager.authenticate(any()) } returns authentication
 
         service.signIn(SignInDto("user@gmail.com", "password"))
 
-        verify { jwtGenerator.generateToken(ofType<User>()) }
+        verify { jwtGenerator.generateTokenWith(ofType<Authentication>()) }
     }
 
     "로그인 성공 시 상황에 맞게 jwt refresh 토큰을 처리한다" {
-        val user = mockk<User>(relaxed = true) { every { password } returns "stored_in_db" }
-        every { repository.findByEmail(ofType<String>()) } returns (user)
-        every { encryptor.matches(any(), any()) } returns true
+        val authentication = mockk<Authentication>(relaxed = true)
+        every { authentication.principal } returns mockk<User>(relaxed = true)
+        every { authenticationManager.authenticate(any()) } returns authentication
 
         service.signIn(SignInDto("user@gmail.com", "password"))
 
-        verify { jwtGenerator.handleRefreshToken(ofType<User>()) }
+        verify { jwtGenerator.handleRefreshTokenWith(ofType<Authentication>()) }
     }
 
     "토큰 재발급 시 access token이 유효한지 확인한다" {
