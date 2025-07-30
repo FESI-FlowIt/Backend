@@ -23,11 +23,13 @@ class JwtProcessorTest : StringSpec({
     val secretKey =
         "40e96460271ece5c44153b6c90bccdc1965cfc8b21568dcb92ade8064173226b4509b3c31faa83d20b53ad35a6b529d42a4e98f967a072bbbde244b9af8236ff"
     lateinit var userRepository: UserRepository
+    lateinit var customUserDetailsService: CustomUserDetailsService
     lateinit var jwtProcessor: JwtProcessor
 
     beforeEach {
         userRepository = mockk<UserRepository>()
-        jwtProcessor = JwtProcessor(secretKey, userRepository)
+        customUserDetailsService = mockk<CustomUserDetailsService>()
+        jwtProcessor = JwtProcessor(secretKey, userRepository, customUserDetailsService)
     }
 
     "유효한 토큰일 경우" {

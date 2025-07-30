@@ -11,6 +11,8 @@ import io.jsonwebtoken.*
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
 
 
@@ -18,9 +20,15 @@ import org.springframework.stereotype.Component
 class JwtProcessor(
     @Value("\${auth.secret-key}")
     private val secretKey: String,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val customUserDetailsService: CustomUserDetailsService
 ) {
     val key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey))
+
+    fun getAuthentication(tokenInfo: TokenInfo): Authentication {
+        val userDetails = customUserDetailsService.loadUserByUsername(tokenInfo.email)
+        return UsernamePasswordAuthenticationToken(userDetails, "", userDetails.authorities)
+    }
 
     /**
      * 토큰 재발급에 필요한 정보를 가져온다
