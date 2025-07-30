@@ -51,8 +51,9 @@ class GoalQRepositoryImpl(
                 isOnlyPinned(cond.isPinned),
                 isNotExpireGoal()
             )
-            .orderBy(orderByGoalSortCriteria(cond.sortedBy))
+            .offset(pageable.offset)
             .limit(pageable.pageSize.toLong())
+            .orderBy(orderByGoalSortCriteria(cond.sortedBy))
             .fetch()
 
         val totalCount = queryFactory
