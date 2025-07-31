@@ -7,6 +7,7 @@ import com.fesi.flowit.auth.web.response.SignInResponse
 import io.kotest.core.spec.style.StringSpec
 import io.mockk.every
 import io.mockk.mockk
+import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 
@@ -26,11 +27,12 @@ class AuthControllerTest : StringSpec({
         val request = mockk<HttpServletRequest>() {
             every { getHeader("Authorization") } returns "accessToken"
         }
+        val refreshToken = Cookie("refreshToken", "refreshToken")
 
         val service = mockk<AuthService>(relaxed = true)
-        every {service.regenerate(any()) } returns mockk<RegenerateResponse>()
+        every {service.regenerate(any(), any()) } returns mockk<RegenerateResponse>()
         val controller = AuthController(service)
 
-        controller.regenerate(request)
+        controller.regenerate(request, refreshToken)
     }
 })

@@ -62,6 +62,27 @@ class JwtProcessor(
         return tokenInfo.email
     }
 
+    fun verify(token: String): Boolean {
+        try {
+            Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .payload
+            return true
+        } catch (e: ExpiredJwtException) {
+            throw FailToParseJwtException.fromCode(
+                ApiResultCode.AUTH_TOKEN_EXPIRED
+            )
+        } catch (ex: JwtException) {
+            throw FailToParseJwtException.fromCodeWithMsg(
+                ApiResultCode.AUTH_FAIL_TO_PARSE_JWT,
+                "Fail to parse JWT token for token regenerate"
+            )
+        }
+        return false
+    }
+
     /**
      * 인증이 필요한 API 호출 시 클라이언트로부터 받은 토큰을 처리한다
      * 등록되지 않은 정보로 만들어진 토큰일 경우 예외 처리한다
@@ -100,6 +121,30 @@ class JwtProcessor(
             userId = (claims["userId"] as String).toLong(), // String으로 저장된 userId를 Long으로 복원
             issuedAt = claims.issuedAt,
             expiration = claims.expiration
+        )
+    }
+
+    fun unpackExpired(token: String): TokenInfo {
+        val unpacked = try {
+            Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .payload
+        } catch (e: ExpiredJwtException) {
+            e.claims
+        } catch (ex: JwtException) {
+            throw FailToParseJwtException.fromCodeWithMsg(
+                ApiResultCode.AUTH_FAIL_TO_PARSE_JWT,
+                "Fail to parse JWT token for token regenerate"
+            )
+        }
+
+        return TokenInfo(
+            email = unpacked.subject,
+            userId = (unpacked["userId"] as String).toLong(), // String으로 저장된 userId를 Long으로 복원
+            issuedAt = unpacked.issuedAt,
+            expiration = unpacked.expiration
         )
     }
 

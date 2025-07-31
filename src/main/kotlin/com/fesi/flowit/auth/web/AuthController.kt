@@ -13,6 +13,7 @@ import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
@@ -40,11 +41,15 @@ class AuthController(
     }
 
     @PostMapping("/auths/tokens")
-    override fun regenerate(request: HttpServletRequest): ResponseEntity<ApiResult<RegenerateResponse>> {
+    override fun regenerate(
+        request: HttpServletRequest,
+        @CookieValue("refreshToken") refreshToken: Cookie
+    ): ResponseEntity<ApiResult<RegenerateResponse>> {
         val authHeader = request.getHeader("Authorization")
         val accessToken = authHeader.extractAccessToken()
+        val refreshTokenVal = refreshToken.value
 
-        val response = service.regenerate(accessToken)
+        val response = service.regenerate(accessToken, refreshTokenVal)
         return ApiResponse.ok(response)
     }
 }
