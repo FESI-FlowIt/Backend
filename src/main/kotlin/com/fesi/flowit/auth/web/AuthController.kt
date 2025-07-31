@@ -9,6 +9,7 @@ import com.fesi.flowit.common.response.ApiResponse
 import com.fesi.flowit.common.response.ApiResult
 import com.fesi.flowit.common.util.extractAccessToken
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.ResponseEntity
@@ -28,9 +29,12 @@ class AuthController(
         response: HttpServletResponse
     ): ResponseEntity<ApiResult<SignInResponse>> {
         val dto = SignInDto.from(signInRequest)
-        val (authResponse, accessToken) = service.signIn(dto)
+        val (authResponse, accessToken, refreshToken) = service.signIn(dto)
 
         response.setHeader("Authorization", "Bearer $accessToken")
+        if (refreshToken != "") {
+            response.addCookie(Cookie("refreshToken", refreshToken))
+        }
 
         return ApiResponse.ok(authResponse)
     }

@@ -14,7 +14,7 @@ class AuthControllerTest : StringSpec({
 
     "로그인 요청을 받을 수 있다" {
         val service = mockk<AuthService>(relaxed = true)
-        every {service.signIn(any())} returns Pair(mockk<SignInResponse>(), "")
+        every {service.signIn(any())} returns Triple(mockk<SignInResponse>(), "", "")
         val controller = AuthController(service)
         val request = SignInRequest("user@gmail.com", "password")
         val response = mockk<HttpServletResponse>(relaxUnitFun = true)

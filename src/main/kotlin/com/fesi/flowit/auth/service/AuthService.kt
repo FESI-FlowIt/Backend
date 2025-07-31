@@ -1,5 +1,6 @@
 package com.fesi.flowit.auth.service
 
+import com.fesi.flowit.auth.repository.TokenRepository
 import com.fesi.flowit.common.response.exceptions.InvalidPasswordException
 import com.fesi.flowit.common.response.exceptions.UserNotExistsException
 import com.fesi.flowit.auth.service.dto.SignInDto
@@ -33,20 +34,21 @@ class AuthService(
      * access token은 로그인 시마다 생성
      * refresh token은 상태에 따라 처리
      */
-    fun signIn(dto: SignInDto): Pair<SignInResponse, String> {
+    fun signIn(dto: SignInDto): Triple<SignInResponse, String, String> {
         val authenticationToken = UsernamePasswordAuthenticationToken(dto.email, dto.password)
 
         val accessToken: String
+        val refreshToken: String
         val authentication: Authentication
         try {
             authentication = authenticationManager.authenticate(authenticationToken)
             accessToken = jwtGenerator.generateTokenWith(authentication)
-            jwtGenerator.handleRefreshTokenWith(authentication)
+            refreshToken = jwtGenerator.handleRefreshTokenWith(authentication) ?: ""
         } catch (e: AuthenticationException) {
             throw AuthException.fromCode(ApiResultCode.UNAUTHORIZED)
         }
 
-        return Pair(SignInResponse.of(authentication.principal as User), accessToken)
+        return Triple(SignInResponse.of(authentication.principal as User), accessToken, refreshToken)
     }
 
     /**
