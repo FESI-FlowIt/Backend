@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.ResponseEntity
@@ -88,5 +89,8 @@ interface AuthApiSpec {
         ]
     )
     @PostMapping("/auths/tokens")
-    fun regenerate(request: HttpServletRequest): ResponseEntity<ApiResult<RegenerateResponse>>
+    fun regenerate(
+        request: HttpServletRequest,
+        refreshToken: Cookie
+    ): ResponseEntity<ApiResult<RegenerateResponse>>
 }
