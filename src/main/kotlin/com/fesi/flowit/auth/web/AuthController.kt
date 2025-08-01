@@ -33,7 +33,11 @@ class AuthController(
 
         response.setHeader("Authorization", "Bearer $accessToken")
         if (refreshToken != "") {
-            response.addCookie(Cookie("refreshToken", refreshToken))
+            val cookie = Cookie("refreshToken", refreshToken)
+            cookie.setHttpOnly(true)
+            cookie.setAttribute("SameSite","None")
+            cookie.path = "/"
+            response.addCookie(cookie)
         }
 
         return ApiResponse.ok(authResponse)
