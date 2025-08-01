@@ -27,23 +27,7 @@ class JwtGenerator(
     /**
      * access token을 생성한다
      */
-    fun generateToken(user: User): String {
-        val now = Instant.now()
-        val expiration = now.plus(15, ChronoUnit.MINUTES)
-
-        return Jwts.builder()
-            .subject(user.email)
-            .claim(
-                "userId",
-                user.id.toString()
-            ) // Long을 String으로 저장 (JWT에서 Long이 Integer로 변환되어 값 손실 방지)
-            .issuedAt(Date.from(now))
-            .expiration(Date.from(expiration))
-            .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)), Jwts.SIG.HS512)
-            .compact()
-    }
-
-    fun generateTokenWith(authentication: Authentication): String {
+    fun generateToken(authentication: Authentication): String {
         val principal = authentication.principal as User
 
         val now = Instant.now()
@@ -63,26 +47,8 @@ class JwtGenerator(
 
     /**
      * refresh token의 상태에 따라 처리한다
-     * refresh token이 없으면 새 토큰을 생성하고 저장한다
-     * 유효한 refresh token이 이미 있으면 토큰 생성이나 갱신을 하지 않는다
-     * 만료된 refresh token이 있으면 revoke 후 새 토큰을 생성한다
      */
-    fun handleRefreshToken(user: User) {
-        if (!isRefreshTokenExists(user)) {
-            val refreshToken = generateRefreshToken(user)
-            storeRefreshToken(refreshToken)
-            return
-        }
-        if (!isRefreshTokenExpired(user)) {
-            return
-        }
-
-        revokeRefreshToken(user)
-        val refreshToken = generateRefreshToken(user)
-        storeRefreshToken(refreshToken)
-    }
-
-    fun handleRefreshTokenWith(authentication: Authentication): String? {
+    fun handleRefreshToken(authentication: Authentication): String? {
         val principal = authentication.principal as User
 
         if (!isRefreshTokenExists(principal)) {

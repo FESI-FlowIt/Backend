@@ -5,11 +5,9 @@ import com.fesi.flowit.auth.service.dto.SignInDto
 import com.fesi.flowit.auth.web.response.RegenerateResponse
 import com.fesi.flowit.auth.web.response.SignInResponse
 import com.fesi.flowit.common.auth.JwtProcessor
-import com.fesi.flowit.common.auth.PasswordEncryptor
 import com.fesi.flowit.common.response.ApiResultCode
 import com.fesi.flowit.common.response.exceptions.AuthException
 import com.fesi.flowit.user.entity.User
-import com.fesi.flowit.user.repository.UserRepository
 import jakarta.transaction.Transactional
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
@@ -20,8 +18,6 @@ import org.springframework.stereotype.Service
 @Transactional
 @Service
 class AuthService(
-    private val repository: UserRepository,
-    private val encryptor: PasswordEncryptor,
     private val jwtGenerator: JwtGenerator,
     private val jwtProcessor: JwtProcessor,
     private val authenticationManager: AuthenticationManager,
@@ -41,8 +37,8 @@ class AuthService(
         val authentication: Authentication
         try {
             authentication = authenticationManager.authenticate(authenticationToken)
-            accessToken = jwtGenerator.generateTokenWith(authentication)
-            refreshToken = jwtGenerator.handleRefreshTokenWith(authentication) ?: ""
+            accessToken = jwtGenerator.generateToken(authentication)
+            refreshToken = jwtGenerator.handleRefreshToken(authentication) ?: ""
         } catch (e: AuthenticationException) {
             throw AuthException.fromCode(ApiResultCode.UNAUTHORIZED)
         }
@@ -74,8 +70,8 @@ class AuthService(
             )
         }
 
-        val newAccessToken = jwtGenerator.generateTokenWith(authentication)
-        val newRefreshToken = jwtGenerator.handleRefreshTokenWith(authentication) ?: ""
+        val newAccessToken = jwtGenerator.generateToken(authentication)
+        val newRefreshToken = jwtGenerator.handleRefreshToken(authentication) ?: ""
 
         if (newRefreshToken == "") {
             return RegenerateResponse.of(accessToken = newAccessToken)

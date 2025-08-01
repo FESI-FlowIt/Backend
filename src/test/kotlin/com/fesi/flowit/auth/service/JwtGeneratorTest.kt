@@ -37,7 +37,7 @@ class JwtGeneratorTest : StringSpec({
         every { repository.findByUserIdAndRevoked(any(), any()) } returns null
         every { repository.save(any()) } returns mockk<RefreshToken>()
 
-        jwtGenerator.handleRefreshTokenWith(authentication)
+        jwtGenerator.handleRefreshToken(authentication)
 
         verify { repository.save(any()) }
     }
@@ -49,7 +49,7 @@ class JwtGeneratorTest : StringSpec({
         val refreshToken = RefreshToken.valid(testUser)
         every { repository.findByUserIdAndRevoked(any(), any()) } returns refreshToken
 
-        jwtGenerator.handleRefreshTokenWith(authentication)
+        jwtGenerator.handleRefreshToken(authentication)
 
         verify(exactly = 0) { repository.save(any()) }
         verify(exactly = 0) { repository.updateRevoked(any(), any()) }
@@ -67,7 +67,7 @@ class JwtGeneratorTest : StringSpec({
         } returns expiredToken
         every { repository.save(any()) } returns mockk()
 
-        jwtGenerator.handleRefreshTokenWith(authentication)
+        jwtGenerator.handleRefreshToken(authentication)
 
         verify { repository.updateRevoked(any(), any()) }
     }
