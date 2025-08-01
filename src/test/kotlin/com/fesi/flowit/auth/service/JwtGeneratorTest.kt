@@ -86,6 +86,20 @@ class JwtGeneratorTest : StringSpec({
         result shouldBe true
     }
 
+    "refresh 토큰을 재발급해야 하는지 확인할 수 있다" {
+        val expiredToken = RefreshToken.aboutTobeExpired(testUser)
+        every {
+            repository.findByUserIdAndRevoked(
+                testUser.id,
+                false
+            )
+        } returns expiredToken
+
+        val result = jwtGenerator.isRefreshTokenIsAboutTobeExpired(testUser)
+
+        result shouldBe true
+    }
+
     "유효 기간이 지난 refresh 토큰을 revoke 처리한다" {
         val existingToken = RefreshToken.valid(testUser)
         every {
@@ -145,7 +159,15 @@ private fun RefreshToken.Companion.created(user: User): RefreshToken {
 private fun RefreshToken.Companion.valid(user: User): RefreshToken {
     return RefreshToken.forTest(
         user = user,
-        expiresAt = LocalDateTime.now().plusDays(1),
+        expiresAt = LocalDateTime.now().plusDays(15),
+    )
+}
+
+private fun RefreshToken.Companion.aboutTobeExpired(user: User): RefreshToken {
+    return RefreshToken.forTest(
+        user = user,
+        token = "expired_token",
+        expiresAt = LocalDateTime.now().plusDays(2),
     )
 }
 

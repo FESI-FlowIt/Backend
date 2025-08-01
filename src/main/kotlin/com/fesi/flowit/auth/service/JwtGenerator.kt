@@ -1,7 +1,7 @@
 package com.fesi.flowit.auth.service
 
-import com.fesi.flowit.auth.vo.RefreshToken
 import com.fesi.flowit.auth.repository.TokenRepository
+import com.fesi.flowit.auth.vo.RefreshToken
 import com.fesi.flowit.user.entity.User
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
@@ -9,6 +9,7 @@ import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
+import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -21,6 +22,8 @@ class JwtGenerator(
     private val secretKey: String,
     private val tokenRepository: TokenRepository
 ) {
+    private val REFRESH_TOKEN_REGENERATE_BASIS = 3
+
     /**
      * access token을 생성한다
      */
@@ -87,7 +90,7 @@ class JwtGenerator(
             storeRefreshToken(refreshToken)
             return refreshToken.token
         }
-        if (!isRefreshTokenExpired(principal)) {
+        if (!isRefreshTokenIsAboutTobeExpired(principal)) {
             return null
         }
 
@@ -125,6 +128,16 @@ class JwtGenerator(
         return true
     }
 
+    internal fun isRefreshTokenIsAboutTobeExpired(user: User): Boolean {
+        val now = Instant.now()
+        val nowLocal = instantToLocalDateTime(now)
+
+        val existingToken = tokenRepository.findByUserIdAndRevoked(user.id, false)
+        val daysLeft: Long = Duration.between(nowLocal, existingToken!!.expiresAt).toDays()
+
+        return daysLeft < REFRESH_TOKEN_REGENERATE_BASIS
+    }
+
     /**
      * 새로운 refresh token을 만든다
      */
@@ -132,11 +145,6 @@ class JwtGenerator(
         val now = Instant.now()
         val expiration = now.plus(30, ChronoUnit.DAYS)
         val jwtRefreshToken = Jwts.builder()
-            .subject(user.email)
-            .claim(
-                "userId",
-                user.id.toString()
-            ) // Long을 String으로 저장 (JWT에서 Long이 Integer로 변환되어 값 손실 방지)
             .issuedAt(Date.from(now))
             .expiration(Date.from(expiration))
             .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)), Jwts.SIG.HS512)
