@@ -7,7 +7,6 @@ import com.fesi.flowit.auth.web.response.RegenerateResponse
 import com.fesi.flowit.auth.web.response.SignInResponse
 import com.fesi.flowit.common.response.ApiResponse
 import com.fesi.flowit.common.response.ApiResult
-import com.fesi.flowit.common.util.extractAccessToken
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.Cookie
 import jakarta.servlet.http.HttpServletRequest
@@ -51,5 +50,10 @@ class AuthController(
 
         val response = service.regenerate(accessToken, refreshTokenVal)
         return ApiResponse.ok(response)
+    }
+
+    private fun String.extractAccessToken(): String {
+        val bearerPrefix = "Bearer "
+        return this.removePrefix(bearerPrefix).trim()
     }
 }
