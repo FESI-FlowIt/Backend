@@ -4,6 +4,7 @@ import com.fesi.flowit.common.logging.loggerFor
 import com.fesi.flowit.common.response.ApiResultCode
 import com.fesi.flowit.common.response.exceptions.TodoException
 import com.fesi.flowit.goal.service.GoalService
+import com.fesi.flowit.todo.dto.TodoChangeDoneResponseDto
 import com.fesi.flowit.todo.dto.TodoCreateResponseDto
 import com.fesi.flowit.todo.dto.TodoModifyResponseDto
 import com.fesi.flowit.todo.entity.Todo
@@ -73,6 +74,28 @@ class TodoServiceImpl(
         todo.modifiedDateTime = LocalDateTime.now()
 
         return TodoModifyResponseDto.fromTodo(todo)
+    }
+
+    /**
+     * 할 일 완료 상태 변경
+     * 완료를 취소(false) 했을 때 완료 시간을 초기화 하지 않습니다.
+     */
+    @Transactional
+    override fun changeDoneStatus(todoId: Long, userId: Long, isDone: Boolean): TodoChangeDoneResponseDto {
+        val user: User = userService.findUserById(userId)
+        val todo: Todo = getTodoById(todoId)
+
+        if (todo.doesNotUserOwnTodo(user)) {
+            throw TodoException.fromCode(ApiResultCode.TODO_NOT_MATCH_USER)
+        }
+
+        val doneDateTime = LocalDateTime.now()
+
+        todo.isDone = isDone
+        todo.doneDateTime = doneDateTime
+        log.debug("Todo(id=${todoId}) is changed isDone status to ${isDone} at ${doneDateTime}")
+
+        return TodoChangeDoneResponseDto.of(todoId, isDone)
     }
 
     /**

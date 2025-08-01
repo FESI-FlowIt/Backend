@@ -21,7 +21,7 @@ class Goal private constructor(
     var color: String = "#000000",
 
     @Column(nullable = false)
-    val isPinned: Boolean = false,
+    var isPinned: Boolean = false,
 
     @CreatedDate
     @Column(nullable = false)

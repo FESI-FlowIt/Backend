@@ -3,10 +3,7 @@ package com.fesi.flowit.todo.controller
 import com.fesi.flowit.common.logging.loggerFor
 import com.fesi.flowit.common.response.ApiResponse
 import com.fesi.flowit.common.response.ApiResult
-import com.fesi.flowit.todo.dto.TodoCreateRequestDto
-import com.fesi.flowit.todo.dto.TodoCreateResponseDto
-import com.fesi.flowit.todo.dto.TodoModifyRequestDto
-import com.fesi.flowit.todo.dto.TodoModifyResponseDto
+import com.fesi.flowit.todo.dto.*
 import com.fesi.flowit.todo.service.TodoService
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
@@ -40,6 +37,14 @@ class TodoControllerImpl(
         )
 
         return ApiResponse.ok(result)
+    }
+
+    @PatchMapping("/todos/{todoId}/done")
+    override fun changeDoneStatus(@PathVariable("todoId") todoId: Long,
+                                  @RequestBody request: TodoChangeDoneRequestDto): ResponseEntity<ApiResult<TodoChangeDoneResponseDto>> {
+        log.debug(">> request changeDoneStatus(todoId=${todoId}, request=${request}")
+
+        return ApiResponse.ok(todoService.changeDoneStatus(todoId, request.userId, request.isDone))
     }
 
     @DeleteMapping("/todos/{todoId}")

@@ -18,7 +18,7 @@ class Todo private constructor(
     var name: String,
 
     @Column(nullable = false)
-    val isDone: Boolean = false,
+    var isDone: Boolean = false,
 
     @CreatedDate
     @Column(nullable = false)
