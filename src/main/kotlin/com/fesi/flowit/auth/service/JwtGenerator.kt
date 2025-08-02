@@ -56,11 +56,14 @@ class JwtGenerator(
             storeRefreshToken(refreshToken)
             return refreshToken.token
         }
+
         if (!isRefreshTokenIsAboutTobeExpired(principal)) {
             return null
         }
 
-        revokeRefreshToken(principal)
+        if (isRefreshTokenExpired(principal)) {
+            revokeRefreshToken(principal)
+        }
         val refreshToken = generateRefreshToken(principal)
         storeRefreshToken(refreshToken)
         return refreshToken.token

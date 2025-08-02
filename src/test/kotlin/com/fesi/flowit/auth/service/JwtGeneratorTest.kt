@@ -42,7 +42,7 @@ class JwtGeneratorTest : StringSpec({
         verify { repository.save(any()) }
     }
 
-    "유효한 refresh token이 이미 있으면 토큰 생성이나 갱신을 하지 않는다" {
+    "재발급이 필요하지 않은 refresh token이면 토큰 생성이나 갱신을 하지 않는다" {
         val authentication = mockk<Authentication>(relaxed = true)
         hasUserDetails(authentication)
 
@@ -55,7 +55,7 @@ class JwtGeneratorTest : StringSpec({
         verify(exactly = 0) { repository.updateRevoked(any(), any()) }
     }
 
-    "만료된 refresh token이 있으면 revoke 후 새 토큰을 생성한다" {
+    "만료된 refresh token이면 revoke 후 새 토큰을 생성한다" {
         val authentication = mockk<Authentication>(relaxed = true)
         hasUserDetails(authentication)
 
