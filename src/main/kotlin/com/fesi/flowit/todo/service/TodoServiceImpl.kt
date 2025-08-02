@@ -120,7 +120,7 @@ class TodoServiceImpl(
      * 할 일 목록 조회 by id list
      */
     override fun getTodosByIds(todoIds: List<Long>): List<Todo> {
-        return todoRepository.findAllById(todoIds)
+        return todoRepository.findAllByIdIn(todoIds)
     }
 
     /**

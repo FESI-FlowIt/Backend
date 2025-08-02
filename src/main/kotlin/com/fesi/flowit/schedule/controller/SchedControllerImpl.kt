@@ -4,7 +4,7 @@ import com.fesi.flowit.common.logging.loggerFor
 import com.fesi.flowit.common.response.ApiResponse
 import com.fesi.flowit.common.response.ApiResult
 import com.fesi.flowit.schedule.dto.SchedAssignedSchedResponseDto
-import com.fesi.flowit.schedule.dto.SchedCreateRequestDto
+import com.fesi.flowit.schedule.dto.SchedSaveRequestDto
 import com.fesi.flowit.schedule.dto.SchedCreateResponseDto
 import com.fesi.flowit.schedule.dto.SchedUnassignedTodosResponseDto
 import com.fesi.flowit.schedule.service.SchedService
@@ -27,10 +27,10 @@ class SchedControllerImpl(
 ) : SchedController {
 
     @PostMapping("/schedules")
-    override fun createSchedules(@RequestBody request: SchedCreateRequestDto): ResponseEntity<ApiResult<SchedCreateResponseDto>> {
+    override fun saveSchedules(@RequestBody request: SchedSaveRequestDto): ResponseEntity<ApiResult<SchedCreateResponseDto>> {
         log.debug(">> request createSchedules(${request})")
 
-        return ApiResponse.created(schedService.createSchedules(request))
+        return ApiResponse.created(schedService.saveSchedules(request))
     }
 
     @GetMapping("/schedules/unassigned")

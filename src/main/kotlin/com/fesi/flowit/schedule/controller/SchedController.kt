@@ -2,7 +2,7 @@ package com.fesi.flowit.schedule.controller
 
 import com.fesi.flowit.common.response.ApiResult
 import com.fesi.flowit.schedule.dto.SchedAssignedSchedResponseDto
-import com.fesi.flowit.schedule.dto.SchedCreateRequestDto
+import com.fesi.flowit.schedule.dto.SchedSaveRequestDto
 import com.fesi.flowit.schedule.dto.SchedCreateResponseDto
 import com.fesi.flowit.schedule.dto.SchedUnassignedTodosResponseDto
 import io.swagger.v3.oas.annotations.Operation
@@ -18,14 +18,20 @@ import java.time.LocalDate
 
 interface SchedController {
     @Operation(
-        summary = "일정 생성",
-        description = "일정을 생성합니다."
+        summary = "일정 저장",
+        description = """
+            일정을 저장합니다.
+           
+            - Request에 schedId가 없으면 새로운 일정을 생성합니다.
+            - Request에 schedId가 있으면 일정 시작-종료 시간을 업데이트합니다.
+            - Request에 isRemoved가 true이면 일정을 삭제합니다.
+        """
     )
     @ApiResponses(
         value = [
             ApiResponse(
-                responseCode = "201",
-                description = "일정 생성 성공",
+                responseCode = "200",
+                description = "일정 저장 성공",
                 content = [Content(
                     mediaType = "application/json",
                     schema = Schema(implementation = SchedCreateResponseDto::class)
@@ -41,7 +47,7 @@ interface SchedController {
             )
         ]
     )
-    fun createSchedules(@RequestBody request: SchedCreateRequestDto): ResponseEntity<ApiResult<SchedCreateResponseDto>>
+    fun saveSchedules(@RequestBody request: SchedSaveRequestDto): ResponseEntity<ApiResult<SchedCreateResponseDto>>
 
     @Operation(
         summary = "미배치 할 일 조회",

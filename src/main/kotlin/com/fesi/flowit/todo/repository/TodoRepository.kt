@@ -3,8 +3,10 @@ package com.fesi.flowit.todo.repository
 import com.fesi.flowit.todo.entity.Todo
 import com.fesi.flowit.todo.vo.TodoSummaryWithDateVo
 import com.fesi.flowit.user.entity.User
+import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.repository.query.Param
 import java.time.LocalDateTime
 
 interface TodoRepository : JpaRepository<Todo, Long> {
@@ -19,5 +21,8 @@ interface TodoRepository : JpaRepository<Todo, Long> {
             t.user = :user
             AND g.dueDateTime > :date
     """)
-    fun findTodosByDueDate(user: User, date: LocalDateTime): MutableList<TodoSummaryWithDateVo>
+    fun findTodosByDueDate(@Param("user") user: User, @Param("date") date: LocalDateTime): MutableList<TodoSummaryWithDateVo>
+
+    @EntityGraph(attributePaths = ["goal", "user"])
+    fun findAllByIdIn(@Param("todoIds") todoIds: List<Long>): List<Todo>
 }
