@@ -2,10 +2,7 @@ package com.fesi.flowit.common.auth
 
 import com.fesi.flowit.common.auth.dto.TokenInfo
 import com.fesi.flowit.common.response.ApiResultCode
-import com.fesi.flowit.common.response.exceptions.FailToParseJwtException
-import com.fesi.flowit.common.response.exceptions.InvalidUserException
-import com.fesi.flowit.common.response.exceptions.TokenExpiredException
-import com.fesi.flowit.common.response.exceptions.UserNotExistsException
+import com.fesi.flowit.common.response.exceptions.*
 import com.fesi.flowit.user.repository.UserRepository
 import io.jsonwebtoken.*
 import io.jsonwebtoken.io.Decoders
@@ -27,6 +24,11 @@ class JwtProcessor(
 
     fun getAuthentication(tokenInfo: TokenInfo): Authentication {
         val userDetails = customUserDetailsService.loadUserByUsername(tokenInfo.email)
+        return UsernamePasswordAuthenticationToken(userDetails, "", userDetails.authorities)
+    }
+
+    fun getAuthenticationFromId(id: Long): Authentication {
+        val userDetails = customUserDetailsService.loadUserById(id)
         return UsernamePasswordAuthenticationToken(userDetails, "", userDetails.authorities)
     }
 
@@ -124,15 +126,14 @@ class JwtProcessor(
         )
     }
 
-    fun unpackExpired(token: String): TokenInfo {
+    fun unpackRefreshToken(token: String): TokenInfo {
         val unpacked = try {
             Jwts.parser()
                 .verifyWith(key)
                 .build()
                 .parseSignedClaims(token)
-                .payload
         } catch (e: ExpiredJwtException) {
-            e.claims
+            throw AuthException.fromCode(ApiResultCode.AUTH_TOKEN_EXPIRED)
         } catch (ex: JwtException) {
             throw FailToParseJwtException.fromCodeWithMsg(
                 ApiResultCode.AUTH_FAIL_TO_PARSE_JWT,
@@ -140,12 +141,9 @@ class JwtProcessor(
             )
         }
 
-        return TokenInfo(
-            email = unpacked.subject,
-            userId = (unpacked["userId"] as String).toLong(), // String으로 저장된 userId를 Long으로 복원
-            issuedAt = unpacked.issuedAt,
-            expiration = unpacked.expiration
-        )
+        val claims=unpacked.payload
+
+        return TokenInfo.fromRefreshTokenClaims(claims)
     }
 
     fun isTokenStored(tokenInfo: TokenInfo): Boolean {

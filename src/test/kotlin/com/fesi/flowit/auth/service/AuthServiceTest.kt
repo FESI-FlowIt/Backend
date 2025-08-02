@@ -69,7 +69,7 @@ class AuthServiceTest : StringSpec({
     "토큰 재발급 시 refresh token이 유효한지 확인한다" {
         every { jwtProcessor.verify(any()) } returns true
         val authentication = mockk<Authentication>(relaxed = true)
-        every { jwtProcessor.getAuthentication(any()) } returns authentication
+        every { jwtProcessor.getAuthenticationFromId(any()) } returns authentication
         hasUserDetails(authentication)
         refreshTokenRepository.canFindTokenByUserId(tokenValue = "refresh_token")
 
@@ -81,7 +81,7 @@ class AuthServiceTest : StringSpec({
     "토큰 재발급 시 새로운 access token과 refresh token을 생성한다" {
         every { jwtProcessor.verify(any()) } returns true
         val authentication = mockk<Authentication>(relaxed = true)
-        every { jwtProcessor.getAuthentication(any()) } returns authentication
+        every { jwtProcessor.getAuthenticationFromId(any()) } returns authentication
         hasUserDetails(authentication)
         refreshTokenRepository.canFindTokenByUserId(tokenValue = "refresh_token")
         every { jwtGenerator.generateToken(any()) } returns "newAccessToken"

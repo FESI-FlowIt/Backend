@@ -58,17 +58,8 @@ class AuthService(
             throw AuthException.fromCode(ApiResultCode.AUTH_TOKEN_INVALID)
         }
 
-        val tokenInfo = jwtProcessor.unpackExpired(accessToken)
-        val authentication = jwtProcessor.getAuthentication(tokenInfo)
-        val userDetails = authentication.principal as User
-        val storedRefreshToken = refreshTokenRepository.findByUserId(userDetails.id)
-
-        if (!storedRefreshToken?.token.equals(refreshToken)) {
-            throw AuthException.fromCodeWithMsg(
-                ApiResultCode.AUTH_USER_INFO_NOT_MATCH,
-                "User info of given refresh token not match with user info in database"
-            )
-        }
+        val tokenInfo = jwtProcessor.unpackRefreshToken(refreshToken)
+        val authentication = jwtProcessor.getAuthenticationFromId(tokenInfo.userId)
 
         val newAccessToken = jwtGenerator.generateToken(authentication)
         val newRefreshToken = jwtGenerator.handleRefreshToken(authentication) ?: ""
