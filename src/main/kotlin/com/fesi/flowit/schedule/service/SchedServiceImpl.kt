@@ -5,14 +5,17 @@ import com.fesi.flowit.common.response.exceptions.ScheduleException
 import com.fesi.flowit.common.response.exceptions.TodoException
 import com.fesi.flowit.schedule.dto.SchedCreateRequestDto
 import com.fesi.flowit.schedule.dto.SchedCreateResponseDto
+import com.fesi.flowit.schedule.dto.SchedUnassignedTodosResponseDto
 import com.fesi.flowit.schedule.entity.Schedule
 import com.fesi.flowit.schedule.repository.ScheduleRepository
 import com.fesi.flowit.todo.entity.Todo
 import com.fesi.flowit.todo.service.TodoService
+import com.fesi.flowit.todo.vo.TodoSummaryWithDateVo
 import com.fesi.flowit.user.entity.User
 import com.fesi.flowit.user.service.UserService
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Service
@@ -51,5 +54,12 @@ class SchedServiceImpl(
         val savedSchedules: List<Schedule> = scheduleRepository.saveAll(schedules)
 
         return SchedCreateResponseDto.fromSchedules(user.id, savedSchedules)
+    }
+
+    override fun getUnassignedTodo(userId: Long, date: LocalDate): SchedUnassignedTodosResponseDto {
+        val user: User = userService.findUserById(userId)
+
+        val unassignedTodos: MutableList<TodoSummaryWithDateVo> = todoService.getTodoSummariesWithDateFromDueDate(user, date)
+        return SchedUnassignedTodosResponseDto.fromTodoSummaryWithDateList(date, unassignedTodos)
     }
 }
