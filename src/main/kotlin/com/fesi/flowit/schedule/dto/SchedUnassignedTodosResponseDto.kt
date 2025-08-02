@@ -1,6 +1,6 @@
 package com.fesi.flowit.schedule.dto
 
-import com.fesi.flowit.common.util.REGEX_RGB_CODE
+import com.fesi.flowit.common.extensions.REGEX_RGB_CODE
 import com.fesi.flowit.todo.vo.TodoSummaryWithDateVo
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDate
