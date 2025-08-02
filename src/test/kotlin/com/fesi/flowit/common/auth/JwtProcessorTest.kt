@@ -23,13 +23,11 @@ class JwtProcessorTest : StringSpec({
     val secretKey =
         "40e96460271ece5c44153b6c90bccdc1965cfc8b21568dcb92ade8064173226b4509b3c31faa83d20b53ad35a6b529d42a4e98f967a072bbbde244b9af8236ff"
     lateinit var userRepository: UserRepository
-    lateinit var customUserDetailsService: CustomUserDetailsService
     lateinit var jwtProcessor: JwtProcessor
 
     beforeEach {
         userRepository = mockk<UserRepository>()
-        customUserDetailsService = mockk<CustomUserDetailsService>()
-        jwtProcessor = JwtProcessor(secretKey, userRepository, customUserDetailsService)
+        jwtProcessor = JwtProcessor(secretKey, userRepository)
     }
 
     "유효한 토큰일 경우" {
@@ -97,22 +95,6 @@ class JwtProcessorTest : StringSpec({
         jwtProcessor.isTokenStored(tokenInfo) shouldBe false
     }
 
-    "재발급 시 액세스 토큰의 유효 기간이 만료되었더라도 인증 객체를 가져올 수 있다" {
-        val expiredTokenInfo = TokenInfo.expired()
-        val expiredToken = jwtProcessor.pack(expiredTokenInfo)
-
-        shouldNotThrow<ExpiredJwtException> {
-            jwtProcessor.unpackExpired(expiredToken)
-        }
-
-        val tokenInfo = TokenInfo.valid()
-        val token = jwtProcessor.pack(tokenInfo)
-
-        shouldNotThrow<ExpiredJwtException> {
-            jwtProcessor.unpackExpired(token)
-        }
-    }
-
     "토큰의 유효 기간이 만료되었더라도 재발급한다" {
         canFindUser(userRepository)
 
@@ -135,7 +117,7 @@ private fun cannotFindUser(userRepository: UserRepository) {
 }
 
 private fun JwtProcessor.pack(tokenInfo: TokenInfo): String {
-    return Jwts.builder()
+     return Jwts.builder()
         .subject(tokenInfo.email)
         .claim("userId", tokenInfo.userId.toString())
         .issuedAt(tokenInfo.issuedAt)

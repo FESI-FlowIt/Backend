@@ -1,14 +1,15 @@
 package com.fesi.flowit.common.auth
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fesi.flowit.common.response.ApiResult
-import com.fesi.flowit.common.response.exceptions.BaseException
 import com.fesi.flowit.common.response.exceptions.FailToParseJwtException
 import com.fesi.flowit.common.response.exceptions.InvalidUserException
 import com.fesi.flowit.common.response.exceptions.TokenExpiredException
+import com.fesi.flowit.common.response.ApiResult
+import com.fesi.flowit.common.response.exceptions.BaseException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Component
 import org.springframework.web.filter.OncePerRequestFilter
@@ -37,7 +38,11 @@ class JwtAuthenticationFilter(
         try {
             val tokenInfo = jwtProcessor.handle(token) // 유효한 JWT인지 검증한다
 
-            val authentication = jwtProcessor.getAuthentication(tokenInfo)
+            val authentication = UsernamePasswordAuthenticationToken(
+                tokenInfo,
+                null,
+                emptyList()
+            )
 
             SecurityContextHolder.getContext().authentication = authentication
         } catch (e: FailToParseJwtException) {

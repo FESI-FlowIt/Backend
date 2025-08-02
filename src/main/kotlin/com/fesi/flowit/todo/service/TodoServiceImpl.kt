@@ -9,10 +9,12 @@ import com.fesi.flowit.todo.dto.TodoCreateResponseDto
 import com.fesi.flowit.todo.dto.TodoModifyResponseDto
 import com.fesi.flowit.todo.entity.Todo
 import com.fesi.flowit.todo.repository.TodoRepository
+import com.fesi.flowit.todo.vo.TodoSummaryWithDateVo
 import com.fesi.flowit.user.entity.User
 import com.fesi.flowit.user.service.UserService
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 private val log = loggerFor<TodoServiceImpl>()
@@ -114,8 +116,23 @@ class TodoServiceImpl(
         log.debug("Deleted todo(id=${todo.id}, name=${todo.name}, isDone=${todo.isDone}")
     }
 
+    /**
+     * 할 일 목록 조회 by id list
+     */
     override fun getTodosByIds(todoIds: List<Long>): List<Todo> {
-        return todoRepository.findAllById(todoIds)
+        return todoRepository.findAllByIdIn(todoIds)
+    }
+
+    /**
+     * 목표 마감일에 따른 할 일 목록 조회
+     */
+    override fun getTodoSummariesWithDateFromDueDate(userId: Long, date: LocalDate): MutableList<TodoSummaryWithDateVo> {
+        val user: User = userService.findUserById(userId)
+        return getTodoSummariesWithDateFromDueDate(user, date)
+    }
+
+    override fun getTodoSummariesWithDateFromDueDate(user: User, date: LocalDate): MutableList<TodoSummaryWithDateVo> {
+        return todoRepository.findTodosByDueDate(user, date.atStartOfDay())
     }
 
     private fun getTodoById(todoId: Long): Todo {

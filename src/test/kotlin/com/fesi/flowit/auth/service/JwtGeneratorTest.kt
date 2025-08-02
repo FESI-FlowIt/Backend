@@ -8,7 +8,6 @@ import io.kotest.matchers.shouldBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.springframework.security.core.Authentication
 import java.time.Instant
 import java.time.LocalDateTime
 
@@ -31,45 +30,37 @@ class JwtGeneratorTest : StringSpec({
     }
 
     "refresh token이 없으면 새 토큰을 생성하고 저장한다" {
-        val authentication = mockk<Authentication>(relaxed = true)
-        hasUserDetails(authentication)
-
-        every { repository.findByUserIdAndRevoked(any(), any()) } returns null
+        every { repository.findByUserIdAndRevoked(testUser.id, false) } returns null
         every { repository.save(any()) } returns mockk<RefreshToken>()
 
-        jwtGenerator.handleRefreshToken(authentication)
+        jwtGenerator.handleRefreshToken(testUser)
 
         verify { repository.save(any()) }
     }
 
     "유효한 refresh token이 이미 있으면 토큰 생성이나 갱신을 하지 않는다" {
-        val authentication = mockk<Authentication>(relaxed = true)
-        hasUserDetails(authentication)
+        val validToken = RefreshToken.valid(testUser)
+        every { repository.findByUserIdAndRevoked(testUser.id, false) } returns validToken
 
-        val refreshToken = RefreshToken.valid(testUser)
-        every { repository.findByUserIdAndRevoked(any(), any()) } returns refreshToken
-
-        jwtGenerator.handleRefreshToken(authentication)
+        jwtGenerator.handleRefreshToken(testUser)
 
         verify(exactly = 0) { repository.save(any()) }
         verify(exactly = 0) { repository.updateRevoked(any(), any()) }
     }
 
     "만료된 refresh token이 있으면 revoke 후 새 토큰을 생성한다" {
-        val authentication = mockk<Authentication>(relaxed = true)
-        hasUserDetails(authentication)
-
         val expiredToken = RefreshToken.expired(testUser)
         every {
             repository.findByUserIdAndRevoked(
-                any(), any()
+                testUser.id,
+                false
             )
         } returns expiredToken
         every { repository.save(any()) } returns mockk()
 
-        jwtGenerator.handleRefreshToken(authentication)
+        jwtGenerator.handleRefreshToken(testUser)
 
-        verify { repository.updateRevoked(any(), any()) }
+        verify { repository.updateRevoked(testUser.id, true) }
     }
 
     "refresh 토큰 만료 여부를 확인할 수 있다" {
@@ -82,20 +73,6 @@ class JwtGeneratorTest : StringSpec({
         } returns expiredToken
 
         val result = jwtGenerator.isRefreshTokenExpired(testUser)
-
-        result shouldBe true
-    }
-
-    "refresh 토큰을 재발급해야 하는지 확인할 수 있다" {
-        val expiredToken = RefreshToken.aboutTobeExpired(testUser)
-        every {
-            repository.findByUserIdAndRevoked(
-                testUser.id,
-                false
-            )
-        } returns expiredToken
-
-        val result = jwtGenerator.isRefreshTokenIsAboutTobeExpired(testUser)
 
         result shouldBe true
     }
@@ -159,15 +136,7 @@ private fun RefreshToken.Companion.created(user: User): RefreshToken {
 private fun RefreshToken.Companion.valid(user: User): RefreshToken {
     return RefreshToken.forTest(
         user = user,
-        expiresAt = LocalDateTime.now().plusDays(15),
-    )
-}
-
-private fun RefreshToken.Companion.aboutTobeExpired(user: User): RefreshToken {
-    return RefreshToken.forTest(
-        user = user,
-        token = "expired_token",
-        expiresAt = LocalDateTime.now().plusDays(2),
+        expiresAt = LocalDateTime.now().plusDays(1),
     )
 }
 
@@ -194,8 +163,4 @@ private fun RefreshToken.Companion.forTest(
     )
     refreshToken.id = id
     return refreshToken
-}
-
-private fun hasUserDetails(authentication: Authentication) {
-    every { authentication.principal } returns mockk<User>(relaxed = true)
 }

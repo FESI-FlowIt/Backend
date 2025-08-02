@@ -4,9 +4,6 @@ import com.fesi.flowit.goal.entity.Goal
 import com.fesi.flowit.schedule.entity.Schedule
 import com.fesi.flowit.todo.entity.Todo
 import jakarta.persistence.*
-import org.springframework.security.core.GrantedAuthority
-import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.core.userdetails.UserDetails
 import java.time.LocalDateTime
 import java.util.Objects
 
@@ -20,7 +17,6 @@ class User(
     val name: String,
 
     @Column(nullable = false)
-    @get:JvmName("getPasswd")
     val password: String,
 
     @Column(nullable = false)
@@ -34,7 +30,7 @@ class User(
 
     @Column(nullable = false)
     val isDeleted: Boolean = false,
-): UserDetails {
+) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long = 0L
@@ -83,16 +79,4 @@ class User(
     }
 
     override fun hashCode() = Objects.hashCode(id)
-
-    override fun getAuthorities(): MutableCollection<out GrantedAuthority> {
-        return mutableListOf()
-    }
-
-    override fun getPassword(): String {
-        return this.password
-    }
-
-    override fun getUsername(): String {
-        return this.email
-    }
 }

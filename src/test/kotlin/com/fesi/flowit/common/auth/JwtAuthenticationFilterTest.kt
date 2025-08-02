@@ -2,8 +2,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fesi.flowit.common.response.exceptions.FailToParseJwtException
 import com.fesi.flowit.common.auth.JwtAuthenticationFilter
 import com.fesi.flowit.common.auth.JwtProcessor
-import com.fesi.flowit.common.auth.dto.TokenInfo
-import com.fesi.flowit.common.auth.dto.valid
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.*
@@ -12,7 +10,6 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
-import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 
 class JwtAuthenticationFilterTest : StringSpec({
@@ -59,8 +56,7 @@ class JwtAuthenticationFilterTest : StringSpec({
         val validToken = "valid.jwt.token"
         request.addHeader("Authorization", "Bearer $validToken")
 
-        every { jwtProcessor.handle(validToken) } returns TokenInfo.valid()
-        every { jwtProcessor.getAuthentication(any()) } returns mockk()
+        every { jwtProcessor.handle(validToken) } returns mockk()
 
         filter.doFilterInternal(request, response, chain)
 

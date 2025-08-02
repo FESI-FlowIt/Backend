@@ -29,13 +29,13 @@ data class TodoModifyResponseDto(
 
     @field:Schema(
         description = "생성 시간",
-        example = "2025-07-19T14:29:00 | 2025-07-19",
+        example = "2025-07-19T14:29:00",
     )
     var createdDateTime: LocalDateTime,
 
     @field:Schema(
         description = "수정 시간",
-        example = "2025-07-19T14:29:00 | 2025-07-19",
+        example = "2025-07-19T14:29:00",
     )
     var modifiedDateTime: LocalDateTime
 ) {
