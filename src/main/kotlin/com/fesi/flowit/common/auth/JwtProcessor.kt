@@ -11,6 +11,8 @@ import io.jsonwebtoken.*
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
+import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
 
 
@@ -18,9 +20,15 @@ import org.springframework.stereotype.Component
 class JwtProcessor(
     @Value("\${auth.secret-key}")
     private val secretKey: String,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val customUserDetailsService: CustomUserDetailsService
 ) {
     val key = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey))
+
+    fun getAuthentication(tokenInfo: TokenInfo): Authentication {
+        val userDetails = customUserDetailsService.loadUserByUsername(tokenInfo.email)
+        return UsernamePasswordAuthenticationToken(userDetails, "", userDetails.authorities)
+    }
 
     /**
      * 토큰 재발급에 필요한 정보를 가져온다
@@ -52,6 +60,27 @@ class JwtProcessor(
         }
 
         return tokenInfo.email
+    }
+
+    fun verify(token: String): Boolean {
+        try {
+            Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .payload
+            return true
+        } catch (e: ExpiredJwtException) {
+            throw FailToParseJwtException.fromCode(
+                ApiResultCode.AUTH_TOKEN_EXPIRED
+            )
+        } catch (ex: JwtException) {
+            throw FailToParseJwtException.fromCodeWithMsg(
+                ApiResultCode.AUTH_FAIL_TO_PARSE_JWT,
+                "Fail to parse JWT token for token regenerate"
+            )
+        }
+        return false
     }
 
     /**
@@ -92,6 +121,30 @@ class JwtProcessor(
             userId = (claims["userId"] as String).toLong(), // String으로 저장된 userId를 Long으로 복원
             issuedAt = claims.issuedAt,
             expiration = claims.expiration
+        )
+    }
+
+    fun unpackExpired(token: String): TokenInfo {
+        val unpacked = try {
+            Jwts.parser()
+                .verifyWith(key)
+                .build()
+                .parseSignedClaims(token)
+                .payload
+        } catch (e: ExpiredJwtException) {
+            e.claims
+        } catch (ex: JwtException) {
+            throw FailToParseJwtException.fromCodeWithMsg(
+                ApiResultCode.AUTH_FAIL_TO_PARSE_JWT,
+                "Fail to parse JWT token for token regenerate"
+            )
+        }
+
+        return TokenInfo(
+            email = unpacked.subject,
+            userId = (unpacked["userId"] as String).toLong(), // String으로 저장된 userId를 Long으로 복원
+            issuedAt = unpacked.issuedAt,
+            expiration = unpacked.expiration
         )
     }
 
