@@ -87,7 +87,7 @@ class GoalControllerImpl(
 
     @GetMapping("/goals/{goalId}/summary")
     override fun getGoalSummary(@PathVariable("goalId") goalId: Long,
-                       @RequestParam("userId") userId: Long): ResponseEntity<ApiResult<GoalSummaryResponseDto>> {
+                                @RequestParam("userId") userId: Long): ResponseEntity<ApiResult<GoalSummaryResponseDto>> {
         log.debug(">> request getGoalSummary(userId=${userId}, goalId=${goalId})")
 
         return ApiResponse.ok(goalService.getGoalsSummary(userId, goalId))
@@ -100,11 +100,10 @@ class GoalControllerImpl(
     }
 
     @GetMapping("/goals/summaries")
-    override fun searchGoalSummaries(
-        @RequestParam("userId") userId: Long,
-        @RequestParam("isPinned") isPinned: Boolean,
-        @RequestParam("sortedBy") sortedBy: GoalSortCriteria,
-        pageable: Pageable
+    override fun searchGoalSummaries(@RequestParam("userId") userId: Long,
+                                     @RequestParam("isPinned") isPinned: Boolean,
+                                     @RequestParam("sortedBy") sortedBy: GoalSortCriteria,
+                                     pageable: Pageable
     ): ResponseEntity<ApiResult<PageResponse<GoalSummaryResponseDto>>> {
         log.debug(">> request searchGoalSummaries(userId=${userId}, isPinned=${isPinned}, sortedBy=${sortedBy} page=${pageable})")
 
@@ -113,14 +112,20 @@ class GoalControllerImpl(
     }
 
     @GetMapping("/goals/todos/due-monthly")
-    override fun getGoalsByDueMonth(
-        @RequestParam("userId") userId: Long,
+    override fun getGoalsByDueMonth(@RequestParam("userId") userId: Long,
 
-        @RequestParam(name = "date", required = true)
-        @DateTimeFormat(pattern = "yyyy-MM")
-        dueYearMonth: YearMonth
+                                    @RequestParam(name = "date", required = true)
+                                    @DateTimeFormat(pattern = "yyyy-MM")
+                                    dueYearMonth: YearMonth
     ): ResponseEntity<ApiResult<GoalsByMonthlyResponseDto>> {
         log.debug(">> request getGoalsByDueMonth(userId=${userId})")
         return ApiResponse.ok(goalService.getGoalSummariesByDueYearMonth(userId, dueYearMonth))
+    }
+
+    @GetMapping("/goals/todos/in-progress")
+    override fun getGoalsSummariesInProgress(@RequestParam("userId") userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>> {
+        log.debug(">> request getGoalsSummariesInProgress(userId=${userId})")
+
+        return ApiResponse.ok(goalService.getGoalsSummariesInProgress(userId))
     }
 }

@@ -270,4 +270,33 @@ interface GoalController {
                            @DateTimeFormat(pattern = "yyyy-MM")
                            dueYearMonth: YearMonth
     ): ResponseEntity<ApiResult<GoalsByMonthlyResponseDto>>
+
+    @Operation(
+        summary = "진행 중 목표 조회 (타이머)",
+        description = """
+            마감일이 지나지 않은 목표를 조회합니다.
+            이 때 조회되는 할 일은 완료되지 않은 상태입니다.
+        """
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "조회 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = GoalSummaryResponseDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun getGoalsSummariesInProgress(@RequestParam("userId") userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>>
 }
