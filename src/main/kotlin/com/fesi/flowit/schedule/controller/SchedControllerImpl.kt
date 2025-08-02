@@ -3,6 +3,7 @@ package com.fesi.flowit.schedule.controller
 import com.fesi.flowit.common.logging.loggerFor
 import com.fesi.flowit.common.response.ApiResponse
 import com.fesi.flowit.common.response.ApiResult
+import com.fesi.flowit.schedule.dto.SchedAssignedSchedResponseDto
 import com.fesi.flowit.schedule.dto.SchedCreateRequestDto
 import com.fesi.flowit.schedule.dto.SchedCreateResponseDto
 import com.fesi.flowit.schedule.dto.SchedUnassignedTodosResponseDto
@@ -33,14 +34,26 @@ class SchedControllerImpl(
     }
 
     @GetMapping("/schedules/unassigned")
-    override fun getUnassignedTodo(@RequestParam("userId") userId: Long,
+    override fun getUnassignedTodos(@RequestParam("userId") userId: Long,
 
-                          @RequestParam(name = "date", required = true)
-                          @DateTimeFormat(pattern = "yyyy-MM-dd")
-                          date: LocalDate
+                                    @RequestParam(name = "date", required = true)
+                                    @DateTimeFormat(pattern = "yyyy-MM-dd")
+                                    date: LocalDate
     ): ResponseEntity<ApiResult<SchedUnassignedTodosResponseDto>> {
         log.debug(">> request getUnassignedTodo(userId=${userId}, date: ${date})")
 
-        return ApiResponse.ok(schedService.getUnassignedTodo(userId, date))
+        return ApiResponse.ok(schedService.getUnassignedTodos(userId, date))
+    }
+
+    @GetMapping("/schedules/assigned")
+    override fun getAssignedSched(@RequestParam("userId") userId: Long,
+
+                                  @RequestParam(name = "date", required = true)
+                         @DateTimeFormat(pattern = "yyyy-MM-dd")
+                         date: LocalDate
+    ): ResponseEntity<ApiResult<SchedAssignedSchedResponseDto>> {
+        log.debug(">> request getAssignedSched(userId=${userId}, date: ${date})")
+
+        return ApiResponse.ok(schedService.getAssignedSched(userId, date))
     }
 }
