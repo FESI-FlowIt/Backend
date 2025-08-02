@@ -1,6 +1,6 @@
 package com.fesi.flowit.goal.dto
 
-import com.fesi.flowit.common.util.REGEX_RGB_CODE
+import com.fesi.flowit.common.extensions.REGEX_RGB_CODE
 import com.querydsl.core.annotations.QueryProjection
 import io.swagger.v3.oas.annotations.media.Schema
 

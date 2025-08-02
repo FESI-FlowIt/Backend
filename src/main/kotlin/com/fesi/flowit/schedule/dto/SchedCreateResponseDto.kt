@@ -3,9 +3,15 @@ package com.fesi.flowit.schedule.dto
 import com.fesi.flowit.common.response.ApiResultCode
 import com.fesi.flowit.common.response.exceptions.ScheduleException
 import com.fesi.flowit.schedule.entity.Schedule
+import io.swagger.v3.oas.annotations.media.Schema
 
 data class SchedCreateResponseDto(
+    @field:Schema(
+        description = "회원 ID",
+        example = "1",
+    )
     val userId:Long,
+
     val schedules: MutableList<SchedSummaryResponseDto>
 ) {
     companion object {

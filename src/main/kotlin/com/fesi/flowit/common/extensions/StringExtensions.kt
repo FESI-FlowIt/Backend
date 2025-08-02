@@ -1,4 +1,4 @@
-package com.fesi.flowit.common.util
+package com.fesi.flowit.common.extensions
 
 const val REGEX_RGB_CODE = "^#([A-Fa-f0-9]{6})\$"
 
