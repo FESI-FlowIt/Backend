@@ -56,8 +56,10 @@ class UserService(
      */
     fun findUserByToken(accessToken: String): UserResponse {
         val tokenInfo = jwtProcessor.unpack(accessToken)
-        val user =
-            repository.findByEmail(tokenInfo.email) ?: throw UserNotExistsException.fromCodeWithMsg(
+        val authentication = jwtProcessor.getAuthentication(tokenInfo)
+
+        val user = repository.findByEmail(authentication.name)
+            ?: throw UserNotExistsException.fromCodeWithMsg(
                 ApiResultCode.AUTH_USER_NOT_EXISTS,
                 "Cannot find user from given token"
             )
