@@ -17,7 +17,7 @@ class TodoTimer(
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    val status: TodoTimerStatus = TodoTimerStatus.STARTED,
+    var status: TodoTimerStatus = TodoTimerStatus.STARTED,
 
     @Column(nullable = false)
     val createdDateTime: LocalDateTime,
@@ -56,5 +56,13 @@ class TodoTimer(
 
     fun setTodo(todo: Todo) {
         todo.todoTimer = this
+    }
+
+    fun pauseTimer() {
+        this.status = TodoTimerStatus.PAUSED
+    }
+
+    fun doesNotUserOwnTodoTimer(user: User): Boolean {
+        return this.user != user
     }
 }

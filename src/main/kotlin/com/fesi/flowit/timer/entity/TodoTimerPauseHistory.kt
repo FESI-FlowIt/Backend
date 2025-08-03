@@ -11,10 +11,16 @@ class TodoTimerPauseHistory(
 
     val pauseStartedDateTime: LocalDateTime,
 
-    val pauseEndedDateTime: LocalDateTime,
+    var pauseEndedDateTime: LocalDateTime? = null,
 
     val totalPausedTime: Long = 0L
 ) {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
+
+    companion object {
+        fun createPauseTimerHistory(timer: TodoTimer, pauseStartedDateTime: LocalDateTime): TodoTimerPauseHistory {
+            return TodoTimerPauseHistory(timer = timer, pauseStartedDateTime =  pauseStartedDateTime)
+        }
+    }
 }

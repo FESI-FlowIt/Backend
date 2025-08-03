@@ -10,6 +10,12 @@ data class TodoTimerUserInfo(
     val userId: Long,
 
     @field:Schema(
+        description = "할 일 타이머 ID",
+        example = "1"
+    )
+    val todoTimerId: Long? = null,
+
+    @field:Schema(
         description = "할 일 타이머 동작 여부",
         example = "true | false"
     )

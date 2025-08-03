@@ -1,16 +1,14 @@
 package com.fesi.flowit.timer.controller
 
 import com.fesi.flowit.common.response.ApiResult
-import com.fesi.flowit.timer.dto.TodoTimerStartRequestDto
-import com.fesi.flowit.timer.dto.TodoTimerStartResponseDto
-import com.fesi.flowit.timer.dto.TodoTimerTotalRunningTime
-import com.fesi.flowit.timer.dto.TodoTimerUserInfo
+import com.fesi.flowit.timer.dto.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 
@@ -101,4 +99,32 @@ interface TodoTimerController {
         ]
     )
     fun startTodoTimer(@RequestBody request: TodoTimerStartRequestDto): ResponseEntity<ApiResult<TodoTimerStartResponseDto>>
+
+    @Operation(
+        summary = "타이머 중지",
+        description = "해당 할 일의 타이머를 중지합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "201",
+                description = "타이머 중지 성공 (중지 기록을 생성했기 때문에 201을 반환합니다.)",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = TodoTimerPauseResponseDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun pauseTodoTimer(@PathVariable("todoTimerId") todoTimerId: Long,
+                       @RequestParam("userId") userId: Long
+    ): ResponseEntity<ApiResult<TodoTimerPauseResponseDto>>
 }

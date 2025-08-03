@@ -15,7 +15,8 @@ interface TodoTimerRepository : JpaRepository<TodoTimer, Long> {
 
     @Query("""
         SELECT new com.fesi.flowit.timer.dto.TodoTimerUserInfo(
-            u.id, 
+            u.id,
+            tt.id,
             CASE WHEN u.todoTimer.status != 'FINISHED' THEN true ELSE false END,
             u.todoTimer.todo.id,
             u.todoTimer.todo.goal.id
