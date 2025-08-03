@@ -135,7 +135,7 @@ class TodoServiceImpl(
         return todoRepository.findTodosByDueDate(user, date.atStartOfDay())
     }
 
-    private fun getTodoById(todoId: Long): Todo {
+    override fun getTodoById(todoId: Long): Todo {
         return todoRepository.findById(todoId).orElseThrow { TodoException.fromCode(ApiResultCode.TODO_NOT_FOUND) }
     }
 }

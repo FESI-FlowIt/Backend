@@ -13,6 +13,7 @@ interface TodoService {
     fun modifyTodo(todoId: Long, userId: Long, name: String, goalId: Long): TodoModifyResponseDto
     fun changeDoneStatus(todoId: Long, userId: Long, isDone: Boolean): TodoChangeDoneResponseDto
     fun deleteTodoById(userId: Long, todoId: Long)
+    fun getTodoById(todoId: Long): Todo
     fun getTodosByIds(todoIds: List<Long>): List<Todo>
     fun getTodoSummariesWithDateFromDueDate(user: User, date: LocalDate): MutableList<TodoSummaryWithDateVo>
     fun getTodoSummariesWithDateFromDueDate(userId: Long, date: LocalDate): MutableList<TodoSummaryWithDateVo>

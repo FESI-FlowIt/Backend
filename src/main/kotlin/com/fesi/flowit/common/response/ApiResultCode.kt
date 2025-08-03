@@ -41,6 +41,9 @@ enum class ApiResultCode(
     SCHED_INVALID_ID("5001", "Schedule-id is invalid"),
     SCHED_INVALID_TODO("5002", "Invalid todo in schedule"),
 
+    // 6000-6999: Timer
+    TIMER_TODO_INVALID_TIME("6001", "Todo Timer time is invalid."),
+
     // 9000-9999: Common Code
     RGB_FORMAT_INVALID("9000", "Invalid RGB code format"),
 

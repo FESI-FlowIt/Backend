@@ -23,6 +23,9 @@ class TodoTimer(
     val createdDateTime: LocalDateTime,
 
     @Column(nullable = false)
+    val startedDateTime: LocalDateTime,
+
+    @Column(nullable = false)
     val endedDateTime: LocalDateTime,
 
     @Column(nullable = false)

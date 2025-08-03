@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import java.time.LocalDateTime
+import java.util.*
 
 interface TodoRepository : JpaRepository<Todo, Long> {
 
@@ -22,6 +23,9 @@ interface TodoRepository : JpaRepository<Todo, Long> {
             AND g.dueDateTime > :date
     """)
     fun findTodosByDueDate(@Param("user") user: User, @Param("date") date: LocalDateTime): MutableList<TodoSummaryWithDateVo>
+
+    @EntityGraph(attributePaths = ["goal", "user"])
+    override fun findById(@Param("todoId") todoId: Long): Optional<Todo>
 
     @EntityGraph(attributePaths = ["goal", "user"])
     fun findAllByIdIn(@Param("todoIds") todoIds: List<Long>): List<Todo>
