@@ -12,10 +12,31 @@ import org.springframework.stereotype.Repository
 interface TokenRepository : JpaRepository<RefreshToken, Long> {
     fun findByUserId(userId: Long): RefreshToken?
     fun findByUserIdAndRevoked(userId: Long, revoked: Boolean): RefreshToken?
+    fun findByTokenAndRevoked(token: String, revoked: Boolean): RefreshToken?
+
+    @Query(
+        """
+           SELECT new com.fesi.flowit.auth.vo.RefreshToken(
+              rt.userId,
+              rt.token,
+              rt.expiresAt,
+              rt.revoked
+           )
+            FROM RefreshToken rt
+            WHERE rt.userId = :userId AND rt.revoked = :revoked
+            ORDER BY rt.id DESC 
+            LIMIT 1
+        """
+    )
+    fun findFreshByUserIdAndRevoked(
+        @Param("userId") userId: Long,
+        @Param("revoked") revoked: Boolean
+    ): List<RefreshToken>
+
     @Modifying
-    @Query("update RefreshToken rt set rt.revoked = :revoked where rt.userId = :userId")
+    @Query("update RefreshToken rt set rt.revoked = :revoked where rt.token = :token")
     fun updateRevoked(
-        @Param(value = "userId") userId: Long,
+        @Param(value = "token") token: String,
         @Param(value = "revoked") revoked: Boolean
     )
 }

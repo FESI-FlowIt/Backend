@@ -1,17 +1,12 @@
 package com.fesi.flowit.common.response
 
 import com.fesi.flowit.common.logging.loggerFor
-import com.fesi.flowit.common.response.exceptions.InvalidPasswordException
-import com.fesi.flowit.common.response.exceptions.UserNotExistsException
-import com.fesi.flowit.common.response.exceptions.BaseException
-import com.fesi.flowit.common.response.exceptions.ValidationException
-import com.fesi.flowit.common.response.exceptions.toApiResult
-import com.fesi.flowit.common.response.exceptions.UserAlreadySignedUpException
+import com.fesi.flowit.common.response.exceptions.*
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import java.lang.Exception
+import org.springframework.web.servlet.resource.NoResourceFoundException
 
 private val log = loggerFor<GlobalExceptionHandler>()
 
@@ -39,6 +34,15 @@ class GlobalExceptionHandler {
             }
             else -> ex.toApiResult()
         }.toResponseEntity()
+    }
+
+    @ExceptionHandler(NoResourceFoundException::class)
+    fun handleNoResourceException(ex: Exception): ResponseEntity<ApiResult<Exception>> {
+        return ApiResult.Exception<BaseException>(
+            code = ApiResultCode.NOT_FOUND.code,
+            message = ex.message ?: ApiResultCode.NOT_FOUND.message,
+            httpStatus = HttpStatus.NOT_FOUND
+        ).toResponseEntity()
     }
 
     @ExceptionHandler(Exception::class)

@@ -1,5 +1,6 @@
 package org.swyp.weddy.domain.auth.web
 
+import com.fesi.flowit.auth.web.request.RegenerateRequest
 import com.fesi.flowit.auth.web.request.SignInRequest
 import com.fesi.flowit.auth.web.response.RegenerateResponse
 import com.fesi.flowit.auth.web.response.SignInResponse
@@ -58,8 +59,7 @@ interface AuthApiSpec {
     )
     @PostMapping("/auths/signIn")
     fun signIn(
-        @RequestBody signInRequest: SignInRequest,
-        response: HttpServletResponse
+        @RequestBody signInRequest: SignInRequest
     ): ResponseEntity<ApiResult<SignInResponse>>
 
     @Operation(
@@ -88,9 +88,7 @@ interface AuthApiSpec {
             )
         ]
     )
-    @PostMapping("/auths/tokens")
     fun regenerate(
-        request: HttpServletRequest,
-        refreshToken: Cookie
+        request: RegenerateRequest
     ): ResponseEntity<ApiResult<RegenerateResponse>>
 }
