@@ -2,6 +2,7 @@ package com.fesi.flowit.user.entity
 
 import com.fesi.flowit.goal.entity.Goal
 import com.fesi.flowit.schedule.entity.Schedule
+import com.fesi.flowit.timer.entity.TodoTimer
 import com.fesi.flowit.todo.entity.Todo
 import jakarta.persistence.*
 import org.springframework.security.core.GrantedAuthority
@@ -47,6 +48,9 @@ class User(
 
     @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL])
     val schedules: MutableList<Schedule> = mutableListOf()
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    val todoTimer: TodoTimer? = null
 
     companion object {
         fun of(
