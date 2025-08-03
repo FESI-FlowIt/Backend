@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.data.domain.Pageable
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
@@ -271,6 +272,7 @@ interface GoalController {
                            dueYearMonth: YearMonth
     ): ResponseEntity<ApiResult<GoalsByMonthlyResponseDto>>
 
+    @Tag(name = "할 일 타이머")
     @Operation(
         summary = "진행 중 목표 조회 (타이머)",
         description = """

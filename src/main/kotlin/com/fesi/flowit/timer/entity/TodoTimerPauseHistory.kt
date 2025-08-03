@@ -4,7 +4,7 @@ import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
-@Table(name ="todo_timer_pause_history")
+@Table(name ="todo_timer_pause_histories")
 class TodoTimerPauseHistory(
     @ManyToOne(fetch = FetchType.LAZY)
     val timer: TodoTimer,
