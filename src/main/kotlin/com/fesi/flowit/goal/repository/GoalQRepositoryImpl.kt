@@ -2,10 +2,13 @@ package com.fesi.flowit.goal.repository
 
 import com.fesi.flowit.goal.dto.GoalFindAllResponseDto
 import com.fesi.flowit.goal.dto.QGoalFindAllResponseDto
+import com.fesi.flowit.goal.dto.TodoSummaryInGoal
 import com.fesi.flowit.goal.entity.QGoal
 import com.fesi.flowit.goal.search.GoalSortCriteria
 import com.fesi.flowit.goal.vo.GoalSummaryVo
 import com.fesi.flowit.goal.search.GoalWidgetCondition
+import com.fesi.flowit.todo.entity.QTodo
+import com.fesi.flowit.todo.vo.TodoSummaryInGoalCond
 import com.fesi.flowit.user.entity.User
 import com.querydsl.core.types.OrderSpecifier
 import com.querydsl.core.types.Projections
@@ -22,6 +25,7 @@ class GoalQRepositoryImpl(
     private val queryFactory: JPAQueryFactory
 ) : GoalQRepository {
     private val goal = QGoal.goal
+    private val todo = QTodo.todo
 
     override fun findAllGoalsByUser(user: User) : List<GoalFindAllResponseDto> {
         return queryFactory
@@ -32,6 +36,9 @@ class GoalQRepositoryImpl(
             .fetch()
     }
 
+    /**
+     * 페이징 조건에 따른 목표 검색
+     */
     override fun searchGoals(user: User, cond: GoalWidgetCondition, pageable: Pageable): Page<GoalSummaryVo> {
         val goals = queryFactory
             .select(
@@ -69,16 +76,37 @@ class GoalQRepositoryImpl(
         return PageImpl(goals, pageable, totalCount)
     }
 
+    /**
+     * 목표에 대한 할 일 조회
+     */
+    override fun findTodoSummaryByGoalIds(cond: TodoSummaryInGoalCond): List<TodoSummaryInGoal> {
+        return queryFactory
+            .select(Projections.constructor(
+                TodoSummaryInGoal::class.java,
+                todo.id,
+                goal.id,
+                todo.name,
+                todo.isDone
+            ))
+            .from(goal)
+            .leftJoin(todo)
+            .on(todo.goal.id.eq(goal.id))
+            .where(
+                isOwnedBy(cond.user),
+                isGoalIdEqual(cond.goalId),
+                isGoalIdIn(cond.goalIds),
+                isTodoDone(cond.isDone),
+                isExistTodo()
+            )
+            .fetch()
+    }
+
     private fun isOnlyPinned(isPinned: Boolean): BooleanExpression? {
         return if (isPinned) {
             goal.isPinned.eq(true)
         } else {
              null
         }
-    }
-
-    private fun isNotExpireGoal(): BooleanExpression {
-        return goal.dueDateTime.goe(LocalDateTime.now())
     }
 
     private fun orderByGoalSortCriteria(cond: GoalSortCriteria): OrderSpecifier<LocalDateTime> {
@@ -88,7 +116,10 @@ class GoalQRepositoryImpl(
         }
     }
 
-    private fun isOwnedBy(user: User): BooleanExpression {
-        return goal.user.eq(user)
-    }
+    private fun isGoalIdIn(goalIds: List<Long>?): BooleanExpression? = if (goalIds == null) null else goal.id.`in`(goalIds)
+    private fun isGoalIdEqual(goalId: Long?): BooleanExpression? = if (goalId == null) null else goal.id.eq(goalId)
+    private fun isNotExpireGoal(): BooleanExpression = goal.dueDateTime.goe(LocalDateTime.now())
+    private fun isOwnedBy(user: User?): BooleanExpression? = if (user == null) null else goal.user.eq(user)
+    private fun isExistTodo(): BooleanExpression = todo.id.isNotNull
+    private fun isTodoDone(isDone: Boolean?): BooleanExpression? = todo.isDone.eq(isDone) ?: null
 }

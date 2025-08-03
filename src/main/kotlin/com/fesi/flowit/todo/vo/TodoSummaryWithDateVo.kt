@@ -27,6 +27,12 @@ data class TodoSummaryWithDateVo(
     val name: String,
 
     @field:Schema(
+        description = "완료 여부",
+        example = "true | false",
+    )
+    val isDone: Boolean,
+
+    @field:Schema(
         description = "생성 시간",
         example = "2025-07-19T14:29:00",
     )

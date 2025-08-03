@@ -42,6 +42,18 @@ enum class ApiResultCode(
     SCHED_INVALID_ID("5001", "Schedule-id is invalid"),
     SCHED_INVALID_TODO("5002", "Invalid todo in schedule"),
 
+    // 6000-6999: Timer
+    TIMER_TODO_NOT_FOUND("6000", "Not found todo-timer"),
+    TIMER_TODO_INVALID_TIME("6001", "Todo Timer time is invalid."),
+    TIMER_TODO_ALREADY_RUNNING("6002", "Todo Timer is already running."),
+    TIMER_TODO_INVALID_ID("6003", "Todo Timer id is invalid."),
+    TIMER_TODO_NOT_MATCH_USER("6004", "The user has not this todo-timer"),
+    TIMER_TODO_NOT_RUNNING("6005", "Todo Timer is not running"),
+    TIMER_TODO_NOT_PAUSED("6006", "Todo Timer is not paused"),
+    TIMER_TODO_NOT_ENDED_PAUSED("6007", "Todo Timer is already paused in data.. plz check"),
+    TIMER_TODO_PAUSED_ID_INVALID("6008", "Todo Timer paused history id is invalid"),
+    TIMER_TODO_PAUSED_MANY("6009", "This timer has many paused histories.. plz check"),
+
     // 9000-9999: Common Code
     RGB_FORMAT_INVALID("9000", "Invalid RGB code format"),
 

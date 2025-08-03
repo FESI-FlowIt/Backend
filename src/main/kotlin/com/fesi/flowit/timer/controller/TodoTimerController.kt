@@ -1,0 +1,188 @@
+package com.fesi.flowit.timer.controller
+
+import com.fesi.flowit.common.response.ApiResult
+import com.fesi.flowit.timer.dto.*
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
+
+interface TodoTimerController {
+    @Operation(
+        summary = "해당 회원이 할 일 타이머 있는지 확인",
+        description = """
+            hasTodoTimer가 true이면 이 정보를 상태값으로 들고 있다가, 
+            해당 할 일 조회 시 타이머 정보 조회 API를 호출해주시면 됩니다.
+        """
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "조회 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = TodoTimerUserInfo::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun hasUserTodoTimer(@RequestParam("userId") userId: Long): ResponseEntity<ApiResult<TodoTimerUserInfo>>
+
+    @Operation(
+        summary = "할 일 누적 작업 시간 조회",
+        description = """
+            목표 목록에 포함하기엔 데이터가 많아지면 응답 시간이 늦어질 것 같아서 분리를 했습니다.
+            모달 내에서 할 일 선택했을 때 호출해서 렌더링하시면 됩니다.
+            기왕이면 모달 열려있을 때는 최초 호출한 값으로 사용해주시면 좋겠습니다. (모달 새로 열렸을 때 refresh)
+        """
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "조회 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = TodoTimerTotalRunningTime::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun getTotalRunningTimeByTodo(@RequestParam("userId") userId: Long,
+                                  @RequestParam("todoId") todoId: Long
+    ): ResponseEntity<ApiResult<TodoTimerTotalRunningTime>>
+
+    @Operation(
+        summary = "타이머 시작",
+        description = "해당 할 일의 타이머를 시작합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "201",
+                description = "타이머 시작 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = TodoTimerStartResponseDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun startTodoTimer(@RequestBody request: TodoTimerStartRequestDto): ResponseEntity<ApiResult<TodoTimerStartResponseDto>>
+
+    @Operation(
+        summary = "타이머 중지",
+        description = "해당 할 일의 타이머를 중지합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "201",
+                description = "타이머 중지 성공 (중지 기록을 생성했기 때문에 201을 반환합니다.)",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = TodoTimerPauseResponseDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun pauseTodoTimer(@PathVariable("todoTimerId") todoTimerId: Long,
+                       @RequestParam("userId") userId: Long
+    ): ResponseEntity<ApiResult<TodoTimerPauseResponseDto>>
+
+    @Operation(
+        summary = "타이머 재시작",
+        description = "타이머를 재시작합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "타이머 재시작 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = TodoTimerResumeResponseDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun resumeTodoTimer(@PathVariable("todoTimerId") todoTimerId: Long,
+                        @RequestParam("userId") userId: Long): ResponseEntity<ApiResult<TodoTimerResumeResponseDto>>
+
+    @Operation(
+        summary = "타이머 종료",
+        description = """
+           타이머를 종료합니다. 
+           반환되는 작업 시간은 이번 타이머가 얼마나 돌았는지 계산한 값입니다. (일시 정지 제외)
+           누적 시간은 다시 API 호출해야 합니다.
+        """
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "타이머 재시작 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = TodoTimerStopResponseDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun finishTodoTimer(@PathVariable("todoTimerId") todoTimerId: Long,
+                        @RequestParam("userId") userId: Long): ResponseEntity<ApiResult<TodoTimerStopResponseDto>>
+}

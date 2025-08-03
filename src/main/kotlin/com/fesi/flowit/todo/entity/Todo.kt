@@ -2,6 +2,7 @@ package com.fesi.flowit.todo.entity
 
 import com.fesi.flowit.goal.entity.Goal
 import com.fesi.flowit.schedule.entity.Schedule
+import com.fesi.flowit.timer.entity.TodoTimer
 import com.fesi.flowit.user.entity.User
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
@@ -44,6 +45,10 @@ class Todo private constructor(
     @OneToMany(mappedBy = "todo", cascade = [CascadeType.ALL], orphanRemoval = true)
     val schedules: MutableList<Schedule> = mutableListOf()
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @JoinColumn(name ="todo_timer_id", referencedColumnName = "id")
+    var todoTimer: TodoTimer? = null
+
     companion object {
         fun of(user: User, name: String, isDone: Boolean, createdDateTime: LocalDateTime, modifiedDateTime: LocalDateTime): Todo {
             return Todo(user, name, isDone, createdDateTime, modifiedDateTime, null)
@@ -54,6 +59,10 @@ class Todo private constructor(
             todo.goal = goal
             return todo
         }
+    }
+
+    fun initializeTodoTimer() {
+        this.todoTimer = null
     }
 
     fun doesNotUserOwnTodo(user: User): Boolean {
