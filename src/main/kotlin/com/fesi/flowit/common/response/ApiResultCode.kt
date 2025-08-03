@@ -43,6 +43,8 @@ enum class ApiResultCode(
 
     // 6000-6999: Timer
     TIMER_TODO_INVALID_TIME("6001", "Todo Timer time is invalid."),
+    TIMER_TODO_ALREADY_RUNNING("6002", "Todo Timer is already running."),
+    TIMER_TODO_INVALID_ID("6003", "Todo Timer id is invalid."),
 
     // 9000-9999: Common Code
     RGB_FORMAT_INVALID("9000", "Invalid RGB code format"),

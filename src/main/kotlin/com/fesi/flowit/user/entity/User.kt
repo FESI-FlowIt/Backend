@@ -50,7 +50,8 @@ class User(
     val schedules: MutableList<Schedule> = mutableListOf()
 
     @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
-    val todoTimer: TodoTimer? = null
+    @JoinColumn(name ="todo_timer_id", referencedColumnName = "id")
+    var todoTimer: TodoTimer? = null
 
     companion object {
         fun of(

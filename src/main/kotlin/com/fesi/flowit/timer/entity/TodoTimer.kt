@@ -25,8 +25,8 @@ class TodoTimer(
     @Column(nullable = false)
     val startedDateTime: LocalDateTime,
 
-    @Column(nullable = false)
-    val endedDateTime: LocalDateTime,
+    @Column(nullable = true)
+    var endedDateTime: LocalDateTime?,
 
     @Column(nullable = false)
     val runningTime: Long = 0L
@@ -36,4 +36,25 @@ class TodoTimer(
 
     @OneToMany(mappedBy = "timer", cascade = [CascadeType.ALL], orphanRemoval = true)
     val pauseHistory: MutableList<TodoTimerPauseHistory> = mutableListOf()
+
+    companion object {
+        fun startTimer(user: User, todo: Todo, createdDateTime: LocalDateTime): TodoTimer {
+            return TodoTimer(
+                user = user,
+                todo = todo,
+                status = TodoTimerStatus.RUNNING,
+                createdDateTime = createdDateTime,
+                startedDateTime = createdDateTime,
+                endedDateTime = null
+            )
+        }
+    }
+
+    fun setUser(user: User) {
+        user.todoTimer = this
+    }
+
+    fun setTodo(todo: Todo) {
+        todo.todoTimer = this
+    }
 }

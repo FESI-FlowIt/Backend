@@ -1,6 +1,8 @@
 package com.fesi.flowit.timer.controller
 
 import com.fesi.flowit.common.response.ApiResult
+import com.fesi.flowit.timer.dto.TodoTimerStartRequestDto
+import com.fesi.flowit.timer.dto.TodoTimerStartResponseDto
 import com.fesi.flowit.timer.dto.TodoTimerTotalRunningTime
 import com.fesi.flowit.timer.dto.TodoTimerUserInfo
 import io.swagger.v3.oas.annotations.Operation
@@ -9,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 
 interface TodoTimerController {
@@ -72,4 +75,30 @@ interface TodoTimerController {
     fun getTotalRunningTimeByTodo(@RequestParam("userId") userId: Long,
                                   @RequestParam("todoId") todoId: Long
     ): ResponseEntity<ApiResult<TodoTimerTotalRunningTime>>
+
+    @Operation(
+        summary = "타이머 시작",
+        description = "해당 할 일의 타이머를 시작합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "201",
+                description = "타이머 시작 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = TodoTimerStartResponseDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun startTodoTimer(@RequestBody request: TodoTimerStartRequestDto): ResponseEntity<ApiResult<TodoTimerStartResponseDto>>
 }
