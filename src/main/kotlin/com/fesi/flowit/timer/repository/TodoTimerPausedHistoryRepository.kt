@@ -14,4 +14,14 @@ interface TodoTimerPausedHistoryRepository : JpaRepository<TodoTimerPauseHistory
             AND t.pauseEndedDateTime IS NULL
     """)
     fun existPausedTimerNotEndedByTimer(todoTimer: TodoTimer): Boolean
+
+    @Query("""
+        SELECT timerHistory
+        FROM TodoTimerPauseHistory timerHistory
+        JOIN FETCH timerHistory.timer timer
+        WHERE
+            timerHistory.timer = :todoTimer
+            AND timerHistory.pauseEndedDateTime IS NULL
+    """)
+    fun findPausedTimerByTimer(todoTimer: TodoTimer): List<TodoTimerPauseHistory>
 }

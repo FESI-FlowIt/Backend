@@ -3,10 +3,7 @@ package com.fesi.flowit.timer.service
 import com.fesi.flowit.common.logging.loggerFor
 import com.fesi.flowit.common.response.ApiResultCode
 import com.fesi.flowit.common.response.exceptions.TodoTimerException
-import com.fesi.flowit.timer.dto.TodoTimerPauseResponseDto
-import com.fesi.flowit.timer.dto.TodoTimerStartResponseDto
-import com.fesi.flowit.timer.dto.TodoTimerTotalRunningTime
-import com.fesi.flowit.timer.dto.TodoTimerUserInfo
+import com.fesi.flowit.timer.dto.*
 import com.fesi.flowit.timer.entity.TodoTimer
 import com.fesi.flowit.timer.entity.TodoTimerPauseHistory
 import com.fesi.flowit.timer.repository.TodoTimerPausedHistoryRepository
@@ -18,6 +15,7 @@ import com.fesi.flowit.user.entity.User
 import com.fesi.flowit.user.service.UserService
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
+import java.time.Duration
 import java.time.LocalDateTime
 
 private val log = loggerFor<TodoTimerServiceImpl>()
@@ -128,7 +126,54 @@ class TodoTimerServiceImpl(
         )
     }
 
+    /**
+     * 할 일 타이머 일시 정지 다시 시작
+     */
+    @Transactional
+    override fun resumeTodoTimer(userId: Long, todoTimerId: Long): TodoTimerResumeResponseDto {
+        val user: User = userService.findUserById(userId)
+        val todoTimer: TodoTimer = todoTimerRepository.findById(todoTimerId)
+            .orElseThrow { throw TodoTimerException.fromCode(ApiResultCode.TIMER_TODO_NOT_FOUND) }
+
+        if (todoTimer.doesNotUserOwnTodoTimer(user)) {
+            throw TodoTimerException.fromCode(ApiResultCode.TIMER_TODO_NOT_MATCH_USER)
+        }
+
+        if (!isPausedTimer(todoTimer)) {
+            throw TodoTimerException.fromCode(ApiResultCode.TIMER_TODO_NOT_PAUSED)
+        }
+
+        val todoTimerHistories: List<TodoTimerPauseHistory> = todoTimerPausedHistoryRepository.findPausedTimerByTimer(todoTimer)
+        if (todoTimerHistories.size > 1) {
+            log.warn("Todo Timer has many paused histories.. histories=${todoTimerHistories}")
+            throw TodoTimerException.fromCode(ApiResultCode.TIMER_TODO_PAUSED_MANY)
+        }
+
+        val resumeDateTime = LocalDateTime.now()
+        val historyForResume = todoTimerHistories[0]
+
+        historyForResume.pauseEndedDateTime = resumeDateTime
+        historyForResume.totalPausedTime =
+            Duration.between(historyForResume.pauseStartedDateTime, historyForResume.pauseEndedDateTime).seconds
+
+        todoTimer.resumeTimer()
+
+        log.debug("Resume todo timer.. todoTimerId={}, started={}, ended={}, pausedTime={}",
+            historyForResume.id, historyForResume.pauseStartedDateTime, historyForResume.pauseEndedDateTime, historyForResume.totalPausedTime)
+
+        return TodoTimerResumeResponseDto.of(
+            historyForResume.timer.id ?: throw TodoTimerException.fromCode(ApiResultCode.TIMER_TODO_INVALID_ID),
+            historyForResume.timer.todo.id ?: throw TodoTimerException.fromCode(ApiResultCode.TODO_INVALID_ID),
+            historyForResume.pauseEndedDateTime!!,
+            historyForResume.totalPausedTime
+        )
+    }
+
     private fun isRunningTimer(todoTimer: TodoTimer): Boolean {
         return todoTimer.status.isRunning()
+    }
+
+    private fun isPausedTimer(todoTimer: TodoTimer): Boolean {
+        return todoTimer.status.isPaused()
     }
 }

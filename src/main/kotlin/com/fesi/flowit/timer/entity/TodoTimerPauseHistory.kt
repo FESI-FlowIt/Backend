@@ -13,7 +13,7 @@ class TodoTimerPauseHistory(
 
     var pauseEndedDateTime: LocalDateTime? = null,
 
-    val totalPausedTime: Long = 0L
+    var totalPausedTime: Long = 0L
 ) {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
@@ -22,5 +22,15 @@ class TodoTimerPauseHistory(
         fun createPauseTimerHistory(timer: TodoTimer, pauseStartedDateTime: LocalDateTime): TodoTimerPauseHistory {
             return TodoTimerPauseHistory(timer = timer, pauseStartedDateTime =  pauseStartedDateTime)
         }
+    }
+
+    override fun toString(): String {
+        return """
+            timer=${timer},
+            timerId=${timer.id},
+            pauseStartedDateTime=${pauseStartedDateTime},
+            pauseEndedDateTime=${pauseEndedDateTime},
+            totalPausedTime=${totalPausedTime}
+        """.trimIndent()
     }
 }

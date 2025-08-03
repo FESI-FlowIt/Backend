@@ -18,4 +18,8 @@ enum class TodoTimerStatus(
     fun isRunning(): Boolean {
         return this == RUNNING
     }
+
+    fun isPaused(): Boolean {
+        return this == PAUSED
+    }
 }

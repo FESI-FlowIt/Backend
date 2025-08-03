@@ -11,7 +11,7 @@ data class TodoTimerPauseResponseDto(
     val todoTimerId: Long,
 
     @field:Schema(
-        description = "회원 ID",
+        description = "할 일 ID",
         example = "1",
     )
     val todoId: Long,

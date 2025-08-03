@@ -127,4 +127,31 @@ interface TodoTimerController {
     fun pauseTodoTimer(@PathVariable("todoTimerId") todoTimerId: Long,
                        @RequestParam("userId") userId: Long
     ): ResponseEntity<ApiResult<TodoTimerPauseResponseDto>>
+
+    @Operation(
+        summary = "타이머 재시작",
+        description = "타이머를 재시작합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "타이머 재시작 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = TodoTimerResumeResponseDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun resumeTodoTimer(@PathVariable("todoTimerId") todoTimerId: Long,
+                        @RequestParam("userId") userId: Long): ResponseEntity<ApiResult<TodoTimerResumeResponseDto>>
 }

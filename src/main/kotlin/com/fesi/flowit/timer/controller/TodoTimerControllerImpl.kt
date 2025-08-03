@@ -8,6 +8,7 @@ import com.fesi.flowit.timer.service.TodoTimerService
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -47,10 +48,18 @@ class TodoTimerControllerImpl(
 
     @PostMapping("/todo-timers/{todoTimerId}/pause")
     override fun pauseTodoTimer(@PathVariable("todoTimerId") todoTimerId: Long,
-                       @RequestParam("userId") userId: Long
+                                @RequestParam("userId") userId: Long
     ): ResponseEntity<ApiResult<TodoTimerPauseResponseDto>> {
         log.debug(">> request pauseTodoTimer(todoTimerId=${todoTimerId}, userId=${userId})")
 
-        return ApiResponse.ok(todoTimerService.pauseTodoTimer(userId, todoTimerId))
+        return ApiResponse.created(todoTimerService.pauseTodoTimer(userId, todoTimerId))
+    }
+
+    @PatchMapping("/todo-timers/{todoTimerId}/resume")
+    override fun resumeTodoTimer(@PathVariable("todoTimerId") todoTimerId: Long,
+                        @RequestParam("userId") userId: Long): ResponseEntity<ApiResult<TodoTimerResumeResponseDto>> {
+        log.debug(">> request resumeTodoTimer(todoTimerId=${todoTimerId}, userId=${userId}")
+
+        return ApiResponse.ok(todoTimerService.resumeTodoTimer(userId, todoTimerId))
     }
 }

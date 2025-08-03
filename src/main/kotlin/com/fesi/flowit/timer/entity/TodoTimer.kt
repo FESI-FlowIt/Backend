@@ -62,6 +62,10 @@ class TodoTimer(
         this.status = TodoTimerStatus.PAUSED
     }
 
+    fun resumeTimer() {
+        this.status = TodoTimerStatus.RUNNING
+    }
+
     fun doesNotUserOwnTodoTimer(user: User): Boolean {
         return this.user != user
     }
