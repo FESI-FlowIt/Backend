@@ -2,16 +2,17 @@ package com.fesi.flowit.auth.web.request
 
 import io.swagger.v3.oas.annotations.media.Schema
 
-data class SignInRequest(
+data class RegenerateRequest(
     @field:Schema(
-        description = "회원 이메일",
+        example = "refresh_token",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    val email: String,
+    val grantType: String,
 
     @field:Schema(
-        description = "회원 비밀번호",
+        description = "리프레시 토큰",
+        example = "2YotnFZFEjr1zCsicMWpAA",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    val password: String
+    val refreshToken: String,
 )

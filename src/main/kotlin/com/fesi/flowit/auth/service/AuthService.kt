@@ -29,55 +29,49 @@ class AuthService(
      * access token은 로그인 시마다 생성
      * refresh token은 상태에 따라 처리
      */
-    fun signIn(dto: SignInDto): Triple<SignInResponse, String, String> {
+    fun signIn(dto: SignInDto): SignInResponse {
         val authenticationToken = UsernamePasswordAuthenticationToken(dto.email, dto.password)
 
-        val accessToken: String
-        val refreshToken: String
+        val accessTokenAndExpiresIn: Pair<String, Long>
+        val refreshToken: String?
         val authentication: Authentication
         try {
             authentication = authenticationManager.authenticate(authenticationToken)
-            accessToken = jwtGenerator.generateToken(authentication)
-            refreshToken = jwtGenerator.handleRefreshToken(authentication) ?: ""
+            accessTokenAndExpiresIn = jwtGenerator.generateToken(authentication)
+            refreshToken = jwtGenerator.handleRefreshToken(authentication)
         } catch (e: AuthenticationException) {
             throw AuthException.fromCode(ApiResultCode.UNAUTHORIZED)
         }
 
-        return Triple(
-            SignInResponse.of(authentication.principal as User),
-            accessToken,
-            refreshToken
+        var response = SignInResponse.of(
+            authentication.principal as User,
+            accessTokenAndExpiresIn.first,
+            accessTokenAndExpiresIn.second
         )
+        if (refreshToken != null) {
+            response = response.with(refreshToken = refreshToken)
+        }
+        return response
     }
 
     /**
      * 토큰을 재발급한다
      */
-    fun regenerate(accessToken: String, refreshToken: String): RegenerateResponse {
+    fun regenerate(refreshToken: String): RegenerateResponse {
         if (!jwtProcessor.verify(refreshToken)) {
             throw AuthException.fromCode(ApiResultCode.AUTH_TOKEN_INVALID)
         }
 
-        val tokenInfo = jwtProcessor.unpackExpired(accessToken)
-        val authentication = jwtProcessor.getAuthentication(tokenInfo)
-        val userDetails = authentication.principal as User
-        val storedRefreshToken = refreshTokenRepository.findByUserId(userDetails.id)
+        val tokenInfo = jwtProcessor.unpackRefreshToken(refreshToken)
+        val authentication = jwtProcessor.getAuthenticationFromId(tokenInfo.userId)
 
-        if (!storedRefreshToken?.token.equals(refreshToken)) {
-            throw AuthException.fromCodeWithMsg(
-                ApiResultCode.AUTH_USER_INFO_NOT_MATCH,
-                "User info of given refresh token not match with user info in database"
-            )
+        val (newAccessToken, expiresIn) = jwtGenerator.generateToken(authentication)
+        val newRefreshToken = jwtGenerator.handleRefreshTokenWith(refreshToken)
+
+        var response = RegenerateResponse.of(accessToken = newAccessToken, expiresIn = expiresIn)
+        if (newRefreshToken != null) {
+            response = response.with(refreshToken = newRefreshToken)
         }
-
-        val newAccessToken = jwtGenerator.generateToken(authentication)
-        val newRefreshToken = jwtGenerator.handleRefreshToken(authentication) ?: ""
-
-        if (newRefreshToken == "") {
-            return RegenerateResponse.of(accessToken = newAccessToken)
-        } else {
-            return RegenerateResponse.of(accessToken = newAccessToken)
-                .with(refreshToken = newRefreshToken)
-        }
+        return response
     }
 }

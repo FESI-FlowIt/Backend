@@ -28,7 +28,7 @@ class JwtAuthenticationFilter(
 
         // JWT가 없거나 Bearer가 아닌 경우
         val bearerKeyword = "Bearer "
-        if (authHeader?.startsWith(bearerKeyword) != true) {
+        if (authHeader == null || !authHeader.startsWith(bearerKeyword)) {
             filterChain.doFilter(request, response)
             return
         }

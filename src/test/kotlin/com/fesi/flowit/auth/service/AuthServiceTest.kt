@@ -10,6 +10,7 @@ import com.fesi.flowit.user.repository.UserRepository
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.instanceOf
 import io.mockk.every
 import io.mockk.mockk
@@ -50,6 +51,7 @@ class AuthServiceTest : StringSpec({
         val authentication = mockk<Authentication>(relaxed = true)
         every { authentication.principal } returns mockk<User>(relaxed = true)
         every { authenticationManager.authenticate(any()) } returns authentication
+        every { jwtGenerator.generateToken(any()) } returns Pair("newAccessToken", 3600)
 
         service.signIn(SignInDto("user@gmail.com", "password"))
 
@@ -60,6 +62,7 @@ class AuthServiceTest : StringSpec({
         val authentication = mockk<Authentication>(relaxed = true)
         every { authentication.principal } returns mockk<User>(relaxed = true)
         every { authenticationManager.authenticate(any()) } returns authentication
+        every { jwtGenerator.generateToken(any()) } returns Pair("newAccessToken", 3600)
 
         service.signIn(SignInDto("user@gmail.com", "password"))
 
@@ -69,28 +72,42 @@ class AuthServiceTest : StringSpec({
     "토큰 재발급 시 refresh token이 유효한지 확인한다" {
         every { jwtProcessor.verify(any()) } returns true
         val authentication = mockk<Authentication>(relaxed = true)
-        every { jwtProcessor.getAuthentication(any()) } returns authentication
+        every { jwtProcessor.getAuthenticationFromId(any()) } returns authentication
         hasUserDetails(authentication)
         refreshTokenRepository.canFindTokenByUserId(tokenValue = "refresh_token")
+        every { jwtGenerator.generateToken(any()) } returns Pair("newAccessToken", 3600)
 
-        service.regenerate("access_token", "refresh_token")
+        service.regenerate("refresh_token")
 
         verify { jwtProcessor.verify(any()) }
+    }
+
+    "토큰 재발급 시 새로운 access token을 생성한다" {
+        every { jwtProcessor.verify(any()) } returns true
+        val authentication = mockk<Authentication>(relaxed = true)
+        every { jwtProcessor.getAuthenticationFromId(any()) } returns authentication
+        hasUserDetails(authentication)
+        refreshTokenRepository.canFindTokenByUserId(tokenValue = "refresh_token")
+        every { jwtGenerator.generateToken(any()) } returns Pair("newAccessToken", 3600)
+        every { jwtGenerator.handleRefreshTokenWith(any()) } returns null
+
+        val response = service.regenerate("refresh_token")
+        response.accessToken shouldNotBe  null
+        response.refreshToken shouldBe null
     }
 
     "토큰 재발급 시 새로운 access token과 refresh token을 생성한다" {
         every { jwtProcessor.verify(any()) } returns true
         val authentication = mockk<Authentication>(relaxed = true)
-        every { jwtProcessor.getAuthentication(any()) } returns authentication
+        every { jwtProcessor.getAuthenticationFromId(any()) } returns authentication
         hasUserDetails(authentication)
         refreshTokenRepository.canFindTokenByUserId(tokenValue = "refresh_token")
-        every { jwtGenerator.generateToken(any()) } returns "newAccessToken"
-        every { jwtGenerator.handleRefreshToken(authentication) } returns "newRefreshToken"
+        every { jwtGenerator.generateToken(any()) } returns Pair("newAccessToken", 3600)
+        every { jwtGenerator.handleRefreshTokenWith(any()) } returns "newRefreshToken"
 
-        service.regenerate(
-            "access_token",
-            "refresh_token"
-        ) shouldBe instanceOf<RegenerateResponse>()
+        val response = service.regenerate("refresh_token")
+        response.accessToken shouldNotBe  null
+        response.refreshToken shouldNotBe null
     }
 })
 

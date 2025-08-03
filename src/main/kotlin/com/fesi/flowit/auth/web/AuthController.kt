@@ -2,21 +2,21 @@ package com.fesi.flowit.auth.web
 
 import com.fesi.flowit.auth.service.AuthService
 import com.fesi.flowit.auth.service.dto.SignInDto
+import com.fesi.flowit.auth.web.request.RegenerateRequest
 import com.fesi.flowit.auth.web.request.SignInRequest
 import com.fesi.flowit.auth.web.response.RegenerateResponse
 import com.fesi.flowit.auth.web.response.SignInResponse
+import com.fesi.flowit.common.logging.loggerFor
 import com.fesi.flowit.common.response.ApiResponse
 import com.fesi.flowit.common.response.ApiResult
 import io.swagger.v3.oas.annotations.tags.Tag
-import jakarta.servlet.http.Cookie
-import jakarta.servlet.http.HttpServletRequest
-import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
 import org.swyp.weddy.domain.auth.web.AuthApiSpec
+
+private val log = loggerFor<AuthController>()
 
 @Tag(name = "인증")
 @RestController
@@ -25,35 +25,22 @@ class AuthController(
 ): AuthApiSpec {
     @PostMapping("/auths/signIn")
     override fun signIn(
-        @RequestBody signInRequest: SignInRequest,
-        response: HttpServletResponse
+        @RequestBody signInRequest: SignInRequest
     ): ResponseEntity<ApiResult<SignInResponse>> {
+        log.debug(">> request signIn(${signInRequest})")
         val dto = SignInDto.from(signInRequest)
-        val (authResponse, accessToken, refreshToken) = service.signIn(dto)
-
-        response.setHeader("Authorization", "Bearer $accessToken")
-        if (refreshToken != "") {
-            response.addCookie(Cookie("refreshToken", refreshToken))
-        }
+        val authResponse = service.signIn(dto)
 
         return ApiResponse.ok(authResponse)
     }
 
     @PostMapping("/auths/tokens")
     override fun regenerate(
-        request: HttpServletRequest,
-        @CookieValue("refreshToken") refreshToken: Cookie
+        @RequestBody request: RegenerateRequest
     ): ResponseEntity<ApiResult<RegenerateResponse>> {
-        val authHeader = request.getHeader("Authorization")
-        val accessToken = authHeader.extractAccessToken()
-        val refreshTokenVal = refreshToken.value
+        log.debug(">> request regenerate(${request})")
 
-        val response = service.regenerate(accessToken, refreshTokenVal)
+        val response = service.regenerate(request.refreshToken)
         return ApiResponse.ok(response)
-    }
-
-    private fun String.extractAccessToken(): String {
-        val bearerPrefix = "Bearer "
-        return this.removePrefix(bearerPrefix).trim()
     }
 }

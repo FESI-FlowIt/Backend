@@ -6,6 +6,18 @@ fun TokenInfo.Companion.valid(): TokenInfo {
     return TokenInfo.forTest()
 }
 
+fun TokenInfo.Companion.validRefresh(): TokenInfo {
+    return TokenInfo.forTest(email = "")
+}
+
+fun TokenInfo.Companion.expiredRefresh(): TokenInfo {
+    return TokenInfo.forTest(
+        email = "",
+        issuedAt = Date(System.currentTimeMillis() - 7200000),
+        expiration = Date(System.currentTimeMillis() - 3600000) // 1시간 전 만료
+    )
+}
+
 fun TokenInfo.Companion.notexists(): TokenInfo {
     return TokenInfo.forTest(userId = 999L)
 }
