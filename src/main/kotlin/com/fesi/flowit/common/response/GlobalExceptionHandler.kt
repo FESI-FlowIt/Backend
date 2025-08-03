@@ -1,5 +1,6 @@
 package com.fesi.flowit.common.response
 
+import com.fesi.flowit.common.logging.loggerFor
 import com.fesi.flowit.common.response.exceptions.InvalidPasswordException
 import com.fesi.flowit.common.response.exceptions.UserNotExistsException
 import com.fesi.flowit.common.response.exceptions.BaseException
@@ -11,6 +12,8 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import java.lang.Exception
+
+private val log = loggerFor<GlobalExceptionHandler>()
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
@@ -40,6 +43,8 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception::class)
     fun handleException(ex: Exception): ResponseEntity<ApiResult<Error>> {
+        log.error(ex.stackTraceToString())
+
         return ApiResult.Error<Error>(
             code = ApiResultCode.INTERNAL_ERROR.code,
             message = ex.message ?: ApiResultCode.INTERNAL_ERROR.message,
