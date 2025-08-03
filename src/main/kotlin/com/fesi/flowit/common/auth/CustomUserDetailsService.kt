@@ -1,6 +1,7 @@
 package com.fesi.flowit.common.auth
 
 import com.fesi.flowit.common.response.ApiResultCode
+import com.fesi.flowit.common.response.exceptions.AuthException
 import com.fesi.flowit.common.response.exceptions.UserNotExistsException
 import com.fesi.flowit.user.repository.UserRepository
 import org.springframework.security.core.userdetails.UserDetails
@@ -12,5 +13,11 @@ class CustomUserDetailsService(private val repository: UserRepository) : UserDet
     override fun loadUserByUsername(email: String): UserDetails {
         return repository.findByEmail(email)
             ?: throw UserNotExistsException.fromCode(ApiResultCode.AUTH_USER_NOT_EXISTS)
+    }
+
+    fun loadUserById(id: Long): UserDetails {
+        return repository.findById(id).orElseThrow {
+            AuthException.fromCode(ApiResultCode.AUTH_USER_NOT_EXISTS)
+        }
     }
 }

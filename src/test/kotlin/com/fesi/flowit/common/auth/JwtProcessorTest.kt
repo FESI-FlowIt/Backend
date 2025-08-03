@@ -1,9 +1,8 @@
 package com.fesi.flowit.common.auth
 
-import com.fesi.flowit.common.auth.dto.TokenInfo
+import com.fesi.flowit.common.auth.dto.*
 import com.fesi.flowit.common.auth.dto.expired
-import com.fesi.flowit.common.auth.dto.notexists
-import com.fesi.flowit.common.auth.dto.valid
+import com.fesi.flowit.common.response.exceptions.AuthException
 import com.fesi.flowit.common.response.exceptions.FailToParseJwtException
 import com.fesi.flowit.common.response.exceptions.TokenExpiredException
 import com.fesi.flowit.user.repository.UserRepository
@@ -97,31 +96,17 @@ class JwtProcessorTest : StringSpec({
         jwtProcessor.isTokenStored(tokenInfo) shouldBe false
     }
 
-    "재발급 시 액세스 토큰의 유효 기간이 만료되었더라도 인증 객체를 가져올 수 있다" {
-        val expiredTokenInfo = TokenInfo.expired()
-        val expiredToken = jwtProcessor.pack(expiredTokenInfo)
+    "재발급 시 만료되지 않은 리프레시 토큰으로부터 인증 객체를 가져올 수 있다" {
+        val validRefreshToken = jwtProcessor.pack(TokenInfo.validRefresh())
 
-        shouldNotThrow<ExpiredJwtException> {
-            jwtProcessor.unpackExpired(expiredToken)
+        shouldNotThrow<AuthException> {
+            jwtProcessor.unpackRefreshToken(validRefreshToken)
         }
 
-        val tokenInfo = TokenInfo.valid()
-        val token = jwtProcessor.pack(tokenInfo)
+        val expiredRefreshToken = jwtProcessor.pack(TokenInfo.expiredRefresh())
 
-        shouldNotThrow<ExpiredJwtException> {
-            jwtProcessor.unpackExpired(token)
-        }
-    }
-
-    "토큰의 유효 기간이 만료되었더라도 재발급한다" {
-        canFindUser(userRepository)
-
-        val tokenInfo = TokenInfo.expired()
-        val token = jwtProcessor.pack(tokenInfo)
-
-        shouldNotThrow<ExpiredJwtException> {
-            val verifyForRegenerate = jwtProcessor.verifyForRegenerate(token)
-            verifyForRegenerate shouldBe tokenInfo.email
+        shouldThrow<AuthException> {
+            jwtProcessor.unpackRefreshToken(expiredRefreshToken)
         }
     }
 })

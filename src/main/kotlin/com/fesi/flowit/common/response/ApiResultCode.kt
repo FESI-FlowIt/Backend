@@ -13,6 +13,8 @@ enum class ApiResultCode(
     CREATED("0201", "Created"),
     BAD_REQUEST("0400", "Bad Request"),
     UNAUTHORIZED("0401", "Unauthorized"),
+    FORBIDDEN("0403", "Forbidden"),
+    NOT_FOUND("0404", "Not found"),
     CONFLICT("0409", "Conflict"),
     INTERNAL_ERROR("0500", "Unexpected Error"),
   
@@ -21,7 +23,6 @@ enum class ApiResultCode(
     AUTH_FAIL_TO_PARSE_JWT("1002", "Fail To Parse JWT"),
     AUTH_TOKEN_EXPIRED("1003", "JWT is expired"),
     AUTH_TOKEN_INVALID("1004", "JWT is invalid"),
-    AUTH_USER_INFO_NOT_MATCH("1005", "User info not match"),
 
     // 3000-3999: Goal
     GOAL_NOT_FOUND("3000", "Not found goal."),
