@@ -32,12 +32,12 @@ class AuthService(
     fun signIn(dto: SignInDto): Triple<SignInResponse, String, String> {
         val authenticationToken = UsernamePasswordAuthenticationToken(dto.email, dto.password)
 
-        val accessToken: String
+        val accessTokenAndExpiresIn: Pair<String, Long>
         val refreshToken: String
         val authentication: Authentication
         try {
             authentication = authenticationManager.authenticate(authenticationToken)
-            accessToken = jwtGenerator.generateToken(authentication)
+            accessTokenAndExpiresIn = jwtGenerator.generateToken(authentication)
             refreshToken = jwtGenerator.handleRefreshToken(authentication) ?: ""
         } catch (e: AuthenticationException) {
             throw AuthException.fromCode(ApiResultCode.UNAUTHORIZED)
@@ -45,7 +45,7 @@ class AuthService(
 
         return Triple(
             SignInResponse.of(authentication.principal as User),
-            accessToken,
+            accessTokenAndExpiresIn.first,
             refreshToken
         )
     }
@@ -53,7 +53,7 @@ class AuthService(
     /**
      * 토큰을 재발급한다
      */
-    fun regenerate(accessToken: String, refreshToken: String): RegenerateResponse {
+    fun regenerate(refreshToken: String): RegenerateResponse {
         if (!jwtProcessor.verify(refreshToken)) {
             throw AuthException.fromCode(ApiResultCode.AUTH_TOKEN_INVALID)
         }
@@ -61,14 +61,13 @@ class AuthService(
         val tokenInfo = jwtProcessor.unpackRefreshToken(refreshToken)
         val authentication = jwtProcessor.getAuthenticationFromId(tokenInfo.userId)
 
-        val newAccessToken = jwtGenerator.generateToken(authentication)
-        val newRefreshToken = jwtGenerator.handleRefreshTokenWith(refreshToken) ?: ""
+        val (newAccessToken, expiresIn) = jwtGenerator.generateToken(authentication)
+        val newRefreshToken = jwtGenerator.handleRefreshTokenWith(refreshToken)
 
-        if (newRefreshToken == "") {
-            return RegenerateResponse.of(accessToken = newAccessToken)
-        } else {
-            return RegenerateResponse.of(accessToken = newAccessToken)
-                .with(refreshToken = newRefreshToken)
+        var response = RegenerateResponse.of(accessToken = newAccessToken, expiresIn = expiresIn)
+        if (newRefreshToken != null) {
+            response = response.with(refreshToken = newRefreshToken)
         }
+        return response
     }
 }

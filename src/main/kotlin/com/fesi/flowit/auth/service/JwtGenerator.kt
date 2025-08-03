@@ -25,26 +25,30 @@ class JwtGenerator(
     private val jwtProcessor: JwtProcessor
 ) {
     private val REFRESH_TOKEN_REGENERATE_BASIS = 3
+    private val ACCESS_TOKEN_EXPIRES_IN: Long = 15
 
     /**
      * access token을 생성한다
      */
-    fun generateToken(authentication: Authentication): String {
+    fun generateToken(authentication: Authentication): Pair<String, Long> {
         val principal = authentication.principal as User
 
         val now = Instant.now()
-        val expiration = now.plus(15, ChronoUnit.MINUTES)
+        val expiration = now.plus(ACCESS_TOKEN_EXPIRES_IN, ChronoUnit.MINUTES)
 
-        return Jwts.builder()
-            .subject(principal.email)
-            .claim(
-                "userId",
-                principal.id.toString()
-            ) // Long을 String으로 저장 (JWT에서 Long이 Integer로 변환되어 값 손실 방지)
-            .issuedAt(Date.from(now))
-            .expiration(Date.from(expiration))
-            .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)), Jwts.SIG.HS512)
-            .compact()
+        return Pair(
+            Jwts.builder()
+                .subject(principal.email)
+                .claim(
+                    "userId",
+                    principal.id.toString()
+                )
+                .issuedAt(Date.from(now))
+                .expiration(Date.from(expiration))
+                .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)), Jwts.SIG.HS512)
+                .compact(),
+            ACCESS_TOKEN_EXPIRES_IN * 60
+        )
     }
 
     /**
