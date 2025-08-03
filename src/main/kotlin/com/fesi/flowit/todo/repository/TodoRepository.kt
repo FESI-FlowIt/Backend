@@ -13,7 +13,7 @@ interface TodoRepository : JpaRepository<Todo, Long> {
 
     @Query("""
         SELECT new com.fesi.flowit.todo.vo.TodoSummaryWithDateVo(
-            t.id, g.color, t.name, t.createdDateTime, t.doneDateTime, g.dueDateTime
+            t.id, g.color, t.name, t.isDone, t.createdDateTime, t.doneDateTime, g.dueDateTime
         )
         FROM Todo t
         JOIN  t.goal g
