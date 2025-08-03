@@ -32,38 +32,6 @@ class JwtProcessor(
         return UsernamePasswordAuthenticationToken(userDetails, "", userDetails.authorities)
     }
 
-    /**
-     * 토큰 재발급에 필요한 정보를 가져온다
-     * 클라이언트가 보낼 수 있는 토큰의 유효 기간이 만료된 상태일 수 있기 때문에 예외처리하지 않는다
-     */
-    fun verifyForRegenerate(token: String): String {
-        val claims = try {
-            Jwts.parser()
-                .verifyWith(key)
-                .build()
-                .parseSignedClaims(token)
-                .payload
-        } catch (e: ExpiredJwtException) {
-            e.claims
-        } catch (ex: JwtException) {
-            throw FailToParseJwtException.fromCodeWithMsg(
-                ApiResultCode.AUTH_FAIL_TO_PARSE_JWT,
-                "Fail to parse JWT token for token regenerate"
-            )
-        }
-
-        val tokenInfo = TokenInfo.fromClaims(claims)
-
-        if (!isTokenStored(tokenInfo)) {
-            throw UserNotExistsException.fromCodeWithMsg(
-                ApiResultCode.AUTH_USER_NOT_EXISTS,
-                "Cannot find user from given token"
-            )
-        }
-
-        return tokenInfo.email
-    }
-
     fun verify(token: String): Boolean {
         try {
             Jwts.parser()
@@ -82,7 +50,6 @@ class JwtProcessor(
                 "Fail to parse JWT token for token regenerate"
             )
         }
-        return false
     }
 
     /**

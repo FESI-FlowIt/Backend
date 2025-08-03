@@ -109,18 +109,6 @@ class JwtProcessorTest : StringSpec({
             jwtProcessor.unpackRefreshToken(expiredRefreshToken)
         }
     }
-
-    "토큰의 유효 기간이 만료되었더라도 재발급한다" {
-        canFindUser(userRepository)
-
-        val tokenInfo = TokenInfo.expired()
-        val token = jwtProcessor.pack(tokenInfo)
-
-        shouldNotThrow<ExpiredJwtException> {
-            val verifyForRegenerate = jwtProcessor.verifyForRegenerate(token)
-            verifyForRegenerate shouldBe tokenInfo.email
-        }
-    }
 })
 
 private fun canFindUser(userRepository: UserRepository) {
