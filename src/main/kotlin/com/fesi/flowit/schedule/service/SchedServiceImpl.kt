@@ -127,7 +127,7 @@ class SchedServiceImpl(
         val user: User = userService.findUserById(userId)
 
         val unassignedTodos: MutableList<TodoSummaryWithDateVo> = todoService.getTodoSummariesWithDateFromDueDate(user, date)
-        return SchedUnassignedTodosResponseDto.fromTodoSummaryWithDateList(date, unassignedTodos)
+        return SchedUnassignedTodosResponseDto.fromTodoSummaryWithDateList(date, unassignedTodos.filter { !it.isDone })
     }
 
     /**

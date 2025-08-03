@@ -10,6 +10,7 @@ import com.fesi.flowit.goal.repository.GoalQRepository
 import com.fesi.flowit.goal.repository.GoalRepository
 import com.fesi.flowit.goal.vo.GoalSummaryVo
 import com.fesi.flowit.goal.search.GoalWidgetCondition
+import com.fesi.flowit.todo.vo.TodoSummaryInGoalCond
 import com.fesi.flowit.user.entity.User
 import com.fesi.flowit.user.service.UserService
 import jakarta.transaction.Transactional
@@ -139,7 +140,11 @@ class GoalServiceImpl(
         }
 
         // 할 일 관련 정보 조회
-        val todoSummariesByGoalIds = goalRepository.findTodoSummaryByGoalIds(userId, listOf(goalId))
+        val todoSummariesByGoalIds = goalQRepository.findTodoSummaryByGoalIds(TodoSummaryInGoalCond.of(
+            goalId = goalId,
+            user = user
+        )
+        )
 
         // 달성률 계산
         val todos = goal.todos
@@ -159,17 +164,24 @@ class GoalServiceImpl(
     }
 
     /**
-     * 목표 요약 정보 조회 (목표 별 할 일)
-     * 고정되어 있는 목표 우선, 이후 최신순으로 정렬해 최대 3개 반환
+     * 대시보드 - 목표 별 할 일
+     * 고정된 목표를 우선으로, 최대 3개의 목표와 할 일을 반환한다.
      */
     @Transactional
     override fun getGoalsSummariesInDashboard(userId: Long): List<GoalSummaryResponseDto> {
+        val user: User = userService.findUserById(userId)
+
         // 대상 목표 조회
         val goalsInDashboard = goalRepository.findGoalsInDashboard(userId)
         val goalIds: List<Long> = goalsInDashboard.map { it.goalId }
 
         // 목표 별 할 일 조회
-        val todoSummariesByGoalIds = goalRepository.findTodoSummaryByGoalIds(userId, goalIds)
+        val todoSummariesByGoalIds = goalQRepository.findTodoSummaryByGoalIds(
+            TodoSummaryInGoalCond.of(
+                goalIds = goalIds,
+                user = user
+            )
+        )
         val todoMapByGoalId: Map<Long, List<TodoSummaryInGoal>> = todoSummariesByGoalIds.groupBy { it.goalId }
 
         // 결과 반환
@@ -187,10 +199,15 @@ class GoalServiceImpl(
 
         // 목표 별 할 일 조회
         val goalIds = goalsPage.content.map { it.goalId }
-        val todoSummariesByGoalIds = goalRepository.findTodoSummaryByGoalIds(cond.userId, goalIds)
-        val todoMapByGoalId: Map<Long, List<TodoSummaryInGoal>> = todoSummariesByGoalIds.groupBy { it.goalId }
+        val todoSummariesByGoalIds = goalQRepository.findTodoSummaryByGoalIds(
+            TodoSummaryInGoalCond.of(
+                goalIds = goalIds,
+                user = user)
+        )
 
         // 결과 반환
+        val todoMapByGoalId: Map<Long, List<TodoSummaryInGoal>> = todoSummariesByGoalIds.groupBy { it.goalId }
+
         val results = convertGoalSummariesFromTodoMap(goalsPage.content, todoMapByGoalId)
         return PageResponse.fromPageWithContents(results, goalsPage)
     }
@@ -208,6 +225,31 @@ class GoalServiceImpl(
         return GoalsByMonthlyResponseDto.of(dueYearMonth, goalsInCalenderByMonthly)
     }
 
+    /**
+     * 진행 중인 목표 조회
+     * - 마감일이 지나지 않은 목표
+     * - 완료되지 않은 할 일
+     */
+    override fun getGoalsSummariesInProgress(userId: Long): List<GoalSummaryResponseDto> {
+        val user: User = userService.findUserById(userId)
+
+        // 마감일이 지나지 않은 목표 조회
+        val inProgressGoals: List<GoalSummaryVo> = goalRepository.findGoalsInProgress(user)
+
+        // 해당 목표에 대한 할 일 조회
+        val inProgressGoalIds: List<Long> = inProgressGoals.map { it.goalId }
+        val todoSummariesByGoalIds =
+            goalQRepository.findTodoSummaryByGoalIds(
+                TodoSummaryInGoalCond.of(
+                    goalIds = inProgressGoalIds,
+                    isDone = false,
+                    user = user)
+            )
+
+        // 결과 반환
+        val todoMapByGoalId: Map<Long, List<TodoSummaryInGoal>> = todoSummariesByGoalIds.groupBy { it.goalId }
+        return convertGoalSummariesFromTodoMap(inProgressGoals, todoMapByGoalId)
+    }
 
     override fun getGoalById(goalId: Long): Goal {
         return goalRepository.findById(goalId)
@@ -242,5 +284,4 @@ class GoalServiceImpl(
             )
         }
     }
-
 }
