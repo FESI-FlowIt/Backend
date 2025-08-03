@@ -169,11 +169,64 @@ class TodoTimerServiceImpl(
         )
     }
 
+    /**
+     * 타이머 종료
+     */
+    @Transactional
+    override fun finishTodoTimer(userId: Long, todoTimerId: Long): TodoTimerStopResponseDto {
+        val user: User = userService.findUserById(userId)
+        val todoTimer: TodoTimer = todoTimerRepository.findById(todoTimerId)
+            .orElseThrow { throw TodoTimerException.fromCode(ApiResultCode.TIMER_TODO_NOT_FOUND) }
+
+        if (todoTimer.doesNotUserOwnTodoTimer(user)) {
+            throw TodoTimerException.fromCode(ApiResultCode.TIMER_TODO_NOT_MATCH_USER)
+        }
+
+        val finishedDateTime = LocalDateTime.now()
+
+        // 일시 정지 기록 처리
+        val todoTimerHistories: List<TodoTimerPauseHistory> =
+            todoTimerPausedHistoryRepository.findTodoTimerPauseHistoriesByTimer(todoTimer)
+        var totalPausedTime: Long = 0
+
+        todoTimerHistories
+            .forEach {
+                if (it.pauseEndedDateTime == null) {
+                    it.pauseEndedDateTime = finishedDateTime
+                    it.totalPausedTime = getRunningSecondsTime(it.pauseStartedDateTime, it.pauseEndedDateTime!!)
+                }
+
+                totalPausedTime += it.totalPausedTime
+            }
+
+        // 타이머 기록 계산
+        todoTimer.endedDateTime = finishedDateTime
+
+        val totalRunningTime: Long = getRunningSecondsTime(todoTimer.startedDateTime, todoTimer.endedDateTime!!)
+        val realRunningTime: Long = totalRunningTime - totalPausedTime
+        todoTimer.runningTime = realRunningTime
+
+        // 상태 관리
+        todoTimer.finishTimer()
+        user.initializeTodoTimer()
+        todoTimer.todo.initializeTodoTimer()
+
+        return TodoTimerStopResponseDto.of(
+            todoTimer.id ?: throw TodoTimerException.fromCode(ApiResultCode.TIMER_TODO_INVALID_ID),
+            todoTimer.todo.id ?: throw TodoTimerException.fromCode(ApiResultCode.TODO_INVALID_ID),
+            todoTimer.runningTime
+        )
+    }
+
     private fun isRunningTimer(todoTimer: TodoTimer): Boolean {
         return todoTimer.status.isRunning()
     }
 
     private fun isPausedTimer(todoTimer: TodoTimer): Boolean {
         return todoTimer.status.isPaused()
+    }
+
+    private fun getRunningSecondsTime(startedDateTime: LocalDateTime, endedDateTime: LocalDateTime): Long {
+        return Duration.between(startedDateTime, endedDateTime).seconds
     }
 }

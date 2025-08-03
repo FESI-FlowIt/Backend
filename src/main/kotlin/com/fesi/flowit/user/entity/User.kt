@@ -75,6 +75,10 @@ class User(
         this.todos.add(todo)
     }
 
+    fun initializeTodoTimer() {
+        this.todoTimer = null
+    }
+
     override fun equals(other: Any?): Boolean {
         if (other == null) {
             return false

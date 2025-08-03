@@ -154,4 +154,35 @@ interface TodoTimerController {
     )
     fun resumeTodoTimer(@PathVariable("todoTimerId") todoTimerId: Long,
                         @RequestParam("userId") userId: Long): ResponseEntity<ApiResult<TodoTimerResumeResponseDto>>
+
+    @Operation(
+        summary = "타이머 종료",
+        description = """
+           타이머를 종료합니다. 
+           반환되는 작업 시간은 이번 타이머가 얼마나 돌았는지 계산한 값입니다. (일시 정지 제외)
+           누적 시간은 다시 API 호출해야 합니다.
+        """
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "타이머 재시작 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = TodoTimerStopResponseDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun finishTodoTimer(@PathVariable("todoTimerId") todoTimerId: Long,
+                        @RequestParam("userId") userId: Long): ResponseEntity<ApiResult<TodoTimerStopResponseDto>>
 }

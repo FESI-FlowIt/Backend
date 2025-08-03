@@ -19,7 +19,7 @@ data class TodoTimerTotalTimeVo(
         validateLongerPausedTimeThanActiveTime()
 
         val runningTime = activeTimeSec.toLong() - pausedTimeSec.toLong()
-        return LocalTime.ofNanoOfDay(runningTime * 1_000_000)
+        return LocalTime.ofSecondOfDay(runningTime)
     }
 
     fun validateLongerPausedTimeThanActiveTime() {

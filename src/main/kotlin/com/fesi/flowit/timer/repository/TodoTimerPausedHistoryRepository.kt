@@ -24,4 +24,13 @@ interface TodoTimerPausedHistoryRepository : JpaRepository<TodoTimerPauseHistory
             AND timerHistory.pauseEndedDateTime IS NULL
     """)
     fun findPausedTimerByTimer(todoTimer: TodoTimer): List<TodoTimerPauseHistory>
+
+    @Query("""
+        SELECT timerHistory
+        FROM TodoTimerPauseHistory timerHistory
+        JOIN FETCH timerHistory.timer timer
+        WHERE
+            timerHistory.timer = :todoTimer
+    """)
+    fun findTodoTimerPauseHistoriesByTimer(todoTimer: TodoTimer): List<TodoTimerPauseHistory>
 }

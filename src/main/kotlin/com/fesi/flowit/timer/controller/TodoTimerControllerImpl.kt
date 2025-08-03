@@ -57,9 +57,17 @@ class TodoTimerControllerImpl(
 
     @PatchMapping("/todo-timers/{todoTimerId}/resume")
     override fun resumeTodoTimer(@PathVariable("todoTimerId") todoTimerId: Long,
-                        @RequestParam("userId") userId: Long): ResponseEntity<ApiResult<TodoTimerResumeResponseDto>> {
-        log.debug(">> request resumeTodoTimer(todoTimerId=${todoTimerId}, userId=${userId}")
+                                 @RequestParam("userId") userId: Long): ResponseEntity<ApiResult<TodoTimerResumeResponseDto>> {
+        log.debug(">> request resumeTodoTimer(todoTimerId=${todoTimerId}, userId=${userId})")
 
         return ApiResponse.ok(todoTimerService.resumeTodoTimer(userId, todoTimerId))
+    }
+
+    @PatchMapping("todo-timers/{todoTimerId}/finish")
+    override fun finishTodoTimer(@PathVariable("todoTimerId") todoTimerId: Long,
+                                 @RequestParam("userId") userId: Long): ResponseEntity<ApiResult<TodoTimerStopResponseDto>> {
+        log.debug(">> request stopTodoTimer(todoTimerId=${todoTimerId}, userId=${userId})")
+
+        return ApiResponse.ok(todoTimerService.finishTodoTimer(userId, todoTimerId))
     }
 }

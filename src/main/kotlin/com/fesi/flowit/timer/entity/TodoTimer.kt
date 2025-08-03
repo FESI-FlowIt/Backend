@@ -29,7 +29,7 @@ class TodoTimer(
     var endedDateTime: LocalDateTime?,
 
     @Column(nullable = false)
-    val runningTime: Long = 0L
+    var runningTime: Long = 0L
 ) {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
@@ -64,6 +64,10 @@ class TodoTimer(
 
     fun resumeTimer() {
         this.status = TodoTimerStatus.RUNNING
+    }
+
+    fun finishTimer() {
+        this.status = TodoTimerStatus.FINISHED
     }
 
     fun doesNotUserOwnTodoTimer(user: User): Boolean {

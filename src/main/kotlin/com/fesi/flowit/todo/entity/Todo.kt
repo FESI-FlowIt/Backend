@@ -61,6 +61,10 @@ class Todo private constructor(
         }
     }
 
+    fun initializeTodoTimer() {
+        this.todoTimer = null
+    }
+
     fun doesNotUserOwnTodo(user: User): Boolean {
         return this.user != user
     }
