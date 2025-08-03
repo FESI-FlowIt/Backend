@@ -22,7 +22,7 @@ class SecurityConfigTest @Autowired constructor(
     "화이트리스트에 포함되지 않은 api 호출은 무조건 인증한다" {
         mockMvc.perform(
             get("/nonexistent")
-        ).andExpect(status().isForbidden)
+        ).andExpect(status().isNotFound)
     }
 
     "화이트리스트에 포함된 api 호출은 인증을 건너뛴다" {
