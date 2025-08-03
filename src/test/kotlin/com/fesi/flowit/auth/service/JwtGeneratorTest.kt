@@ -2,6 +2,8 @@ package com.fesi.flowit.auth.service
 
 import com.fesi.flowit.auth.vo.RefreshToken
 import com.fesi.flowit.auth.repository.TokenRepository
+import com.fesi.flowit.common.auth.JwtProcessor
+import com.fesi.flowit.common.auth.dto.TokenInfo
 import com.fesi.flowit.user.entity.User
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -9,13 +11,16 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
 import org.springframework.security.core.Authentication
+import java.sql.Timestamp
 import java.time.Instant
 import java.time.LocalDateTime
+import java.util.*
 
 class JwtGeneratorTest : StringSpec({
 
     lateinit var repository: TokenRepository
     lateinit var jwtGenerator: JwtGenerator
+    lateinit var jwtProcessor: JwtProcessor
 
     val secretKey =
         "40e96460271ece5c44153b6c90bccdc1965cfc8b21568dcb92ade8064173226b4509b3c31faa83d20b53ad35a6b529d42a4e98f967a072bbbde244b9af8236ff"
@@ -27,10 +32,11 @@ class JwtGeneratorTest : StringSpec({
 
     beforeEach {
         repository = mockk<TokenRepository>(relaxUnitFun = true)
-        jwtGenerator = JwtGenerator(secretKey, repository)
+        jwtProcessor = mockk<JwtProcessor>(relaxed = true)
+        jwtGenerator = JwtGenerator(secretKey, repository, jwtProcessor)
     }
 
-    "refresh token이 없으면 새 토큰을 생성하고 저장한다" {
+    "로그인 시 refresh token이 없으면 새 토큰을 생성하고 저장한다" {
         val authentication = mockk<Authentication>(relaxed = true)
         hasUserDetails(authentication)
 
@@ -42,76 +48,61 @@ class JwtGeneratorTest : StringSpec({
         verify { repository.save(any()) }
     }
 
+    "재발급 시 refresh token이 없으면 새 토큰을 생성하고 저장한다" {
+        every { repository.findByTokenAndRevoked(any(), any()) } returns null
+        every { repository.save(any()) } returns mockk<RefreshToken>()
+
+        jwtGenerator.handleRefreshTokenWith("old_refresh_token")
+
+        verify { repository.save(any()) }
+    }
+
     "재발급이 필요하지 않은 refresh token이면 토큰 생성이나 갱신을 하지 않는다" {
-        val authentication = mockk<Authentication>(relaxed = true)
-        hasUserDetails(authentication)
-
         val refreshToken = RefreshToken.valid(testUser)
-        every { repository.findByUserIdAndRevoked(any(), any()) } returns refreshToken
+        every { repository.findByTokenAndRevoked(any(), any()) } returns refreshToken
+        every { jwtProcessor.unpackRefreshToken(any()) } returns RefreshToken.toInfo(refreshToken)
 
-        jwtGenerator.handleRefreshToken(authentication)
+        jwtGenerator.handleRefreshTokenWith(refreshToken.token)
 
         verify(exactly = 0) { repository.save(any()) }
         verify(exactly = 0) { repository.updateRevoked(any(), any()) }
     }
 
     "만료된 refresh token이면 revoke 후 새 토큰을 생성한다" {
-        val authentication = mockk<Authentication>(relaxed = true)
-        hasUserDetails(authentication)
-
         val expiredToken = RefreshToken.expired(testUser)
-        every {
-            repository.findByUserIdAndRevoked(
-                any(), any()
-            )
-        } returns expiredToken
+        every { repository.findByTokenAndRevoked(any(), any()) } returns expiredToken
         every { repository.save(any()) } returns mockk()
+        every { jwtProcessor.unpackRefreshToken(any()) } returns RefreshToken.toInfo(expiredToken)
 
-        jwtGenerator.handleRefreshToken(authentication)
+        jwtGenerator.handleRefreshTokenWith(expiredToken.token)
 
         verify { repository.updateRevoked(any(), any()) }
     }
 
     "refresh 토큰 만료 여부를 확인할 수 있다" {
         val expiredToken = RefreshToken.expired(testUser)
-        every {
-            repository.findByUserIdAndRevoked(
-                testUser.id,
-                false
-            )
-        } returns expiredToken
+        every { jwtProcessor.unpackRefreshToken(any()) } returns RefreshToken.toInfo(expiredToken)
 
-        val result = jwtGenerator.isRefreshTokenExpired(testUser)
+        val result = jwtGenerator.isRefreshTokenExpired(expiredToken.token)
 
         result shouldBe true
     }
 
     "refresh 토큰을 재발급해야 하는지 확인할 수 있다" {
         val expiredToken = RefreshToken.aboutTobeExpired(testUser)
-        every {
-            repository.findByUserIdAndRevoked(
-                testUser.id,
-                false
-            )
-        } returns expiredToken
+        every { jwtProcessor.unpackRefreshToken(any()) } returns RefreshToken.toInfo(expiredToken)
 
-        val result = jwtGenerator.isRefreshTokenIsAboutTobeExpired(testUser)
+        val result = jwtGenerator.isRefreshTokenIsAboutTobeExpired(expiredToken.token)
 
         result shouldBe true
     }
 
     "유효 기간이 지난 refresh 토큰을 revoke 처리한다" {
-        val existingToken = RefreshToken.valid(testUser)
-        every {
-            repository.findByUserIdAndRevoked(
-                testUser.id,
-                false
-            )
-        } returns existingToken
+        val existingToken = RefreshToken.expired(testUser)
 
-        jwtGenerator.revokeRefreshToken(testUser)
+        jwtGenerator.revokeRefreshToken(existingToken.token)
 
-        verify { repository.updateRevoked(testUser.id, true) }
+        verify { repository.updateRevoked(existingToken.token, true) }
     }
 
     "refresh 토큰을 데이터베이스에 저장한다" {
@@ -153,6 +144,15 @@ private fun RefreshToken.Companion.created(user: User): RefreshToken {
     return RefreshToken.forTest(
         user = user,
         expiresAt = LocalDateTime.now().plusDays(30),
+    )
+}
+
+private fun RefreshToken.Companion.toInfo(refreshToken: RefreshToken): TokenInfo {
+    return TokenInfo(
+        email = "",
+        userId = refreshToken.userId,
+        issuedAt = Date(),
+        expiration = Timestamp.valueOf(refreshToken.expiresAt)
     )
 }
 

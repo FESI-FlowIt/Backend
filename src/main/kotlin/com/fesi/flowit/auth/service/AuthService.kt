@@ -62,7 +62,7 @@ class AuthService(
         val authentication = jwtProcessor.getAuthenticationFromId(tokenInfo.userId)
 
         val newAccessToken = jwtGenerator.generateToken(authentication)
-        val newRefreshToken = jwtGenerator.handleRefreshToken(authentication) ?: ""
+        val newRefreshToken = jwtGenerator.handleRefreshTokenWith(refreshToken) ?: ""
 
         if (newRefreshToken == "") {
             return RegenerateResponse.of(accessToken = newAccessToken)

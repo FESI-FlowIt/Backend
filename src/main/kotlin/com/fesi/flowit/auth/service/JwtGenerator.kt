@@ -2,6 +2,7 @@ package com.fesi.flowit.auth.service
 
 import com.fesi.flowit.auth.repository.TokenRepository
 import com.fesi.flowit.auth.vo.RefreshToken
+import com.fesi.flowit.common.auth.JwtProcessor
 import com.fesi.flowit.user.entity.User
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
@@ -20,7 +21,8 @@ import java.util.*
 class JwtGenerator(
     @Value("\${auth.secret-key}")
     private val secretKey: String,
-    private val tokenRepository: TokenRepository
+    private val tokenRepository: TokenRepository,
+    private val jwtProcessor: JwtProcessor
 ) {
     private val REFRESH_TOKEN_REGENERATE_BASIS = 3
 
@@ -46,34 +48,62 @@ class JwtGenerator(
     }
 
     /**
-     * refresh token의 상태에 따라 처리한다
+     * 로그인 시 리프레시 토큰 처리
+     * 리프레시 토큰이 있을 경우, 토큰 재발급 시 쓰는 handleRefreshTokenWith()에 처리를 위임한다
      */
     fun handleRefreshToken(authentication: Authentication): String? {
         val principal = authentication.principal as User
 
-        if (!isRefreshTokenExists(principal)) {
-            val refreshToken = generateRefreshToken(principal)
+        if (!isRefreshTokenExists(principal.id)) {
+            val refreshToken = generateRefreshToken(principal.id)
             storeRefreshToken(refreshToken)
             return refreshToken.token
         }
 
-        if (!isRefreshTokenIsAboutTobeExpired(principal)) {
+        val refreshToken = findRefreshToken(principal.id).token
+        return handleRefreshTokenWith(refreshToken)
+    }
+
+    /**
+     * 토큰 재발급 시 리프레시 토큰 처리
+     */
+    fun handleRefreshTokenWith(oldRefreshToken: String): String? {
+        val unpack = jwtProcessor.unpackRefreshToken(oldRefreshToken)
+
+        if (!isRefreshTokenExistsWith(oldRefreshToken)) {
+            val refreshToken = generateRefreshToken(unpack.userId)
+            storeRefreshToken(refreshToken)
+            return refreshToken.token
+        }
+
+        if (!isRefreshTokenIsAboutTobeExpired(oldRefreshToken)) {
             return null
         }
 
-        if (isRefreshTokenExpired(principal)) {
-            revokeRefreshToken(principal)
+        if (isRefreshTokenExpired(oldRefreshToken)) {
+            revokeRefreshToken(oldRefreshToken)
         }
-        val refreshToken = generateRefreshToken(principal)
+        val refreshToken = generateRefreshToken(unpack.userId)
         storeRefreshToken(refreshToken)
         return refreshToken.token
+    }
+
+    internal fun findRefreshToken(id: Long): RefreshToken {
+        val token = tokenRepository.findByUserIdAndRevoked(id, false)
+        return token!!
     }
 
     /**
      * refresh token이 존재하는지 확인한다
      */
-    private fun isRefreshTokenExists(user: User): Boolean {
-        tokenRepository.findByUserIdAndRevoked(user.id, false) ?: return false
+    internal fun isRefreshTokenExists(id: Long): Boolean {
+        tokenRepository.findByUserIdAndRevoked(id, false) ?: return false
+
+        return true
+    }
+
+    internal fun isRefreshTokenExistsWith(refreshToken: String): Boolean {
+        tokenRepository.findByTokenAndRevoked(refreshToken, false) ?: return false
 
         return true
     }
@@ -84,25 +114,26 @@ class JwtGenerator(
      *
      * @visibleForTesting
      */
-    internal fun isRefreshTokenExpired(user: User): Boolean {
+    internal fun isRefreshTokenExpired(refreshToken: String): Boolean {
         val now = Instant.now()
         val nowLocal = instantToLocalDateTime(now)
+        val unpackRefreshToken = jwtProcessor.unpackRefreshToken(refreshToken)
+        val tokenExpiresAt = instantToLocalDateTime(unpackRefreshToken.expiration.toInstant())
 
-        val existingToken = tokenRepository.findByUserIdAndRevoked(user.id, false)
-
-        if (existingToken!!.expiresAt >= nowLocal) {
+        if (tokenExpiresAt >= nowLocal) {
             return false
         }
 
         return true
     }
 
-    internal fun isRefreshTokenIsAboutTobeExpired(user: User): Boolean {
+    internal fun isRefreshTokenIsAboutTobeExpired(refreshToken: String): Boolean {
         val now = Instant.now()
         val nowLocal = instantToLocalDateTime(now)
+        val unpackRefreshToken = jwtProcessor.unpackRefreshToken(refreshToken)
+        val tokenExpiresAt = instantToLocalDateTime(unpackRefreshToken.expiration.toInstant())
 
-        val existingToken = tokenRepository.findByUserIdAndRevoked(user.id, false)
-        val daysLeft: Long = Duration.between(nowLocal, existingToken!!.expiresAt).toDays()
+        val daysLeft: Long = Duration.between(nowLocal, tokenExpiresAt).toDays()
 
         return daysLeft < REFRESH_TOKEN_REGENERATE_BASIS
     }
@@ -110,13 +141,13 @@ class JwtGenerator(
     /**
      * 새로운 refresh token을 만든다
      */
-    fun generateRefreshToken(user: User): RefreshToken {
+    fun generateRefreshToken(id: Long): RefreshToken {
         val now = Instant.now()
         val expiration = now.plus(30, ChronoUnit.DAYS)
         val jwtRefreshToken = Jwts.builder()
             .claim(
                 "userId",
-                user.id.toString()
+                id.toString()
             ) // Long을 String으로 저장 (JWT에서 Long이 Integer로 변환되어 값 손실 방지)
             .issuedAt(Date.from(now))
             .expiration(Date.from(expiration))
@@ -124,7 +155,7 @@ class JwtGenerator(
             .compact()
 
         return RefreshToken.of(
-            userId = user.id,
+            userId = id,
             token = jwtRefreshToken,
             expiresAt = instantToLocalDateTime(expiration),
             revoked = false
@@ -134,9 +165,8 @@ class JwtGenerator(
     /**
      * refresh token의 유효 기간이 지났음을 표시한다
      */
-    fun revokeRefreshToken(user: User) {
-        val existingToken = tokenRepository.findByUserIdAndRevoked(user.id, false)
-        tokenRepository.updateRevoked(existingToken!!.userId, true)
+    fun revokeRefreshToken(refreshToken: String) {
+        tokenRepository.updateRevoked(refreshToken, true)
     }
 
     /**
