@@ -29,25 +29,29 @@ class AuthService(
      * access token은 로그인 시마다 생성
      * refresh token은 상태에 따라 처리
      */
-    fun signIn(dto: SignInDto): Triple<SignInResponse, String, String> {
+    fun signIn(dto: SignInDto): SignInResponse {
         val authenticationToken = UsernamePasswordAuthenticationToken(dto.email, dto.password)
 
         val accessTokenAndExpiresIn: Pair<String, Long>
-        val refreshToken: String
+        val refreshToken: String?
         val authentication: Authentication
         try {
             authentication = authenticationManager.authenticate(authenticationToken)
             accessTokenAndExpiresIn = jwtGenerator.generateToken(authentication)
-            refreshToken = jwtGenerator.handleRefreshToken(authentication) ?: ""
+            refreshToken = jwtGenerator.handleRefreshToken(authentication)
         } catch (e: AuthenticationException) {
             throw AuthException.fromCode(ApiResultCode.UNAUTHORIZED)
         }
 
-        return Triple(
-            SignInResponse.of(authentication.principal as User),
+        var response = SignInResponse.of(
+            authentication.principal as User,
             accessTokenAndExpiresIn.first,
-            refreshToken
+            accessTokenAndExpiresIn.second
         )
+        if (refreshToken != null) {
+            response = response.with(refreshToken = refreshToken)
+        }
+        return response
     }
 
     /**

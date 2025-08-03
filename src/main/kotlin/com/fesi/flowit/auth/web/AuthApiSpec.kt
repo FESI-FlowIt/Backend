@@ -59,8 +59,7 @@ interface AuthApiSpec {
     )
     @PostMapping("/auths/signIn")
     fun signIn(
-        @RequestBody signInRequest: SignInRequest,
-        response: HttpServletResponse
+        @RequestBody signInRequest: SignInRequest
     ): ResponseEntity<ApiResult<SignInResponse>>
 
     @Operation(

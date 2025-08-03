@@ -25,7 +25,7 @@ class JwtGenerator(
     private val jwtProcessor: JwtProcessor
 ) {
     private val REFRESH_TOKEN_REGENERATE_BASIS = 3
-    private val ACCESS_TOKEN_EXPIRES_IN: Long = 15
+    private val ACCESS_TOKEN_EXPIRES_IN: Long = 60
 
     /**
      * access token을 생성한다

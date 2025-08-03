@@ -25,20 +25,11 @@ class AuthController(
 ): AuthApiSpec {
     @PostMapping("/auths/signIn")
     override fun signIn(
-        @RequestBody signInRequest: SignInRequest,
-        response: HttpServletResponse
+        @RequestBody signInRequest: SignInRequest
     ): ResponseEntity<ApiResult<SignInResponse>> {
+        log.debug(">> request signIn(${signInRequest})")
         val dto = SignInDto.from(signInRequest)
-        val (authResponse, accessToken, refreshToken) = service.signIn(dto)
-
-        response.setHeader("Authorization", "Bearer $accessToken")
-        if (refreshToken != "") {
-            val cookie = Cookie("refreshToken", refreshToken)
-            cookie.setHttpOnly(true)
-            cookie.setAttribute("SameSite","None")
-            cookie.path = "/"
-            response.addCookie(cookie)
-        }
+        val authResponse = service.signIn(dto)
 
         return ApiResponse.ok(authResponse)
     }

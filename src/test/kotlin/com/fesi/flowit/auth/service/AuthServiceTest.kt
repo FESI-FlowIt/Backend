@@ -51,6 +51,7 @@ class AuthServiceTest : StringSpec({
         val authentication = mockk<Authentication>(relaxed = true)
         every { authentication.principal } returns mockk<User>(relaxed = true)
         every { authenticationManager.authenticate(any()) } returns authentication
+        every { jwtGenerator.generateToken(any()) } returns Pair("newAccessToken", 3600)
 
         service.signIn(SignInDto("user@gmail.com", "password"))
 
@@ -61,6 +62,7 @@ class AuthServiceTest : StringSpec({
         val authentication = mockk<Authentication>(relaxed = true)
         every { authentication.principal } returns mockk<User>(relaxed = true)
         every { authenticationManager.authenticate(any()) } returns authentication
+        every { jwtGenerator.generateToken(any()) } returns Pair("newAccessToken", 3600)
 
         service.signIn(SignInDto("user@gmail.com", "password"))
 

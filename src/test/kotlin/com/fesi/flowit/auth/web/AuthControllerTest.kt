@@ -16,12 +16,11 @@ class AuthControllerTest : StringSpec({
 
     "로그인 요청을 받을 수 있다" {
         val service = mockk<AuthService>(relaxed = true)
-        every {service.signIn(any())} returns Triple(mockk<SignInResponse>(), "", "")
+        every {service.signIn(any())} returns mockk<SignInResponse>()
         val controller = AuthController(service)
         val request = SignInRequest("user@gmail.com", "password")
-        val response = mockk<HttpServletResponse>(relaxUnitFun = true)
 
-        controller.signIn(request, response)
+        controller.signIn(request)
     }
 
     "토큰 재발급 요청을 받을 수 있다" {
