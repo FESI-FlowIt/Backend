@@ -121,5 +121,5 @@ class GoalQRepositoryImpl(
     private fun isNotExpireGoal(): BooleanExpression = goal.dueDateTime.goe(LocalDateTime.now())
     private fun isOwnedBy(user: User?): BooleanExpression? = if (user == null) null else goal.user.eq(user)
     private fun isExistTodo(): BooleanExpression = todo.id.isNotNull
-    private fun isTodoDone(isDone: Boolean?): BooleanExpression? = todo.isDone.eq(isDone) ?: null
+    private fun isTodoDone(isDone: Boolean?): BooleanExpression? = if (isDone == null) null else todo.isDone.eq(isDone)
 }

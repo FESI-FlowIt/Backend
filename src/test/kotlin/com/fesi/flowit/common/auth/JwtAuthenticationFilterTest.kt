@@ -12,7 +12,6 @@ import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
 import org.springframework.mock.web.MockHttpServletRequest
 import org.springframework.mock.web.MockHttpServletResponse
-import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 
 class JwtAuthenticationFilterTest : StringSpec({
@@ -38,11 +37,10 @@ class JwtAuthenticationFilterTest : StringSpec({
     }
 
     "Authorization 헤더가 없는 요청은 jwt 필터에서 처리하지 않는다" {
-        val request = mockk<HttpServletRequest>() {
-            every { getHeader("Authorization") } returns null
-        }
 
-        filter.doFilterInternal(request, response, chain)
+        filter.doFilterInternal(mockk<HttpServletRequest>() {
+            every<String?> { getHeader("Authorization") } returns null
+        }, response, chain)
 
         verify(exactly = 0) { jwtProcessor.handle(any()) }
     }

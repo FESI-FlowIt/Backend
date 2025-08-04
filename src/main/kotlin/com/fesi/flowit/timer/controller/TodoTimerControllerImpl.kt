@@ -1,5 +1,6 @@
 package com.fesi.flowit.timer.controller
 
+import com.fesi.flowit.common.auth.AuthUserId
 import com.fesi.flowit.common.logging.loggerFor
 import com.fesi.flowit.common.response.ApiResponse
 import com.fesi.flowit.common.response.ApiResult
@@ -24,14 +25,14 @@ class TodoTimerControllerImpl(
 ) : TodoTimerController {
 
     @GetMapping("/todo-timers/user")
-    override fun hasUserTodoTimer(@RequestParam("userId") userId: Long): ResponseEntity<ApiResult<TodoTimerUserInfo>> {
+    override fun hasUserTodoTimer(@AuthUserId userId: Long): ResponseEntity<ApiResult<TodoTimerUserInfo>> {
         log.debug(">> request hasUserTodoTimer(userId=${userId})")
 
         return ApiResponse.ok(todoTimerService.hasUserTodoTimer(userId))
     }
 
     @GetMapping("/todo-timers/total-time")
-    override fun getTotalRunningTimeByTodo(@RequestParam("userId") userId: Long,
+    override fun getTotalRunningTimeByTodo(@AuthUserId userId: Long,
                                            @RequestParam("todoId") todoId: Long
     ): ResponseEntity<ApiResult<TodoTimerTotalRunningTime>> {
         log.debug(">> request getTotalRunningTimeByTodo(userId=${userId}, todoId=${todoId})")
@@ -40,15 +41,15 @@ class TodoTimerControllerImpl(
     }
 
     @PostMapping("/todo-timers")
-    override fun startTodoTimer(@RequestBody request: TodoTimerStartRequestDto): ResponseEntity<ApiResult<TodoTimerStartResponseDto>> {
+    override fun startTodoTimer(@RequestBody request: TodoTimerStartRequestDto, @AuthUserId userId: Long): ResponseEntity<ApiResult<TodoTimerStartResponseDto>> {
         log.debug(">> request startTodoTimer(request=${request})")
 
-        return ApiResponse.created(todoTimerService.startTodoTimer(request.userId, request.todoId))
+        return ApiResponse.created(todoTimerService.startTodoTimer(userId, request.todoId))
     }
 
     @PostMapping("/todo-timers/{todoTimerId}/pause")
     override fun pauseTodoTimer(@PathVariable("todoTimerId") todoTimerId: Long,
-                                @RequestParam("userId") userId: Long
+                                @AuthUserId userId: Long
     ): ResponseEntity<ApiResult<TodoTimerPauseResponseDto>> {
         log.debug(">> request pauseTodoTimer(todoTimerId=${todoTimerId}, userId=${userId})")
 
@@ -57,7 +58,7 @@ class TodoTimerControllerImpl(
 
     @PatchMapping("/todo-timers/{todoTimerId}/resume")
     override fun resumeTodoTimer(@PathVariable("todoTimerId") todoTimerId: Long,
-                                 @RequestParam("userId") userId: Long): ResponseEntity<ApiResult<TodoTimerResumeResponseDto>> {
+                                 @AuthUserId userId: Long): ResponseEntity<ApiResult<TodoTimerResumeResponseDto>> {
         log.debug(">> request resumeTodoTimer(todoTimerId=${todoTimerId}, userId=${userId})")
 
         return ApiResponse.ok(todoTimerService.resumeTodoTimer(userId, todoTimerId))
@@ -65,7 +66,7 @@ class TodoTimerControllerImpl(
 
     @PatchMapping("todo-timers/{todoTimerId}/finish")
     override fun finishTodoTimer(@PathVariable("todoTimerId") todoTimerId: Long,
-                                 @RequestParam("userId") userId: Long): ResponseEntity<ApiResult<TodoTimerStopResponseDto>> {
+                                 @AuthUserId userId: Long): ResponseEntity<ApiResult<TodoTimerStopResponseDto>> {
         log.debug(">> request stopTodoTimer(todoTimerId=${todoTimerId}, userId=${userId})")
 
         return ApiResponse.ok(todoTimerService.finishTodoTimer(userId, todoTimerId))
