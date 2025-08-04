@@ -89,11 +89,11 @@ class AuthServiceTest : StringSpec({
         hasUserDetails(authentication)
         refreshTokenRepository.canFindTokenByUserId(tokenValue = "refresh_token")
         every { jwtGenerator.generateToken(any()) } returns Pair("newAccessToken", 3600)
-        every { jwtGenerator.handleRefreshTokenWith(any()) } returns null
+        every { jwtGenerator.handleRefreshTokenWith(any()) } returns "refresh_token"
 
         val response = service.regenerate("refresh_token")
         response.accessToken shouldNotBe  null
-        response.refreshToken shouldBe null
+        response.refreshToken shouldNotBe null
     }
 
     "토큰 재발급 시 새로운 access token과 refresh token을 생성한다" {

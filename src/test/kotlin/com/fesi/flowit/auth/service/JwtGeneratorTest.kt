@@ -7,6 +7,7 @@ import com.fesi.flowit.common.auth.dto.TokenInfo
 import com.fesi.flowit.user.entity.User
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -48,6 +49,19 @@ class JwtGeneratorTest : StringSpec({
         verify { repository.save(any()) }
     }
 
+    "로그인 시 유효한 refresh token이 이미 있으면 새로 생성하는 대신 이걸 반환한다" {
+        val authentication = mockk<Authentication>(relaxed = true)
+        hasUserDetails(authentication)
+
+        val refreshToken = RefreshToken.valid(testUser)
+        every { repository.findByUserIdAndRevoked(any(), any()) } returns refreshToken
+
+        every { jwtProcessor.unpackRefreshToken(any()) } returns RefreshToken.toInfo(refreshToken)
+        every { repository.findByTokenAndRevoked(any(), any()) } returns refreshToken
+
+        jwtGenerator.handleRefreshToken(authentication) shouldNotBe null
+    }
+
     "재발급 시 refresh token이 없으면 새 토큰을 생성하고 저장한다" {
         every { repository.findByTokenAndRevoked(any(), any()) } returns null
         every { repository.save(any()) } returns mockk<RefreshToken>()
@@ -66,6 +80,14 @@ class JwtGeneratorTest : StringSpec({
 
         verify(exactly = 0) { repository.save(any()) }
         verify(exactly = 0) { repository.updateRevoked(any(), any()) }
+    }
+
+    "재발급이 필요하지 않은 refresh token이면 자신을 그대로 돌려준다" {
+        val refreshToken = RefreshToken.valid(testUser)
+        every { repository.findByTokenAndRevoked(any(), any()) } returns refreshToken
+        every { jwtProcessor.unpackRefreshToken(any()) } returns RefreshToken.toInfo(refreshToken)
+
+        jwtGenerator.handleRefreshTokenWith(refreshToken.token) shouldNotBe null
     }
 
     "만료된 refresh token이면 revoke 후 새 토큰을 생성한다" {

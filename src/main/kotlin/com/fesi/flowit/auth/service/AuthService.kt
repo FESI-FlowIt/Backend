@@ -33,7 +33,7 @@ class AuthService(
         val authenticationToken = UsernamePasswordAuthenticationToken(dto.email, dto.password)
 
         val accessTokenAndExpiresIn: Pair<String, Long>
-        val refreshToken: String?
+        val refreshToken: String
         val authentication: Authentication
         try {
             authentication = authenticationManager.authenticate(authenticationToken)
@@ -43,15 +43,11 @@ class AuthService(
             throw AuthException.fromCode(ApiResultCode.UNAUTHORIZED)
         }
 
-        var response = SignInResponse.of(
+        return SignInResponse.of(
             authentication.principal as User,
             accessTokenAndExpiresIn.first,
             accessTokenAndExpiresIn.second
-        )
-        if (refreshToken != null) {
-            response = response.with(refreshToken = refreshToken)
-        }
-        return response
+        ).with(refreshToken = refreshToken)
     }
 
     /**
@@ -68,10 +64,7 @@ class AuthService(
         val (newAccessToken, expiresIn) = jwtGenerator.generateToken(authentication)
         val newRefreshToken = jwtGenerator.handleRefreshTokenWith(refreshToken)
 
-        var response = RegenerateResponse.of(accessToken = newAccessToken, expiresIn = expiresIn)
-        if (newRefreshToken != null) {
-            response = response.with(refreshToken = newRefreshToken)
-        }
-        return response
+        return RegenerateResponse.of(accessToken = newAccessToken, expiresIn = expiresIn)
+            .with(refreshToken = newRefreshToken)
     }
 }
