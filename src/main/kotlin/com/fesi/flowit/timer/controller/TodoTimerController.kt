@@ -1,5 +1,6 @@
 package com.fesi.flowit.timer.controller
 
+import com.fesi.flowit.common.auth.AuthUserId
 import com.fesi.flowit.common.response.ApiResult
 import com.fesi.flowit.timer.dto.*
 import io.swagger.v3.oas.annotations.Operation
@@ -40,7 +41,7 @@ interface TodoTimerController {
             )
         ]
     )
-    fun hasUserTodoTimer(@RequestParam("userId") userId: Long): ResponseEntity<ApiResult<TodoTimerUserInfo>>
+    fun hasUserTodoTimer(@AuthUserId userId: Long): ResponseEntity<ApiResult<TodoTimerUserInfo>>
 
     @Operation(
         summary = "할 일 누적 작업 시간 조회",
@@ -70,7 +71,7 @@ interface TodoTimerController {
             )
         ]
     )
-    fun getTotalRunningTimeByTodo(@RequestParam("userId") userId: Long,
+    fun getTotalRunningTimeByTodo(@AuthUserId userId: Long,
                                   @RequestParam("todoId") todoId: Long
     ): ResponseEntity<ApiResult<TodoTimerTotalRunningTime>>
 
@@ -98,7 +99,10 @@ interface TodoTimerController {
             )
         ]
     )
-    fun startTodoTimer(@RequestBody request: TodoTimerStartRequestDto): ResponseEntity<ApiResult<TodoTimerStartResponseDto>>
+    fun startTodoTimer(
+        @RequestBody request: TodoTimerStartRequestDto,
+        @AuthUserId userId: Long
+    ): ResponseEntity<ApiResult<TodoTimerStartResponseDto>>
 
     @Operation(
         summary = "타이머 중지",
@@ -125,7 +129,7 @@ interface TodoTimerController {
         ]
     )
     fun pauseTodoTimer(@PathVariable("todoTimerId") todoTimerId: Long,
-                       @RequestParam("userId") userId: Long
+                       @AuthUserId userId: Long
     ): ResponseEntity<ApiResult<TodoTimerPauseResponseDto>>
 
     @Operation(
@@ -153,7 +157,7 @@ interface TodoTimerController {
         ]
     )
     fun resumeTodoTimer(@PathVariable("todoTimerId") todoTimerId: Long,
-                        @RequestParam("userId") userId: Long): ResponseEntity<ApiResult<TodoTimerResumeResponseDto>>
+                        @AuthUserId userId: Long): ResponseEntity<ApiResult<TodoTimerResumeResponseDto>>
 
     @Operation(
         summary = "타이머 종료",
@@ -184,5 +188,5 @@ interface TodoTimerController {
         ]
     )
     fun finishTodoTimer(@PathVariable("todoTimerId") todoTimerId: Long,
-                        @RequestParam("userId") userId: Long): ResponseEntity<ApiResult<TodoTimerStopResponseDto>>
+                        @AuthUserId userId: Long): ResponseEntity<ApiResult<TodoTimerStopResponseDto>>
 }

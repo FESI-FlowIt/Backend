@@ -27,14 +27,14 @@ class TodoTimerControllerTest : StringSpec({
     }
 
     "할 일 타이머 시작 요청을 받을 수 있다" {
-        val request = TodoTimerStartRequestDto(userId = 1, todoId = 1)
+        val request = TodoTimerStartRequestDto(todoId = 1)
 
         val service = mockk<TodoTimerService>(relaxed = true)
         every { service.startTodoTimer(any(), any()) } returns mockk<TodoTimerStartResponseDto>()
 
         val controller = TodoTimerControllerImpl(service)
 
-        controller.startTodoTimer(request)
+        controller.startTodoTimer(request, userId = 1)
     }
 
     "할 일 타이머 일시정지 요청을 받을 수 있다" {
