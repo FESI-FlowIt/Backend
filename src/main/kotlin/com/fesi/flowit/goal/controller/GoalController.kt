@@ -1,5 +1,6 @@
 package com.fesi.flowit.goal.controller
 
+import com.fesi.flowit.common.auth.AuthUserId
 import com.fesi.flowit.common.response.ApiResult
 import com.fesi.flowit.common.response.PageResponse
 import com.fesi.flowit.goal.dto.*
@@ -44,7 +45,10 @@ interface GoalController {
         )
         ]
     )
-    fun createGoal(@RequestBody request: GoalCreateRequestDto): ResponseEntity<ApiResult<GoalInfoResponseDto>>
+    fun createGoal(
+        @RequestBody request: GoalCreateRequestDto,
+        @AuthUserId userId: Long
+    ): ResponseEntity<ApiResult<GoalInfoResponseDto>>
     @Operation(
         summary = "목표 수정",
         description = "목표 수정 모달로부터 목표를 수정합니다."
@@ -69,8 +73,11 @@ interface GoalController {
             )
         ]
     )
-    fun modifyGoal(@PathVariable("goalId") goalId: Long,
-                   @RequestBody request: GoalModifyRequestDto): ResponseEntity<ApiResult<GoalInfoResponseDto>>
+    fun modifyGoal(
+        @PathVariable("goalId") goalId: Long,
+        @RequestBody request: GoalModifyRequestDto,
+        @AuthUserId userId: Long
+    ): ResponseEntity<ApiResult<GoalInfoResponseDto>>
 
     @Operation(
         summary = "목표 고정 상태 변경",
@@ -96,8 +103,11 @@ interface GoalController {
             )
         ]
     )
-    fun changePinStatus(@PathVariable("goalId") goalId: Long,
-                        @RequestBody request: GoalChangePinRequestDto): ResponseEntity<ApiResult<GoalChangePinResponseDto>>
+    fun changePinStatus(
+        @PathVariable("goalId") goalId: Long,
+        @RequestBody request: GoalChangePinRequestDto,
+        @AuthUserId userId: Long
+    ): ResponseEntity<ApiResult<GoalChangePinResponseDto>>
 
     @Operation(
         summary = "목표 삭제",
@@ -123,7 +133,7 @@ interface GoalController {
             )
         ]
     )
-    fun deleteGoal(@PathVariable("goalId") goalId: Long, @RequestParam("userId") userId: Long): ResponseEntity<ApiResult<Unit>>
+    fun deleteGoal(@PathVariable("goalId") goalId: Long, @AuthUserId userId: Long): ResponseEntity<ApiResult<Unit>>
 
     @Operation(
         summary = "모든 목표 조회",
@@ -154,7 +164,7 @@ interface GoalController {
             )
         ]
     )
-    fun getAllGoals(@RequestParam("userId") userId: Long): ResponseEntity<ApiResult<List<GoalFindAllResponseDto>>>
+    fun getAllGoals(@AuthUserId userId: Long): ResponseEntity<ApiResult<List<GoalFindAllResponseDto>>>
 
     @Operation(
         summary = "목표 조회",
@@ -181,7 +191,7 @@ interface GoalController {
         ]
     )
     fun getGoalSummary(@PathVariable("goalId") goalId: Long,
-                       @RequestParam("userId") userId: Long): ResponseEntity<ApiResult<GoalSummaryResponseDto>>
+                       @AuthUserId userId: Long): ResponseEntity<ApiResult<GoalSummaryResponseDto>>
 
     @Operation(
         summary = "모든 목표 조회",
@@ -209,7 +219,7 @@ interface GoalController {
         ]
     )
     fun searchGoalSummaries(
-        @RequestParam("userId") userId: Long,
+        @AuthUserId userId: Long,
         @RequestParam("isPinned") isPinned: Boolean,
         @RequestParam("sortedBy") sortedBy: GoalSortCriteria,
         pageable: Pageable
@@ -239,7 +249,7 @@ interface GoalController {
             )
         ]
     )
-    fun getGoalSummariesInDashboard(@RequestParam("userId") userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>>
+    fun getGoalSummariesInDashboard(@AuthUserId userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>>
 
     @Operation(
         summary = "월 별 목표 조회 (캘린더)",
@@ -265,7 +275,7 @@ interface GoalController {
             )
         ]
     )
-    fun getGoalsByDueMonth(@RequestParam("userId") userId: Long,
+    fun getGoalsByDueMonth(@AuthUserId userId: Long,
 
                            @RequestParam(name = "date", required = true)
                            @DateTimeFormat(pattern = "yyyy-MM")
@@ -300,5 +310,5 @@ interface GoalController {
             )
         ]
     )
-    fun getGoalsSummariesInProgress(@RequestParam("userId") userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>>
+    fun getGoalsSummariesInProgress(@AuthUserId userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>>
 }

@@ -16,7 +16,6 @@ import java.time.YearMonth
 class GoalControllerTest : StringSpec({
     "목표 생성 요청을 받을 수 있다" {
         val request = GoalCreateRequestDto(
-            userId = 1,
             name = "건강 프로젝트",
             color = "#00FF00",
             dueDateTime = LocalDateTime.of(2025, 8, 4, 12, 0)
@@ -34,12 +33,11 @@ class GoalControllerTest : StringSpec({
 
         val controller = GoalControllerImpl(service)
 
-        controller.createGoal(request)
+        controller.createGoal(request, userId = 1)
     }
 
     "목표 수정 요청을 받을 수 있다" {
         val request = GoalModifyRequestDto(
-            userId = 1,
             name = "업데이트된 목표",
             color = "#0000FF",
             dueDateTime = LocalDateTime.of(2025, 12, 31, 23, 59)
@@ -58,11 +56,11 @@ class GoalControllerTest : StringSpec({
 
         val controller = GoalControllerImpl(service)
 
-        controller.modifyGoal(goalId = 10L, request)
+        controller.modifyGoal(goalId = 10L, request, userId = 1)
     }
 
     "목표 고정 상태 변경 요청을 받을 수 있다" {
-        val request = GoalChangePinRequestDto(userId = 1, isPinned = true)
+        val request = GoalChangePinRequestDto.of(isPinned = true)
 
         val service = mockk<GoalService>(relaxed = true)
         every {
@@ -75,7 +73,7 @@ class GoalControllerTest : StringSpec({
 
         val controller = GoalControllerImpl(service)
 
-        controller.changePinStatus(goalId = 5L, request)
+        controller.changePinStatus(goalId = 5L, request, userId = 1)
     }
 
     "목표 삭제 요청을 받을 수 있다" {
