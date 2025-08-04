@@ -1,5 +1,6 @@
 package com.fesi.flowit.schedule.controller
 
+import com.fesi.flowit.common.auth.AuthUserId
 import com.fesi.flowit.common.response.ApiResult
 import com.fesi.flowit.schedule.dto.SchedAssignedSchedResponseDto
 import com.fesi.flowit.schedule.dto.SchedSaveRequestDto
@@ -47,7 +48,10 @@ interface SchedController {
             )
         ]
     )
-    fun saveSchedules(@RequestBody request: SchedSaveRequestDto): ResponseEntity<ApiResult<SchedCreateResponseDto>>
+    fun saveSchedules(
+        @RequestBody request: SchedSaveRequestDto,
+        @AuthUserId userId: Long
+    ): ResponseEntity<ApiResult<SchedCreateResponseDto>>
 
     @Operation(
         summary = "미배치 할 일 조회",
@@ -77,7 +81,7 @@ interface SchedController {
             )
         ]
     )
-    fun getUnassignedTodos(@RequestParam("userId") userId: Long,
+    fun getUnassignedTodos(@AuthUserId userId: Long,
 
                            @RequestParam(name = "date", required = true)
                            @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -108,7 +112,7 @@ interface SchedController {
             )
         ]
     )
-    fun getAssignedSched(@RequestParam("userId") userId: Long,
+    fun getAssignedSched(@AuthUserId userId: Long,
 
                          @RequestParam(name = "date", required = true)
                          @DateTimeFormat(pattern = "yyyy-MM-dd")

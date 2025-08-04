@@ -12,7 +12,6 @@ import java.time.LocalDateTime
 class SchedControllerTest : StringSpec({
     "일정 저장 요청을 받을 수 있다" {
         val request = SchedSaveRequestDto(
-            userId = 1,
             scheduleInfos = mutableListOf(
                 SchedSaveInfo(
                     schedId = null,
@@ -25,11 +24,11 @@ class SchedControllerTest : StringSpec({
         )
 
         val service = mockk<SchedService>(relaxed = true)
-        every { service.saveSchedules(any()) } returns mockk<SchedCreateResponseDto>()
+        every { service.saveSchedules(any(), any()) } returns mockk<SchedCreateResponseDto>()
 
         val controller = SchedControllerImpl(service)
 
-        controller.saveSchedules(request)
+        controller.saveSchedules(request, userId = 1)
     }
 
     "미할당 할 일 조회 요청을 받을 수 있다" {
