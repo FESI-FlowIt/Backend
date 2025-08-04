@@ -55,7 +55,7 @@ class JwtGenerator(
      * 로그인 시 리프레시 토큰 처리
      * 리프레시 토큰이 있을 경우, 토큰 재발급 시 쓰는 handleRefreshTokenWith()에 처리를 위임한다
      */
-    fun handleRefreshToken(authentication: Authentication): String? {
+    fun handleRefreshToken(authentication: Authentication): String {
         val principal = authentication.principal as User
 
         if (!isRefreshTokenExists(principal.id)) {
@@ -71,7 +71,7 @@ class JwtGenerator(
     /**
      * 토큰 재발급 시 리프레시 토큰 처리
      */
-    fun handleRefreshTokenWith(oldRefreshToken: String): String? {
+    fun handleRefreshTokenWith(oldRefreshToken: String): String {
         val unpack = jwtProcessor.unpackRefreshToken(oldRefreshToken)
 
         if (!isRefreshTokenExistsWith(oldRefreshToken)) {
@@ -81,7 +81,7 @@ class JwtGenerator(
         }
 
         if (!isRefreshTokenIsAboutTobeExpired(oldRefreshToken)) {
-            return null
+            return oldRefreshToken
         }
 
         if (isRefreshTokenExpired(oldRefreshToken)) {
