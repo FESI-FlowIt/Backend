@@ -4,6 +4,7 @@ import com.fesi.flowit.common.auth.AuthUserId
 import com.fesi.flowit.common.response.ApiResult
 import com.fesi.flowit.todo.dto.*
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -38,7 +39,10 @@ interface TodoController {
             )
         ]
     )
-    fun createTodo(@RequestBody request: TodoCreateRequestDto, @AuthUserId userId: Long): ResponseEntity<ApiResult<TodoCreateResponseDto>>
+    fun createTodo(
+        @RequestBody request: TodoCreateRequestDto,
+        @Parameter(hidden = true) @AuthUserId userId: Long
+    ): ResponseEntity<ApiResult<TodoCreateResponseDto>>
 
     @Operation(
         summary = "할 일 수정",
@@ -66,7 +70,7 @@ interface TodoController {
     )
     fun modifyTodo(@PathVariable("todoId") todoId: Long,
                    @RequestBody request: TodoModifyRequestDto,
-                   @AuthUserId userId: Long
+                   @Parameter(hidden = true) @AuthUserId userId: Long
     ): ResponseEntity<ApiResult<TodoModifyResponseDto>>
 
     @Operation(
@@ -95,7 +99,7 @@ interface TodoController {
     )
     fun changeDoneStatus(@PathVariable("todoId") todoId: Long,
                          @RequestBody request: TodoChangeDoneRequestDto,
-                         @AuthUserId userId: Long
+                         @Parameter(hidden = true) @AuthUserId userId: Long
     ): ResponseEntity<ApiResult<TodoChangeDoneResponseDto>>
 
     @Operation(
@@ -122,5 +126,8 @@ interface TodoController {
             )
         ]
     )
-    fun deleteTodo(@PathVariable("todoId") todoId: Long, @AuthUserId userId: Long): ResponseEntity<ApiResult<Unit>>
+    fun deleteTodo(
+        @PathVariable("todoId") todoId: Long,
+        @Parameter(hidden = true) @AuthUserId userId: Long
+    ): ResponseEntity<ApiResult<Unit>>
 }

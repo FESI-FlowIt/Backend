@@ -7,6 +7,7 @@ import com.fesi.flowit.schedule.dto.SchedSaveRequestDto
 import com.fesi.flowit.schedule.dto.SchedCreateResponseDto
 import com.fesi.flowit.schedule.dto.SchedUnassignedTodosResponseDto
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -50,7 +51,7 @@ interface SchedController {
     )
     fun saveSchedules(
         @RequestBody request: SchedSaveRequestDto,
-        @AuthUserId userId: Long
+        @Parameter(hidden = true) @AuthUserId userId: Long
     ): ResponseEntity<ApiResult<SchedCreateResponseDto>>
 
     @Operation(
@@ -81,7 +82,7 @@ interface SchedController {
             )
         ]
     )
-    fun getUnassignedTodos(@AuthUserId userId: Long,
+    fun getUnassignedTodos(@Parameter(hidden = true) @AuthUserId userId: Long,
 
                            @RequestParam(name = "date", required = true)
                            @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -112,7 +113,7 @@ interface SchedController {
             )
         ]
     )
-    fun getAssignedSched(@AuthUserId userId: Long,
+    fun getAssignedSched(@Parameter(hidden = true) @AuthUserId userId: Long,
 
                          @RequestParam(name = "date", required = true)
                          @DateTimeFormat(pattern = "yyyy-MM-dd")
