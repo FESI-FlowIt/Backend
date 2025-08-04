@@ -1,5 +1,6 @@
 package com.fesi.flowit.todo.controller
 
+import com.fesi.flowit.common.auth.AuthUserId
 import com.fesi.flowit.common.logging.loggerFor
 import com.fesi.flowit.common.response.ApiResponse
 import com.fesi.flowit.common.response.ApiResult
@@ -18,20 +19,21 @@ class TodoControllerImpl(
 ) : TodoController {
 
     @PostMapping("/todos")
-    override fun createTodo(@RequestBody request: TodoCreateRequestDto): ResponseEntity<ApiResult<TodoCreateResponseDto>> {
+    override fun createTodo(@RequestBody request: TodoCreateRequestDto, @AuthUserId userId: Long): ResponseEntity<ApiResult<TodoCreateResponseDto>> {
         log.debug(">> request createTodo(${request}")
-        return ApiResponse.created(todoService.createTodo(request.userId, request.name, request.goalId))
+        return ApiResponse.created(todoService.createTodo(userId, request.name, request.goalId))
     }
 
     @PatchMapping("/todos/{todoId}")
     override fun modifyTodo(@PathVariable("todoId") todoId: Long,
-                            @RequestBody request: TodoModifyRequestDto
+                            @RequestBody request: TodoModifyRequestDto,
+                            @AuthUserId userId: Long
     ): ResponseEntity<ApiResult<TodoModifyResponseDto>> {
         log.debug(">> request modifyTodo(${request})")
 
         val result = todoService.modifyTodo(
             todoId = todoId,
-            userId = request.userId,
+            userId = userId,
             name = request.name,
             goalId = request.goalId
         )
@@ -41,15 +43,17 @@ class TodoControllerImpl(
 
     @PatchMapping("/todos/{todoId}/done")
     override fun changeDoneStatus(@PathVariable("todoId") todoId: Long,
-                                  @RequestBody request: TodoChangeDoneRequestDto): ResponseEntity<ApiResult<TodoChangeDoneResponseDto>> {
+                                  @RequestBody request: TodoChangeDoneRequestDto,
+                                  @AuthUserId userId: Long
+    ): ResponseEntity<ApiResult<TodoChangeDoneResponseDto>> {
         log.debug(">> request changeDoneStatus(todoId=${todoId}, request=${request}")
 
-        return ApiResponse.ok(todoService.changeDoneStatus(todoId, request.userId, request.isDone))
+        return ApiResponse.ok(todoService.changeDoneStatus(todoId, userId, request.isDone))
     }
 
     @DeleteMapping("/todos/{todoId}")
     override fun deleteTodo(@PathVariable("todoId") todoId: Long,
-                            @RequestParam("userId") userId: Long
+                            @AuthUserId userId: Long
     ): ResponseEntity<ApiResult<Unit>> {
         log.debug(">> request deleteTodo(userId=${userId}, todoId=${todoId})")
 

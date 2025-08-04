@@ -10,7 +10,7 @@ import io.mockk.runs
 
 class TodoControllerTest : StringSpec({
     "할 일 생성 요청을 받을 수 있다" {
-        val request = TodoCreateRequestDto(userId = 1, name = "할 일", goalId = 1)
+        val request = TodoCreateRequestDto(name = "할 일", goalId = 1)
 
         val service = mockk<TodoService>(relaxed = true)
         every {
@@ -21,11 +21,11 @@ class TodoControllerTest : StringSpec({
         } returns mockk<TodoCreateResponseDto>()
         val controller = TodoControllerImpl(service)
 
-        controller.createTodo(request)
+        controller.createTodo(request, userId = 1)
     }
 
     "할 일 수정 요청을 받을 수 있다" {
-        val request = TodoModifyRequestDto(userId = 1, name = "할 일", goalId = 1)
+        val request = TodoModifyRequestDto(name = "할 일", goalId = 1)
 
         val service = mockk<TodoService>(relaxed = true)
         every {
@@ -38,11 +38,11 @@ class TodoControllerTest : StringSpec({
         } returns mockk<TodoModifyResponseDto>()
         val controller = TodoControllerImpl(service)
 
-        controller.modifyTodo(todoId = 1, request)
+        controller.modifyTodo(todoId = 1, request, userId = 1)
     }
 
     "할 일 완료 상태 변경 요청을 받을 수 있다" {
-        val request = TodoChangeDoneRequestDto(userId = 1, isDone = true)
+        val request = TodoChangeDoneRequestDto(isDone = true)
 
         val service = mockk<TodoService>(relaxed = true)
         every {
@@ -54,7 +54,7 @@ class TodoControllerTest : StringSpec({
         } returns mockk<TodoChangeDoneResponseDto>()
         val controller = TodoControllerImpl(service)
 
-        controller.changeDoneStatus(todoId = 1, request)
+        controller.changeDoneStatus(todoId = 1, request, userId = 1)
     }
 
     "할 일 삭제 요청을 받을 수 있다" {

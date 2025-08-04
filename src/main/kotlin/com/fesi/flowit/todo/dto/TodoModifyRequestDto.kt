@@ -4,13 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema
 
 data class TodoModifyRequestDto (
     @field:Schema(
-        description = "회원 ID",
-        example = "1",
-        requiredMode = Schema.RequiredMode.REQUIRED
-    )
-    var userId: Long,
-
-    @field:Schema(
         description = "목표 ID",
         example = "10",
         requiredMode = Schema.RequiredMode.REQUIRED
