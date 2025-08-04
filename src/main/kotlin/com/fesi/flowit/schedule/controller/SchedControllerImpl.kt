@@ -1,5 +1,6 @@
 package com.fesi.flowit.schedule.controller
 
+import com.fesi.flowit.common.auth.AuthUserId
 import com.fesi.flowit.common.logging.loggerFor
 import com.fesi.flowit.common.response.ApiResponse
 import com.fesi.flowit.common.response.ApiResult
@@ -27,14 +28,14 @@ class SchedControllerImpl(
 ) : SchedController {
 
     @PostMapping("/schedules")
-    override fun saveSchedules(@RequestBody request: SchedSaveRequestDto): ResponseEntity<ApiResult<SchedCreateResponseDto>> {
+    override fun saveSchedules(@RequestBody request: SchedSaveRequestDto, @AuthUserId userId: Long): ResponseEntity<ApiResult<SchedCreateResponseDto>> {
         log.debug(">> request createSchedules(${request})")
 
-        return ApiResponse.created(schedService.saveSchedules(request))
+        return ApiResponse.created(schedService.saveSchedules(userId, request))
     }
 
     @GetMapping("/schedules/unassigned")
-    override fun getUnassignedTodos(@RequestParam("userId") userId: Long,
+    override fun getUnassignedTodos(@AuthUserId userId: Long,
 
                                     @RequestParam(name = "date", required = true)
                                     @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -46,7 +47,7 @@ class SchedControllerImpl(
     }
 
     @GetMapping("/schedules/assigned")
-    override fun getAssignedSched(@RequestParam("userId") userId: Long,
+    override fun getAssignedSched(@AuthUserId userId: Long,
 
                                   @RequestParam(name = "date", required = true)
                          @DateTimeFormat(pattern = "yyyy-MM-dd")

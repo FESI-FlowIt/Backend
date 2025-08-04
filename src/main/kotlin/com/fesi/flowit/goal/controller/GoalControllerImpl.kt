@@ -1,5 +1,6 @@
 package com.fesi.flowit.goal.controller
 
+import com.fesi.flowit.common.auth.AuthUserId
 import com.fesi.flowit.common.logging.loggerFor
 import com.fesi.flowit.common.response.ApiResponse
 import com.fesi.flowit.common.response.ApiResult
@@ -31,11 +32,14 @@ class GoalControllerImpl(
 ) : GoalController {
 
     @PostMapping("/goals")
-    override fun createGoal(@RequestBody request: GoalCreateRequestDto): ResponseEntity<ApiResult<GoalInfoResponseDto>> {
+    override fun createGoal(
+        @RequestBody request: GoalCreateRequestDto,
+        @AuthUserId userId: Long
+    ): ResponseEntity<ApiResult<GoalInfoResponseDto>> {
         log.debug(">> request createGoal(${request})")
 
         val result = goalService.createGoal(
-            userId = request.userId,
+            userId = userId,
             name = request.name,
             color = request.color,
             dueDateTime = request.dueDateTime
@@ -45,13 +49,16 @@ class GoalControllerImpl(
     }
 
     @PatchMapping("/goals/{goalId}")
-    override fun modifyGoal(@PathVariable("goalId") goalId: Long,
-                            @RequestBody request: GoalModifyRequestDto): ResponseEntity<ApiResult<GoalInfoResponseDto>> {
+    override fun modifyGoal(
+        @PathVariable("goalId") goalId: Long,
+        @RequestBody request: GoalModifyRequestDto,
+        @AuthUserId userId: Long
+    ): ResponseEntity<ApiResult<GoalInfoResponseDto>> {
         log.debug(">> request modifyGoal(${request})")
 
         val result = goalService.modifyGoal(
             goalId = goalId,
-            userId = request.userId,
+            userId = userId,
             name = request.name,
             color = request.color,
             dueDateTime = request.dueDateTime
@@ -61,16 +68,19 @@ class GoalControllerImpl(
     }
 
     @PatchMapping("/goals/{goalId}/pin")
-    override fun changePinStatus(@PathVariable("goalId") goalId: Long,
-                                 @RequestBody request: GoalChangePinRequestDto): ResponseEntity<ApiResult<GoalChangePinResponseDto>> {
+    override fun changePinStatus(
+        @PathVariable("goalId") goalId: Long,
+        @RequestBody request: GoalChangePinRequestDto,
+        @AuthUserId userId: Long
+    ): ResponseEntity<ApiResult<GoalChangePinResponseDto>> {
         log.debug(">> request changePinStatus(goalId=${goalId}, request=${request})")
 
-        return ApiResponse.ok(goalService.changePinStatus(goalId, request.userId, request.isPinned))
+        return ApiResponse.ok(goalService.changePinStatus(goalId, userId, request.isPinned))
     }
 
     @DeleteMapping("/goals/{goalId}")
     override fun deleteGoal(@PathVariable("goalId") goalId: Long,
-                            @RequestParam("userId") userId: Long
+                            @AuthUserId userId: Long
     ): ResponseEntity<ApiResult<Unit>> {
         log.debug(">> request deleteGoal(userId=${userId}, goalId=${goalId})")
 
@@ -80,27 +90,27 @@ class GoalControllerImpl(
     }
 
     @GetMapping("/goals")
-    override fun getAllGoals(@RequestParam("userId") userId: Long): ResponseEntity<ApiResult<List<GoalFindAllResponseDto>>> {
+    override fun getAllGoals(@AuthUserId userId: Long): ResponseEntity<ApiResult<List<GoalFindAllResponseDto>>> {
         log.debug(">> request getAllGoals(userId=${userId})")
         return ApiResponse.ok(goalService.getAllGoals(userId))
     }
 
     @GetMapping("/goals/{goalId}/summary")
     override fun getGoalSummary(@PathVariable("goalId") goalId: Long,
-                                @RequestParam("userId") userId: Long): ResponseEntity<ApiResult<GoalSummaryResponseDto>> {
+                                @AuthUserId userId: Long): ResponseEntity<ApiResult<GoalSummaryResponseDto>> {
         log.debug(">> request getGoalSummary(userId=${userId}, goalId=${goalId})")
 
         return ApiResponse.ok(goalService.getGoalsSummary(userId, goalId))
     }
 
     @GetMapping("/goals/dashboard/summaries")
-    override fun getGoalSummariesInDashboard(@RequestParam("userId") userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>> {
+    override fun getGoalSummariesInDashboard(@AuthUserId userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>> {
         log.debug(">> request getGoalSummariesInDashboard(userId=${userId})")
         return ApiResponse.ok(goalService.getGoalsSummariesInDashboard(userId))
     }
 
     @GetMapping("/goals/summaries")
-    override fun searchGoalSummaries(@RequestParam("userId") userId: Long,
+    override fun searchGoalSummaries(@AuthUserId userId: Long,
                                      @RequestParam("isPinned") isPinned: Boolean,
                                      @RequestParam("sortedBy") sortedBy: GoalSortCriteria,
                                      pageable: Pageable
@@ -112,7 +122,7 @@ class GoalControllerImpl(
     }
 
     @GetMapping("/goals/todos/due-monthly")
-    override fun getGoalsByDueMonth(@RequestParam("userId") userId: Long,
+    override fun getGoalsByDueMonth(@AuthUserId userId: Long,
 
                                     @RequestParam(name = "date", required = true)
                                     @DateTimeFormat(pattern = "yyyy-MM")
@@ -123,7 +133,7 @@ class GoalControllerImpl(
     }
 
     @GetMapping("/goals/todos/in-progress")
-    override fun getGoalsSummariesInProgress(@RequestParam("userId") userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>> {
+    override fun getGoalsSummariesInProgress(@AuthUserId userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>> {
         log.debug(">> request getGoalsSummariesInProgress(userId=${userId})")
 
         return ApiResponse.ok(goalService.getGoalsSummariesInProgress(userId))

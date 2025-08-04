@@ -36,15 +36,15 @@ class SchedServiceImpl(
      * @return created or updated schedules
      */
     @Transactional
-    override fun saveSchedules(request: SchedSaveRequestDto): SchedCreateResponseDto {
-        val user: User = userService.findUserById(request.userId)
+    override fun saveSchedules(userId: Long, request: SchedSaveRequestDto): SchedCreateResponseDto {
+        val user: User = userService.findUserById(userId)
         val todoMap: Map<Long, Todo> = todoService
             .getTodosByIds(request.scheduleInfos.map { it.todoId })
             .associateBy { it.id ?: throw TodoException.fromCode(ApiResultCode.TODO_INVALID_ID) }
 
         val processedDateTime = LocalDateTime.now()
 
-        log.debug("Saved schedules.. userId=${request.userId}, a number of targets=${request.scheduleInfos.size}")
+        log.debug("Saved schedules.. userId=${userId}, a number of targets=${request.scheduleInfos.size}")
         val createdLogBuilder: StringBuilder = StringBuilder("\"created\": [")
         val updatedLogBuilder: StringBuilder = StringBuilder("\"updated\": [")
         val deletedLogBuilder: StringBuilder = StringBuilder("\"deleted\": ")

@@ -5,12 +5,6 @@ import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
 
 data class SchedSaveRequestDto(
-    @field:Schema(
-        description = "회원 ID",
-        example = "1",
-    )
-    var userId: Long,
-
     var scheduleInfos: MutableList<SchedSaveInfo>
 )
 

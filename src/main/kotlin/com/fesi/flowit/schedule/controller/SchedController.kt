@@ -1,11 +1,13 @@
 package com.fesi.flowit.schedule.controller
 
+import com.fesi.flowit.common.auth.AuthUserId
 import com.fesi.flowit.common.response.ApiResult
 import com.fesi.flowit.schedule.dto.SchedAssignedSchedResponseDto
 import com.fesi.flowit.schedule.dto.SchedSaveRequestDto
 import com.fesi.flowit.schedule.dto.SchedCreateResponseDto
 import com.fesi.flowit.schedule.dto.SchedUnassignedTodosResponseDto
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -47,7 +49,10 @@ interface SchedController {
             )
         ]
     )
-    fun saveSchedules(@RequestBody request: SchedSaveRequestDto): ResponseEntity<ApiResult<SchedCreateResponseDto>>
+    fun saveSchedules(
+        @RequestBody request: SchedSaveRequestDto,
+        @Parameter(hidden = true) @AuthUserId userId: Long
+    ): ResponseEntity<ApiResult<SchedCreateResponseDto>>
 
     @Operation(
         summary = "미배치 할 일 조회",
@@ -77,7 +82,7 @@ interface SchedController {
             )
         ]
     )
-    fun getUnassignedTodos(@RequestParam("userId") userId: Long,
+    fun getUnassignedTodos(@Parameter(hidden = true) @AuthUserId userId: Long,
 
                            @RequestParam(name = "date", required = true)
                            @DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -108,7 +113,7 @@ interface SchedController {
             )
         ]
     )
-    fun getAssignedSched(@RequestParam("userId") userId: Long,
+    fun getAssignedSched(@Parameter(hidden = true) @AuthUserId userId: Long,
 
                          @RequestParam(name = "date", required = true)
                          @DateTimeFormat(pattern = "yyyy-MM-dd")
