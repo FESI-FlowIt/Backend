@@ -1,8 +1,9 @@
-package com.fesi.flowit.auth.service
+package com.fesi.flowit.auth.local.service
 
-import com.fesi.flowit.auth.service.dto.SignInDto
-import com.fesi.flowit.auth.web.response.RegenerateResponse
-import com.fesi.flowit.auth.web.response.SignInResponse
+import com.fesi.flowit.auth.local.service.dto.SignInDto
+import com.fesi.flowit.auth.local.web.response.RegenerateResponse
+import com.fesi.flowit.auth.local.web.response.SignInResponse
+import com.fesi.flowit.auth.service.JwtGenerator
 import com.fesi.flowit.common.auth.JwtProcessor
 import com.fesi.flowit.common.response.ApiResultCode
 import com.fesi.flowit.common.response.exceptions.AuthException

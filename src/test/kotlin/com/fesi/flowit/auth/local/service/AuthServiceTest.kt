@@ -1,6 +1,7 @@
-package com.fesi.flowit.auth.service
+package com.fesi.flowit.auth.local.service
 
-import com.fesi.flowit.auth.service.dto.SignInDto
+import com.fesi.flowit.auth.local.service.dto.SignInDto
+import com.fesi.flowit.auth.service.JwtGenerator
 import com.fesi.flowit.common.auth.JwtProcessor
 import com.fesi.flowit.user.entity.User
 import io.kotest.assertions.throwables.shouldThrow
