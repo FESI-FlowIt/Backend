@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication
 import java.sql.Timestamp
 import java.time.Instant
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 class JwtGeneratorTest : StringSpec({
@@ -142,6 +143,15 @@ class JwtGeneratorTest : StringSpec({
         val result = jwtGenerator.instantToLocalDateTime(instant)
 
         result shouldBe LocalDateTime.of(2024, 1, 1, 21, 0, 0) // UTC+9
+    }
+
+    "액세스 토큰 유효기간을 초 단위로 나타낸다" {
+        val accessTokenExpiresInSeconds: Long = 60 * 60
+        val accessTokenExpiresInMinutes: Long = 60
+        val now = Instant.parse("2007-12-03T10:15:30.00Z")
+        val expirationInSeconds = now.plus(accessTokenExpiresInSeconds, ChronoUnit.SECONDS)
+        val expirationInMinutes = now.plus(accessTokenExpiresInMinutes, ChronoUnit.MINUTES)
+        expirationInSeconds shouldBe expirationInMinutes
     }
 })
 
