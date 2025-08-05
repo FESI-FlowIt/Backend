@@ -1,17 +1,11 @@
 package com.fesi.flowit.auth.service
 
-import com.fesi.flowit.auth.repository.TokenRepository
 import com.fesi.flowit.auth.service.dto.SignInDto
-import com.fesi.flowit.auth.vo.RefreshToken
-import com.fesi.flowit.auth.web.response.RegenerateResponse
 import com.fesi.flowit.common.auth.JwtProcessor
 import com.fesi.flowit.user.entity.User
-import com.fesi.flowit.user.repository.UserRepository
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
-import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
-import io.kotest.matchers.types.instanceOf
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -23,19 +17,16 @@ class AuthServiceTest : StringSpec({
     lateinit var jwtGenerator: JwtGenerator
     lateinit var jwtProcessor: JwtProcessor
     lateinit var authenticationManager: AuthenticationManager
-    lateinit var refreshTokenRepository: TokenRepository
 
     beforeTest() {
         jwtGenerator = mockk<JwtGenerator>(relaxed = true)
         jwtProcessor = mockk<JwtProcessor>(relaxed = true)
         authenticationManager = mockk<AuthenticationManager>()
-        refreshTokenRepository = mockk<TokenRepository>()
         service =
             AuthService(
                 jwtGenerator,
                 jwtProcessor,
-                authenticationManager,
-                refreshTokenRepository
+                authenticationManager
             )
     }
 
@@ -74,7 +65,6 @@ class AuthServiceTest : StringSpec({
         val authentication = mockk<Authentication>(relaxed = true)
         every { jwtProcessor.getAuthenticationFromId(any()) } returns authentication
         hasUserDetails(authentication)
-        refreshTokenRepository.canFindTokenByUserId(tokenValue = "refresh_token")
         every { jwtGenerator.generateToken(any()) } returns Pair("newAccessToken", 3600)
 
         service.regenerate("refresh_token")
@@ -87,12 +77,11 @@ class AuthServiceTest : StringSpec({
         val authentication = mockk<Authentication>(relaxed = true)
         every { jwtProcessor.getAuthenticationFromId(any()) } returns authentication
         hasUserDetails(authentication)
-        refreshTokenRepository.canFindTokenByUserId(tokenValue = "refresh_token")
         every { jwtGenerator.generateToken(any()) } returns Pair("newAccessToken", 3600)
         every { jwtGenerator.handleRefreshTokenWith(any()) } returns "refresh_token"
 
         val response = service.regenerate("refresh_token")
-        response.accessToken shouldNotBe  null
+        response.accessToken shouldNotBe null
         response.refreshToken shouldNotBe null
     }
 
@@ -101,25 +90,14 @@ class AuthServiceTest : StringSpec({
         val authentication = mockk<Authentication>(relaxed = true)
         every { jwtProcessor.getAuthenticationFromId(any()) } returns authentication
         hasUserDetails(authentication)
-        refreshTokenRepository.canFindTokenByUserId(tokenValue = "refresh_token")
         every { jwtGenerator.generateToken(any()) } returns Pair("newAccessToken", 3600)
         every { jwtGenerator.handleRefreshTokenWith(any()) } returns "newRefreshToken"
 
         val response = service.regenerate("refresh_token")
-        response.accessToken shouldNotBe  null
+        response.accessToken shouldNotBe null
         response.refreshToken shouldNotBe null
     }
 })
-
-private fun UserRepository.canFindUserByEmail() {
-    every { findByEmail(any()) } returns mockk<User>(relaxed = true)
-}
-
-private fun TokenRepository.canFindTokenByUserId(tokenValue: String) {
-    val refreshToken = mockk<RefreshToken>(relaxed = true)
-    every { refreshToken.token } returns tokenValue
-    every { findByUserId(any()) } returns refreshToken
-}
 
 private fun hasUserDetails(authentication: Authentication) {
     every { authentication.principal } returns mockk<User>(relaxed = true)

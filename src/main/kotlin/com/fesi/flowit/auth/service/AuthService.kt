@@ -1,6 +1,5 @@
 package com.fesi.flowit.auth.service
 
-import com.fesi.flowit.auth.repository.TokenRepository
 import com.fesi.flowit.auth.service.dto.SignInDto
 import com.fesi.flowit.auth.web.response.RegenerateResponse
 import com.fesi.flowit.auth.web.response.SignInResponse
@@ -20,8 +19,7 @@ import org.springframework.stereotype.Service
 class AuthService(
     private val jwtGenerator: JwtGenerator,
     private val jwtProcessor: JwtProcessor,
-    private val authenticationManager: AuthenticationManager,
-    private val refreshTokenRepository: TokenRepository
+    private val authenticationManager: AuthenticationManager
 ) {
     /**
      * 로그인
