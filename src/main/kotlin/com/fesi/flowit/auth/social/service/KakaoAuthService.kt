@@ -1,13 +1,22 @@
 package com.fesi.flowit.auth.social.service
 
+import com.fesi.flowit.auth.service.JwtGenerator
+import com.fesi.flowit.auth.social.dto.KakaoSignInResponse
 import com.fesi.flowit.auth.social.dto.KakaoTokenRequestDto
 import com.fesi.flowit.auth.social.dto.KakaoTokenResponseDto
 import com.fesi.flowit.auth.social.dto.KakaoUserInfoResponseDto
+import com.fesi.flowit.common.auth.SocialAuthenticationToken
 import com.fesi.flowit.common.response.ApiResultCode
 import com.fesi.flowit.common.response.exceptions.AuthException
+import com.fesi.flowit.user.entity.User
+import com.fesi.flowit.user.repository.UserRepository
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.security.authentication.AuthenticationManager
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.AuthenticationException
 import org.springframework.stereotype.Service
 import org.springframework.web.util.DefaultUriBuilderFactory
+import java.time.LocalDateTime
 
 @Service
 class KakaoAuthService(
@@ -15,11 +24,61 @@ class KakaoAuthService(
     private val clientId: String,
     @Value("\${auth.kakao.request-uri}")
     private val requestUri: String,
-    private val kakaoApiRequester: KakaoApiRequester
+    private val kakaoApiRequester: KakaoApiRequester,
+    private val userRepository: UserRepository,
+    private val jwtGenerator: JwtGenerator,
+    private val authenticationManager: AuthenticationManager
 ) {
     private val KAUTH_TOKEN_URL_HOST = "kauth.kakao.com"
     private val KAUTH_USER_URL_HOST = "kapi.kakao.com"
     private val KAUTH_TOKEN_GRANT_TYPE = "authorization_code"
+    private val LOCAL_PROVIDER = "local"
+    private val KAKAO_PROVIDER = "kakao"
+
+    fun authenticate(code: String): KakaoSignInResponse {
+        val accessToken = fetchAccessToken(code)
+        val userInfo = fetchUserInfo(accessToken)
+        if (validateUserInfo(userInfo)) {
+        }
+        val email = userInfo.kakaoAccount?.email!!
+        if (isLocalAccountExists(email)) {
+            throw AuthException.fromCode(ApiResultCode.AUTH_FAIL_TO_SIGNUP_DUPLICATE_USER)
+        }
+        val user: User = User.of(
+            email,
+            "kakao_user", //TODO 카카오에서 이름도 받아와야 하나?
+            "",
+            LocalDateTime.now(),
+            LocalDateTime.now(),
+            null,
+            provider = KAKAO_PROVIDER
+        )
+
+        if (!isKakaoAccountExists(email)) {
+            // 회원가입
+            userRepository.save(user)
+        }
+
+        // 로그인
+        val authenticationToken = SocialAuthenticationToken(user)
+
+        val accessTokenAndExpiresIn: Pair<String, Long>
+        val refreshToken: String
+        val authentication: Authentication
+        try {
+            authentication = authenticationManager.authenticate(authenticationToken)
+            accessTokenAndExpiresIn = jwtGenerator.generateToken(authentication)
+            refreshToken = jwtGenerator.handleRefreshToken(authentication)
+        } catch (e: AuthenticationException) {
+            throw AuthException.fromCode(ApiResultCode.UNAUTHORIZED)
+        }
+
+        return KakaoSignInResponse.of(
+            authentication.principal as User,
+            accessTokenAndExpiresIn.first,
+            accessTokenAndExpiresIn.second
+        ).with(refreshToken = refreshToken)
+    }
 
     fun fetchAccessToken(code: String): String {
         val uri = makeReqUri(code)
@@ -104,5 +163,13 @@ class KakaoAuthService(
                 if (email == null) append(" email=null;")
             }
         )
+    }
+
+    fun isLocalAccountExists(email: String): Boolean {
+        return userRepository.findByEmailAndProvider(email, LOCAL_PROVIDER) != null
+    }
+
+    fun isKakaoAccountExists(email: String): Boolean {
+        return userRepository.findByEmailAndProvider(email, KAKAO_PROVIDER) != null
     }
 }

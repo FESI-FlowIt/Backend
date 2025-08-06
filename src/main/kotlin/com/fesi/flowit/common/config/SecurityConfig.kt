@@ -4,14 +4,17 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fesi.flowit.common.auth.CustomAccessDeniedHandler
 import com.fesi.flowit.common.auth.CustomAuthenticationEntryPointHandler
 import com.fesi.flowit.common.auth.JwtAuthenticationFilter
+import com.fesi.flowit.common.auth.SocialAuthenticationProvider
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
 import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.factory.PasswordEncoderFactories
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
@@ -25,7 +28,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 @EnableWebSecurity
 class SecurityConfig(
     private val jwtAuthenticationFilter: JwtAuthenticationFilter,
-    private val objectMapper: ObjectMapper
+    private val objectMapper: ObjectMapper,
+    private val userDetailsService: UserDetailsService
 ) {
     @Bean
     fun securityFilterChain(http: HttpSecurity): SecurityFilterChain {
@@ -51,7 +55,7 @@ class SecurityConfig(
                     ).authenticated()
                     .anyRequest().permitAll()
             }
-            .exceptionHandling{
+            .exceptionHandling {
                 it.authenticationEntryPoint(CustomAuthenticationEntryPointHandler(objectMapper))
                 it.accessDeniedHandler(CustomAccessDeniedHandler(objectMapper))
             }
@@ -84,7 +88,15 @@ class SecurityConfig(
     }
 
     @Bean
-    fun authenticationManager(authenticationContiguration: AuthenticationConfiguration): AuthenticationManager {
-        return authenticationContiguration.getAuthenticationManager()
+    fun authenticationManager(http: HttpSecurity): AuthenticationManager {
+        val authManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder::class.java)
+
+        val daoAuthenticationProvider = DaoAuthenticationProvider(userDetailsService)
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder())
+        authManagerBuilder.authenticationProvider(daoAuthenticationProvider)
+
+        authManagerBuilder.authenticationProvider(SocialAuthenticationProvider(userDetailsService))
+
+        return authManagerBuilder.build()
     }
 }

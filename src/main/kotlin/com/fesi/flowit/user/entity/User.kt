@@ -63,7 +63,8 @@ class User(
             createdAt: LocalDateTime,
             updatedAt: LocalDateTime,
             deletedAt: LocalDateTime?,
-            isDeleted: Boolean = false
+            isDeleted: Boolean = false,
+            provider: String = "local",
         ): User {
             return User(
                 email = email,
@@ -72,7 +73,8 @@ class User(
                 createdAt = createdAt,
                 updatedAt = updatedAt,
                 deletedAt = deletedAt,
-                isDeleted = isDeleted
+                isDeleted = isDeleted,
+                provider = provider
             )
         }
     }
