@@ -2,6 +2,7 @@ package com.fesi.flowit.auth.social.service
 
 import com.fesi.flowit.auth.social.dto.KakaoTokenRequestDto
 import com.fesi.flowit.auth.social.dto.KakaoTokenResponseDto
+import com.fesi.flowit.auth.social.dto.KakaoUserInfoResponseDto
 import com.fesi.flowit.common.response.ApiResultCode
 import com.fesi.flowit.common.response.exceptions.AuthException
 import org.springframework.beans.factory.annotation.Value
@@ -23,7 +24,7 @@ class KakaoAuthService(
     fun fetchAccessToken(code: String): String {
         val uri = makeReqUri(code)
         val body = makeReqBody(code)
-        val kakaoAuthResponse = reqToExtServer(uri, body)
+        val kakaoAuthResponse = reqTokenToExtServer(uri, body)
 
         return kakaoAuthResponse.accessToken
     }
@@ -48,10 +49,35 @@ class KakaoAuthService(
             .toUriString()
     }
 
-    internal fun reqToExtServer(uri: String, body: KakaoTokenRequestDto): KakaoTokenResponseDto {
+    internal fun reqTokenToExtServer(uri: String, body: KakaoTokenRequestDto): KakaoTokenResponseDto {
         return kakaoApiRequester.requestAccessToken(uri, body) ?: throw AuthException.fromCodeWithMsg(
             ApiResultCode.AUTH_FAIL_TO_FETCH_TOKEN,
             "Failed to fetch token from external authentication server"
         )
+    }
+
+    fun fetchUserInfo(accessToken: String): KakaoUserInfoResponseDto {
+        val uri = makeUserInfoReqUri()
+        return reqUserInfoToExtServer(uri, accessToken)
+    }
+
+    private fun makeUserInfoReqUri(): String {
+        val factory = DefaultUriBuilderFactory()
+        factory.encodingMode = DefaultUriBuilderFactory.EncodingMode.VALUES_ONLY
+        val uriBuilder = factory.builder()
+
+        return uriBuilder.scheme("https")
+            .host(KAUTH_USER_URL_HOST)
+            .path("/v2/user/me")
+            .toUriString()
+    }
+
+    internal fun reqUserInfoToExtServer(uri: String, accessToken: String): KakaoUserInfoResponseDto {
+        val response = kakaoApiRequester.requestUserInfo(uri, accessToken)
+            ?: throw AuthException.fromCodeWithMsg(
+                ApiResultCode.AUTH_FAIL_TO_FETCH_USER_INFO,
+                "Failed to fetch user info from external authentication server"
+            )
+        return response
     }
 }

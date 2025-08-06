@@ -23,7 +23,8 @@ enum class ApiResultCode(
     AUTH_FAIL_TO_PARSE_JWT("1002", "Fail To Parse JWT"),
     AUTH_TOKEN_EXPIRED("1003", "JWT is expired"),
     AUTH_TOKEN_INVALID("1004", "JWT is invalid"),
-    AUTH_FAIL_TO_FETCH_TOKEN("1004", "Fail to fetch token"),
+    AUTH_FAIL_TO_FETCH_TOKEN("1005", "Fail to fetch token"),
+    AUTH_FAIL_TO_FETCH_USER_INFO("1006", "Fail to fetch user info"),
 
     // 3000-3999: Goal
     GOAL_NOT_FOUND("3000", "Not found goal."),

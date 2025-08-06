@@ -1,6 +1,7 @@
 package com.fesi.flowit.auth.social.service
 
 import com.fesi.flowit.auth.social.dto.KakaoTokenResponseDto
+import com.fesi.flowit.auth.social.dto.KakaoUserInfoResponseDto
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
@@ -38,5 +39,16 @@ class KakaoAuthServiceTest : StringSpec({
         val service = KakaoAuthService("client_id", "redirect_url", requester)
 
         service.fetchAccessToken("code") shouldNotBe null
+    }
+
+    "카카오에 회원 정보 조회 요청을 할 수 있다" {
+        val requester = mockk<KakaoApiRequester>()
+        every { requester.requestUserInfo(any(), any()) } returns mockk<KakaoUserInfoResponseDto>(
+            relaxed = true
+        )
+
+        val service = KakaoAuthService("client_id", "redirect_url", requester)
+
+        service.fetchUserInfo("access_token")
     }
 })

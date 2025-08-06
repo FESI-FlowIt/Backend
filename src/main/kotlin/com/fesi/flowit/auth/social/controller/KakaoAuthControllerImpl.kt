@@ -15,6 +15,8 @@ class KakaoAuthControllerImpl(private val service: KakaoAuthService) {
 
     @GetMapping("/callback")
     fun callback(@RequestParam code: String): ResponseEntity<ApiResult<String>> {
-        return ApiResponse.ok(service.fetchAccessToken(code))
+        val accessToken = service.fetchAccessToken(code)
+        val userInfo = service.fetchUserInfo(accessToken)
+        return ApiResponse.ok("")
     }
 }
