@@ -4,6 +4,7 @@ import com.fesi.flowit.auth.social.dto.KakaoAccount
 import com.fesi.flowit.auth.social.dto.KakaoTokenResponseDto
 import com.fesi.flowit.auth.social.dto.KakaoUserInfoResponseDto
 import com.fesi.flowit.common.response.exceptions.AuthException
+import com.fesi.flowit.user.repository.UserRepository
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -14,20 +15,27 @@ import java.util.*
 
 class KakaoAuthServiceTest : StringSpec({
 
+    lateinit var requester: KakaoApiRequester
+    lateinit var service: KakaoAuthService
+    lateinit var userRepository: UserRepository
+
+    beforeEach {
+        requester = mockk<KakaoApiRequester>()
+        userRepository = mockk<UserRepository>()
+    }
+
     "카카오에 액세스 토큰 발급 요청을 할 수 있다" {
-        val requester = mockk<KakaoApiRequester>()
         every { requester.requestAccessToken(any(), any()) } returns mockk<KakaoTokenResponseDto>(
             relaxed = true
         )
 
-        val service = KakaoAuthService("client_id", "redirect_url", requester)
+        service = KakaoAuthService("client_id", "redirect_url", requester, userRepository)
 
         service.fetchAccessToken("code")
     }
 
     "액세스 토큰 발급 요청 uri를 만들 수 있다" {
-        val requester = mockk<KakaoApiRequester>()
-        val service = KakaoAuthService("abc", "redirect_url", requester)
+        service = KakaoAuthService("abc", "redirect_url", requester, userRepository)
         val uri = service.makeReqUri("xyz")
         uri shouldBe (
                 "https://kauth.kakao.com/oauth/token"
@@ -35,34 +43,39 @@ class KakaoAuthServiceTest : StringSpec({
     }
 
     "카카오로부터 받은 데이터 중 액세스 토큰 값만 추출한다" {
-        val requester = mockk<KakaoApiRequester>()
         every { requester.requestAccessToken(any(), any()) } returns mockk<KakaoTokenResponseDto>(
             relaxed = true
         )
 
-        val service = KakaoAuthService("client_id", "redirect_url", requester)
+        service = KakaoAuthService("client_id", "redirect_url", requester, userRepository)
 
         service.fetchAccessToken("code") shouldNotBe null
     }
 
     "카카오에 회원 정보 조회 요청을 할 수 있다" {
-        val requester = mockk<KakaoApiRequester>()
         every { requester.requestUserInfo(any(), any()) } returns mockk<KakaoUserInfoResponseDto>(
             relaxed = true
         )
 
-        val service = KakaoAuthService("client_id", "redirect_url", requester)
+        service = KakaoAuthService("client_id", "redirect_url", requester, userRepository)
 
         service.fetchUserInfo("access_token")
     }
 
     "사용자 이메일 주소가 유효한지 확인한다" {
-        val requester = mockk<KakaoApiRequester>()
-        val service = KakaoAuthService("client_id", "redirect_url", requester)
+        service = KakaoAuthService("client_id", "redirect_url", requester, userRepository)
 
         val cases = listOf(
-            KakaoAccount(isEmailValid = false, isEmailVerified = true, email = "x@y.com"), // invalid email
-            KakaoAccount(isEmailValid = true, isEmailVerified = false, email = "x@y.com"), // not verified email
+            KakaoAccount(
+                isEmailValid = false,
+                isEmailVerified = true,
+                email = "x@y.com"
+            ), // invalid email
+            KakaoAccount(
+                isEmailValid = true,
+                isEmailVerified = false,
+                email = "x@y.com"
+            ), // not verified email
             KakaoAccount(isEmailValid = true, isEmailVerified = true, email = null), // no email
         )
 
