@@ -80,4 +80,29 @@ class KakaoAuthService(
             )
         return response
     }
+
+    fun validateUserInfo(userInfo: KakaoUserInfoResponseDto): Boolean {
+        val kakaoAccount = userInfo.kakaoAccount ?: throw AuthException.fromCodeWithMsg(
+            ApiResultCode.AUTH_FAIL_TO_FETCH_USER_INFO,
+            "Fail to fetch kakao account info"
+        )
+
+        val isEmailValid = kakaoAccount.isEmailValid
+        val isEmailVerified = kakaoAccount.isEmailVerified
+        val email = kakaoAccount.email
+
+        if (isEmailValid == true && isEmailVerified == true && email != null) {
+            return true
+        }
+
+        throw AuthException.fromCodeWithMsg(
+            ApiResultCode.AUTH_FAIL_TO_FETCH_USER_INFO,
+            buildString {
+                append("Invalid kakao account email:")
+                if (isEmailValid != true) append(" isEmailValid=$isEmailValid;")
+                if (isEmailVerified != true) append(" isEmailVerified=$isEmailVerified;")
+                if (email == null) append(" email=null;")
+            }
+        )
+    }
 }

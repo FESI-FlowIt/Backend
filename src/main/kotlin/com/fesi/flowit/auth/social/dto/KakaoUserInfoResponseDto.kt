@@ -16,7 +16,7 @@ data class KakaoUserInfoResponseDto(
 
 data class KakaoAccount(
     @JsonProperty("email_needs_agreement")
-    val emailNeedsAgreement: Boolean?,
+    val emailNeedsAgreement: Boolean? = null,
     @JsonProperty("is_email_valid")
     val isEmailValid: Boolean?,
     @JsonProperty("is_email_verified")
