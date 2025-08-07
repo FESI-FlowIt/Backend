@@ -51,7 +51,8 @@ class SecurityConfig(
                     .requestMatchers(
                         "/goals/**",
                         "/todos/**",
-                        "/schedules/**"
+                        "/schedules/**",
+                        "/notes/**"
                     ).authenticated()
                     .anyRequest().permitAll()
             }

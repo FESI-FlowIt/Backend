@@ -1,0 +1,48 @@
+package com.fesi.flowit.note.controller
+
+import com.fesi.flowit.common.response.exceptions.NoteException
+import com.fesi.flowit.note.dto.NoteCreateRequestDto
+import com.fesi.flowit.note.dto.NoteInfoResponseDto
+import com.fesi.flowit.note.service.NoteService
+import io.kotest.assertions.throwables.shouldThrow
+import io.kotest.core.spec.style.StringSpec
+import io.mockk.every
+import io.mockk.mockk
+
+class NoteControllerTest : StringSpec({
+
+    "노트 생성 요청을 받을 수 있다" {
+        val request = NoteCreateRequestDto(
+            title = "노트 제목",
+            content = "노트 내용",
+            wordCount = 100
+        )
+
+        val service = mockk<NoteService>(relaxed = true)
+        every {
+            service.createNote(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns mockk<NoteInfoResponseDto>()
+
+        val controller = NoteControllerImpl(service)
+
+        controller.createNote(todoId = 1L, request, userId = 1)
+    }
+
+    "본문 단어수를 확인할 수 있다" {
+        listOf(0L, 1001L).forEach { invalidWc ->
+            shouldThrow<NoteException> {
+                NoteCreateRequestDto(
+                    title = "노트 제목",
+                    content = "노트 내용",
+                    wordCount = invalidWc
+                )
+            }
+        }
+    }
+})
