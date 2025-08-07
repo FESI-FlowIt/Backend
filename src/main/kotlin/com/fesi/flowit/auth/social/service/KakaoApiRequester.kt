@@ -38,6 +38,7 @@ class KakaoApiRequester(
                             val statusCode = response.statusCode().toString()
                             val message =
                                 "Failed to fetch token from external authentication server. Status: $statusCode, Body: ${responseBody}"
+                            log.error("Failed to fetch token from external authentication server. Status: $statusCode, Body: ${responseBody}")
                             Mono.error(
                                 AuthException.fromCodeWithMsg(
                                     ApiResultCode.AUTH_FAIL_TO_FETCH_TOKEN,
@@ -48,12 +49,15 @@ class KakaoApiRequester(
                 }
             )
             .bodyToMono(KakaoTokenResponseDto::class.java)
+            .doOnError { e -> log.error("Failed to fetch token from external authentication server", e) }
             .block()
 
         return response
     }
 
     fun requestUserInfo(uri: String, accessToken: String): KakaoUserInfoResponseDto? {
+        log.debug(">>request user info for kakao service")
+
         val response = webClient.get()
             .uri(uri)
             .header(HttpHeaders.AUTHORIZATION, BEARER_AUTH_TYPE + accessToken)
@@ -68,6 +72,7 @@ class KakaoApiRequester(
                             val statusCode = response.statusCode().toString()
                             val message =
                                 "Failed to fetch user info from external authentication server. Status: $statusCode, Body: ${responseBody}"
+                            log.error("Failed to fetch user info from external authentication server. Status: $statusCode, Body: ${responseBody}")
                             Mono.error(
                                 AuthException.fromCodeWithMsg(
                                     ApiResultCode.AUTH_FAIL_TO_FETCH_USER_INFO,
@@ -78,6 +83,7 @@ class KakaoApiRequester(
                 }
             )
             .bodyToMono(KakaoUserInfoResponseDto::class.java)
+            .doOnError { e -> log.error("Failed to fetch user info from external authentication server", e) }
             .block()
 
         return response
