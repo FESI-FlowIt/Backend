@@ -23,7 +23,7 @@ class UserRepositoryTest @Autowired constructor(
     }
 
     "사용자 등록 시 삭제 일시는 설정하지 않는다" {
-        val user = User("test@example.com", "홍길동", "password123", LocalDateTime.now(), LocalDateTime.now(), null)
+        val user = User.of("test@example.com", "홍길동", "password123", LocalDateTime.now(), LocalDateTime.now(), null)
 
         val savedUser = userRepository.save(user)
 
@@ -33,7 +33,7 @@ class UserRepositoryTest @Autowired constructor(
     }
 
     "이메일로 사용자 정보를 검색할 수 있다" {
-        val user = User("test@example.com", "홍길동", "password123", LocalDateTime.now(), LocalDateTime.now(), null)
+        val user = User.of("test@example.com", "홍길동", "password123", LocalDateTime.now(), LocalDateTime.now(), null)
         val savedUser = userRepository.save(user)
 
         val userFoundByEmail = userRepository.findByEmail(savedUser.email)

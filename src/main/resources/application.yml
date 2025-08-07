@@ -24,3 +24,6 @@ springdoc:
 
 auth:
   secret-key: ${SECRET_KEY}
+  kakao:
+    client-id: ${KAKAO_CLIENT_ID}
+    request-uri: ${KAKAO_REQUEST_URI}

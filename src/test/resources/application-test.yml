@@ -13,3 +13,6 @@ spring:
 
 auth:
   secret-key: ${TEST_SECRET_KEY}
+  kakao:
+    client-id: ${TEST_KAKAO_CLIENT_ID}
+    request-uri: ${TEST_KAKAO_REQUEST_URI}
