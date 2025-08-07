@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.servlet.mvc.support.RedirectAttributes
 
 interface KakaoAuthController {
 
@@ -47,5 +48,7 @@ interface KakaoAuthController {
             )
         ]
     )
-    fun callback(@RequestParam code: String): ResponseEntity<ApiResult<KakaoSignInResponse>>
+    fun signIn(@RequestParam code: String): ResponseEntity<ApiResult<KakaoSignInResponse>>
+
+    fun callback(code: String): String
 }
