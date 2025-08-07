@@ -1,4 +1,4 @@
-package com.fesi.flowit.auth.web.response
+package com.fesi.flowit.auth.local.web.response
 
 import com.fesi.flowit.user.entity.User
 import io.swagger.v3.oas.annotations.media.Schema

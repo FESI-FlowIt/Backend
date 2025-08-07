@@ -1,18 +1,15 @@
-package org.swyp.weddy.domain.auth.web
+package com.fesi.flowit.auth.local.web
 
-import com.fesi.flowit.auth.web.request.RegenerateRequest
-import com.fesi.flowit.auth.web.request.SignInRequest
-import com.fesi.flowit.auth.web.response.RegenerateResponse
-import com.fesi.flowit.auth.web.response.SignInResponse
+import com.fesi.flowit.auth.local.web.request.RegenerateRequest
+import com.fesi.flowit.auth.local.web.request.SignInRequest
+import com.fesi.flowit.auth.local.web.response.RegenerateResponse
+import com.fesi.flowit.auth.local.web.response.SignInResponse
 import com.fesi.flowit.common.response.ApiResult
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
-import jakarta.servlet.http.Cookie
-import jakarta.servlet.http.HttpServletRequest
-import jakarta.servlet.http.HttpServletResponse
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody

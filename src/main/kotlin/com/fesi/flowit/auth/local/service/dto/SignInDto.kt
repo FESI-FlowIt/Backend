@@ -1,6 +1,6 @@
-package com.fesi.flowit.auth.service.dto
+package com.fesi.flowit.auth.local.service.dto
 
-import com.fesi.flowit.auth.web.request.SignInRequest
+import com.fesi.flowit.auth.local.web.request.SignInRequest
 
 data class SignInDto(
     val email: String,

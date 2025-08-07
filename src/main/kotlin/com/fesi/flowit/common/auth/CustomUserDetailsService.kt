@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service
 class CustomUserDetailsService(private val repository: UserRepository) : UserDetailsService {
     override fun loadUserByUsername(email: String): UserDetails {
         return repository.findByEmail(email)
-            ?: throw UserNotExistsException.fromCode(ApiResultCode.AUTH_USER_NOT_EXISTS)
+            ?: throw AuthException.fromCode(ApiResultCode.AUTH_USER_NOT_EXISTS)
     }
 
     fun loadUserById(id: Long): UserDetails {
