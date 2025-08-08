@@ -43,12 +43,13 @@ class KakaoAuthService(
         if (validateUserInfo(userInfo)) {
         }
         val email = userInfo.kakaoAccount?.email!!
+        val nickname = userInfo.kakaoAccount.profile?.nickname ?: "닉네임을 등록해주세요"
         if (isLocalAccountExists(email)) {
             throw AuthException.fromCode(ApiResultCode.AUTH_FAIL_TO_SIGNUP_DUPLICATE_USER)
         }
         val user: User = User.of(
             email,
-            "kakao_user", //TODO 카카오에서 이름도 받아와야 하나?
+            nickname,
             "",
             LocalDateTime.now(),
             LocalDateTime.now(),

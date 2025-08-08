@@ -15,6 +15,9 @@ data class KakaoUserInfoResponseDto(
 )
 
 data class KakaoAccount(
+    @JsonProperty("profile_nickname_needs_agreement")
+    val profileNicknameNeedsAgreement: Boolean?,
+    val profile: Profile?,
     @JsonProperty("email_needs_agreement")
     val emailNeedsAgreement: Boolean? = null,
     @JsonProperty("is_email_valid")
@@ -22,4 +25,9 @@ data class KakaoAccount(
     @JsonProperty("is_email_verified")
     val isEmailVerified: Boolean?,
     val email: String?
+)
+
+data class Profile(
+    @JsonProperty("nickname")
+    val nickname: String?
 )
