@@ -1,6 +1,5 @@
 package com.fesi.flowit.auth.social.controller
 
-import com.fesi.flowit.auth.local.web.response.SignInResponse
 import com.fesi.flowit.auth.social.dto.KakaoSignInResponse
 import com.fesi.flowit.common.response.ApiResult
 import io.swagger.v3.oas.annotations.Operation
@@ -10,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.servlet.mvc.support.RedirectAttributes
 
 interface KakaoAuthController {
 
@@ -27,7 +25,7 @@ interface KakaoAuthController {
                 description = "카카오 로그인 성공",
                 content = [Content(
                     mediaType = "application/json",
-                    schema = Schema(implementation = SignInResponse::class)
+                    schema = Schema(implementation = KakaoSignInResponse::class)
                 )]
             ),
             ApiResponse(
@@ -50,5 +48,31 @@ interface KakaoAuthController {
     )
     fun signIn(@RequestParam code: String): ResponseEntity<ApiResult<KakaoSignInResponse>>
 
+    @Operation(
+        summary = "리다이렉션",
+        description = """
+            [GET] http://IP:PORT/oauth/callback
+        """
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "리다이렉션 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = String::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "잘못된 요청 데이터",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = String::class)
+                )]
+            )
+        ]
+    )
     fun callback(code: String): String
 }
