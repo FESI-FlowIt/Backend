@@ -4,6 +4,7 @@ import com.fesi.flowit.auth.service.JwtGenerator
 import com.fesi.flowit.auth.social.dto.KakaoAccount
 import com.fesi.flowit.auth.social.dto.KakaoTokenResponseDto
 import com.fesi.flowit.auth.social.dto.KakaoUserInfoResponseDto
+import com.fesi.flowit.auth.social.dto.Profile
 import com.fesi.flowit.common.response.ApiResultCode
 import com.fesi.flowit.common.response.exceptions.AuthException
 import com.fesi.flowit.user.entity.User
@@ -110,16 +111,26 @@ class KakaoAuthServiceTest : StringSpec({
 
         val cases = listOf(
             KakaoAccount(
+                profileNicknameNeedsAgreement = true,
+                profile = Profile(nickname = "nickname"),
                 isEmailValid = false,
                 isEmailVerified = true,
-                email = "x@y.com"
+                email = "x@y.com",
             ), // invalid email
             KakaoAccount(
+                profileNicknameNeedsAgreement = true,
+                profile = Profile(nickname = "nickname"),
                 isEmailValid = true,
                 isEmailVerified = false,
                 email = "x@y.com"
             ), // not verified email
-            KakaoAccount(isEmailValid = true, isEmailVerified = true, email = null), // no email
+            KakaoAccount(
+                profileNicknameNeedsAgreement = true,
+                profile = Profile(nickname = "nickname"),
+                isEmailValid = true,
+                isEmailVerified = true,
+                email = null
+            ), // no email
         )
 
         cases.forEach { account ->

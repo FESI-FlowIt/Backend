@@ -12,7 +12,7 @@ class KakaoAuthControllerTest : StringSpec({
     "카카오 액세스 토큰 발급 요청을 받을 수 있다" {
         val service = mockk<KakaoAuthService>(relaxed = true)
         every { service.fetchAccessToken(any()) } returns ""
-        val controller = KakaoAuthControllerImpl(service)
+        val controller = KakaoAuthControllerImpl(service, "redirectUrl")
 
         controller.callback("code")
     }

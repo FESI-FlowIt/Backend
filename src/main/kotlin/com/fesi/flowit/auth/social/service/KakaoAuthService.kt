@@ -10,6 +10,7 @@ import com.fesi.flowit.common.response.ApiResultCode
 import com.fesi.flowit.common.response.exceptions.AuthException
 import com.fesi.flowit.user.entity.User
 import com.fesi.flowit.user.repository.UserRepository
+import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.core.Authentication
@@ -35,18 +36,20 @@ class KakaoAuthService(
     private val LOCAL_PROVIDER = "local"
     private val KAKAO_PROVIDER = "kakao"
 
+    @Transactional
     fun authenticate(code: String): KakaoSignInResponse {
         val accessToken = fetchAccessToken(code)
         val userInfo = fetchUserInfo(accessToken)
         if (validateUserInfo(userInfo)) {
         }
         val email = userInfo.kakaoAccount?.email!!
+        val nickname = userInfo.kakaoAccount.profile?.nickname ?: "닉네임을 등록해주세요"
         if (isLocalAccountExists(email)) {
             throw AuthException.fromCode(ApiResultCode.AUTH_FAIL_TO_SIGNUP_DUPLICATE_USER)
         }
         val user: User = User.of(
             email,
-            "kakao_user", //TODO 카카오에서 이름도 받아와야 하나?
+            nickname,
             "",
             LocalDateTime.now(),
             LocalDateTime.now(),
