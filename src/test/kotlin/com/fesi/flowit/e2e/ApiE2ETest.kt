@@ -8,6 +8,7 @@ import com.fesi.flowit.goal.dto.GoalInfoResponseDto
 import com.fesi.flowit.note.dto.NoteCreateRequestDto
 import com.fesi.flowit.note.dto.NoteDetailResponseDto
 import com.fesi.flowit.note.dto.NoteInfoResponseDto
+import com.fesi.flowit.note.dto.NoteModifyRequestDto
 import com.fesi.flowit.todo.dto.TodoCreateRequestDto
 import com.fesi.flowit.todo.dto.TodoCreateResponseDto
 import com.fesi.flowit.user.web.request.UserRequest
@@ -113,6 +114,33 @@ class ApiE2ETest(
             response.statusCode shouldBe HttpStatus.OK
         }
     }
+
+    Given("생성한 note를 수정하면") {
+        val goalId = createNewGoal(accessToken, restTemplate).body!!.result.goalId
+        val todoId = createNewTodo(accessToken, restTemplate, goalId).body!!.result.todoId
+
+        val noteId = createNewNote(accessToken, restTemplate, todoId).body!!.result.noteId
+
+        val noteRequest = NoteModifyRequestDto(
+            title = "새 제목",
+            link = "x.com",
+            content = "새 내용",
+            wordCount = 2
+        )
+        val headers = HttpHeaders().apply { setBearerAuth(accessToken) }
+
+        val response = restTemplate.exchange(
+            "/todos/${todoId}/notes/${noteId}",
+            HttpMethod.PATCH,
+            HttpEntity(noteRequest, headers),
+            object : ParameterizedTypeReference<ApiResult.Success<NoteInfoResponseDto>>() {}
+        )
+
+        Then("200 OK가 응답된다") {
+            response.statusCode shouldBe HttpStatus.OK
+        }
+    }
+
 })
 
 fun createNewNote(

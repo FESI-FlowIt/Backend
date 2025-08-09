@@ -7,6 +7,7 @@ import com.fesi.flowit.common.response.ApiResult
 import com.fesi.flowit.note.dto.NoteCreateRequestDto
 import com.fesi.flowit.note.dto.NoteDetailResponseDto
 import com.fesi.flowit.note.dto.NoteInfoResponseDto
+import com.fesi.flowit.note.dto.NoteModifyRequestDto
 import com.fesi.flowit.note.service.NoteService
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
@@ -49,6 +50,25 @@ class NoteControllerImpl(
             service.getNoteDetail(
                 todoId,
                 noteId
+            )
+        )
+    }
+
+    @PatchMapping("/todos/{todoId}/notes/{noteId}")
+    override fun modifyNote(
+        @PathVariable("todoId") todoId: Long,
+        @PathVariable("noteId") noteId: Long,
+        @RequestBody request: NoteModifyRequestDto
+    ): ResponseEntity<ApiResult<NoteInfoResponseDto?>>  {
+        log.debug(">> request modifyNote(${todoId}) ${noteId}")
+
+        return ApiResponse.ok(
+            service.modifyNote(
+                todoId = todoId,
+                noteId = noteId,
+                title = request.title,
+                link = request.link!!,
+                content = request.content
             )
         )
     }

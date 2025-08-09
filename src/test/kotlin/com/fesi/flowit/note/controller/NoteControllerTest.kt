@@ -4,6 +4,7 @@ import com.fesi.flowit.common.response.exceptions.NoteException
 import com.fesi.flowit.note.dto.NoteCreateRequestDto
 import com.fesi.flowit.note.dto.NoteDetailResponseDto
 import com.fesi.flowit.note.dto.NoteInfoResponseDto
+import com.fesi.flowit.note.dto.NoteModifyRequestDto
 import com.fesi.flowit.note.service.NoteService
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
@@ -59,5 +60,29 @@ class NoteControllerTest : StringSpec({
         val controller = NoteControllerImpl(service)
 
         controller.getNoteDetail(todoId = 1L, noteId = 1L)
+    }
+
+    "노트 수정 요청을 받을 수 있다" {
+        val service = mockk<NoteService>(relaxed = true)
+        every {
+            service.modifyNote(
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns mockk<NoteInfoResponseDto>()
+
+        val controller = NoteControllerImpl(service)
+
+        controller.modifyNote(
+            todoId = 1L, noteId = 1L,
+            NoteModifyRequestDto(
+                title = "노트 제목",
+                content = "노트 내용",
+                wordCount = 2
+            )
+        )
     }
 })

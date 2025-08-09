@@ -47,4 +47,21 @@ class NoteServiceTest : StringSpec({
 
         service.getNoteDetail(todoId = 1L, noteId = 1L) shouldBe instanceOf<NoteDetailResponseDto>()
     }
+
+    "노트를 수정할 수 있다" {
+        val note = mockk<Note>(relaxed = true)
+        val todo = mockk<Todo>(relaxed = true)
+        every { note.todo } returns todo
+
+        every { todoService.getTodoById(any()) } returns todo
+        every { repository.findById(any()) } returns Optional.of(note)
+
+        service.modifyNote(
+            todoId = 1L,
+            noteId = 1L,
+            title = "노트 제목",
+            link = "",
+            content = "노트 내용"
+        ) shouldBe instanceOf<NoteInfoResponseDto>()
+    }
 })

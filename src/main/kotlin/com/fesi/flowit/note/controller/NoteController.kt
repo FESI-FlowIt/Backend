@@ -5,6 +5,7 @@ import com.fesi.flowit.common.response.ApiResult
 import com.fesi.flowit.note.dto.NoteCreateRequestDto
 import com.fesi.flowit.note.dto.NoteDetailResponseDto
 import com.fesi.flowit.note.dto.NoteInfoResponseDto
+import com.fesi.flowit.note.dto.NoteModifyRequestDto
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -75,4 +76,33 @@ interface NoteController {
         @PathVariable("todoId") todoId: Long,
         @PathVariable("noteId") noteId: Long
     ): ResponseEntity<ApiResult<NoteDetailResponseDto>>
+
+    @Operation(
+        summary = "노트 수정",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "201",
+                description = "노트 수정 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = NoteInfoResponseDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun modifyNote(
+        @PathVariable("todoId") todoId: Long,
+        @PathVariable("noteId") noteId: Long,
+        @RequestBody request: NoteModifyRequestDto
+    ): ResponseEntity<ApiResult<NoteInfoResponseDto?>>
 }
