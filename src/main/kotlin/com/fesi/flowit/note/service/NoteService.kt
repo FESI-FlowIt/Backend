@@ -1,5 +1,8 @@
 package com.fesi.flowit.note.service
 
+import com.fesi.flowit.common.response.ApiResultCode
+import com.fesi.flowit.common.response.exceptions.NoteException
+import com.fesi.flowit.note.dto.NoteDetailResponseDto
 import com.fesi.flowit.note.dto.NoteInfoResponseDto
 import com.fesi.flowit.note.entity.Note
 import com.fesi.flowit.note.repository.NoteRepository
@@ -36,5 +39,16 @@ class NoteService(
         )
 
         return NoteInfoResponseDto.fromNote(note)
+    }
+
+    @Transactional
+    fun getNoteDetail(todoId: Long, noteId: Long): NoteDetailResponseDto {
+        val goal = todoService.getTodoById(todoId).goal ?: throw NoteException.fromCode(
+            ApiResultCode.NOTE_GOAL_NOT_FOUND
+        )
+        val note = noteRepository.findById(noteId)
+            .orElseThrow { NoteException.fromCode(ApiResultCode.NOTE_NOT_FOUND) }
+
+        return NoteDetailResponseDto.fromNoteWithGoal(note, goal)
     }
 }

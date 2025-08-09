@@ -2,6 +2,7 @@ package com.fesi.flowit.note.controller
 
 import com.fesi.flowit.common.response.exceptions.NoteException
 import com.fesi.flowit.note.dto.NoteCreateRequestDto
+import com.fesi.flowit.note.dto.NoteDetailResponseDto
 import com.fesi.flowit.note.dto.NoteInfoResponseDto
 import com.fesi.flowit.note.service.NoteService
 import io.kotest.assertions.throwables.shouldThrow
@@ -44,5 +45,19 @@ class NoteControllerTest : StringSpec({
                 )
             }
         }
+    }
+
+    "노트 상세 조회 요청을 받을 수 있다" {
+        val service = mockk<NoteService>(relaxed = true)
+        every {
+            service.getNoteDetail(
+                any(),
+                any()
+            )
+        } returns mockk<NoteDetailResponseDto>()
+
+        val controller = NoteControllerImpl(service)
+
+        controller.getNoteDetail(todoId = 1L, noteId = 1L)
     }
 })

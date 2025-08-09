@@ -3,6 +3,7 @@ package com.fesi.flowit.note.controller
 import com.fesi.flowit.common.auth.AuthUserId
 import com.fesi.flowit.common.response.ApiResult
 import com.fesi.flowit.note.dto.NoteCreateRequestDto
+import com.fesi.flowit.note.dto.NoteDetailResponseDto
 import com.fesi.flowit.note.dto.NoteInfoResponseDto
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
@@ -45,4 +46,33 @@ interface NoteController {
         @RequestBody request: NoteCreateRequestDto,
         @Parameter(hidden = true) @AuthUserId userId: Long
     ): ResponseEntity<ApiResult<NoteInfoResponseDto>>
+
+    @Operation(
+        summary = "노트 상세 조회",
+        description = "노트 상세 조회합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "201",
+                description = "노트 상세 조회 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = NoteDetailResponseDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun getNoteDetail(
+        @PathVariable("todoId") todoId: Long,
+        @PathVariable("noteId") noteId: Long
+    ): ResponseEntity<ApiResult<NoteDetailResponseDto>>
 }

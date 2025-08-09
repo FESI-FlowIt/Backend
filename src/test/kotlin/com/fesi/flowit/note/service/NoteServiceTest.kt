@@ -1,5 +1,6 @@
 package com.fesi.flowit.note.service
 
+import com.fesi.flowit.note.dto.NoteDetailResponseDto
 import com.fesi.flowit.note.dto.NoteInfoResponseDto
 import com.fesi.flowit.note.entity.Note
 import com.fesi.flowit.note.repository.NoteRepository
@@ -11,6 +12,7 @@ import io.kotest.matchers.types.instanceOf
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import java.util.*
 
 class NoteServiceTest : StringSpec({
 
@@ -37,5 +39,12 @@ class NoteServiceTest : StringSpec({
         ) shouldBe instanceOf<NoteInfoResponseDto>()
 
         verify { repository.save(any()) }
+    }
+
+    "노트를 상세 조회할 수 있다" {
+        every { todoService.getTodoById(any()) } returns mockk<Todo>(relaxed = true)
+        every { repository.findById(any()) } returns Optional.of(mockk<Note>(relaxed = true))
+
+        service.getNoteDetail(todoId = 1L, noteId = 1L) shouldBe instanceOf<NoteDetailResponseDto>()
     }
 })

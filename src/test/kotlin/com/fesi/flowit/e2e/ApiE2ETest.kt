@@ -6,6 +6,7 @@ import com.fesi.flowit.common.response.ApiResult
 import com.fesi.flowit.goal.dto.GoalCreateRequestDto
 import com.fesi.flowit.goal.dto.GoalInfoResponseDto
 import com.fesi.flowit.note.dto.NoteCreateRequestDto
+import com.fesi.flowit.note.dto.NoteDetailResponseDto
 import com.fesi.flowit.note.dto.NoteInfoResponseDto
 import com.fesi.flowit.todo.dto.TodoCreateRequestDto
 import com.fesi.flowit.todo.dto.TodoCreateResponseDto
@@ -90,6 +91,26 @@ class ApiE2ETest(
 
         Then("201 CREATED가 응답된다") {
             response.statusCode shouldBe HttpStatus.CREATED
+        }
+    }
+
+    Given("생성한 note를 상세 조회하면") {
+        val goalId = createNewGoal(accessToken, restTemplate).body!!.result.goalId
+        val todoId = createNewTodo(accessToken, restTemplate, goalId).body!!.result.todoId
+
+        val noteId = createNewNote(accessToken, restTemplate, todoId).body!!.result.noteId
+
+        val headers = HttpHeaders().apply { setBearerAuth(accessToken) }
+
+        val response = restTemplate.exchange(
+            "/todos/${todoId}/notes/${noteId}",
+            HttpMethod.GET,
+            HttpEntity(null, headers),
+            object : ParameterizedTypeReference<ApiResult.Success<NoteDetailResponseDto>>() {}
+        )
+
+        Then("200 OK가 응답된다") {
+            response.statusCode shouldBe HttpStatus.OK
         }
     }
 })
