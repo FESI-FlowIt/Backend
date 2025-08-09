@@ -11,7 +11,7 @@ class TodoTimer(
     @OneToOne(mappedBy = "todoTimer", fetch = FetchType.LAZY)
     val user: User,
 
-    @OneToOne(mappedBy = "todoTimer", fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "todo_id")
     val todo: Todo,
 
@@ -35,7 +35,7 @@ class TodoTimer(
     val id: Long? = null
 
     @OneToMany(mappedBy = "timer", cascade = [CascadeType.ALL], orphanRemoval = true)
-    val pauseHistory: MutableList<TodoTimerPauseHistory> = mutableListOf()
+    val pauseHistories: MutableList<TodoTimerPauseHistory> = mutableListOf()
 
     companion object {
         fun startTimer(user: User, todo: Todo, createdDateTime: LocalDateTime): TodoTimer {
@@ -54,10 +54,6 @@ class TodoTimer(
         user.todoTimer = this
     }
 
-    fun setTodo(todo: Todo) {
-        todo.todoTimer = this
-    }
-
     fun pauseTimer() {
         this.status = TodoTimerStatus.PAUSED
     }
@@ -68,6 +64,10 @@ class TodoTimer(
 
     fun finishTimer() {
         this.status = TodoTimerStatus.FINISHED
+    }
+
+    fun isFinishedTimer(): Boolean {
+        return this.endedDateTime != null
     }
 
     fun doesNotUserOwnTodoTimer(user: User): Boolean {

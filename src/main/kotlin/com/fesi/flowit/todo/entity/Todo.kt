@@ -45,9 +45,8 @@ class Todo private constructor(
     @OneToMany(mappedBy = "todo", cascade = [CascadeType.ALL], orphanRemoval = true)
     val schedules: MutableList<Schedule> = mutableListOf()
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
-    @JoinColumn(name ="todo_timer_id", referencedColumnName = "id")
-    var todoTimer: TodoTimer? = null
+    @OneToMany(mappedBy = "todo", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var todoTimers: MutableList<TodoTimer> = mutableListOf()
 
     companion object {
         fun of(user: User, name: String, isDone: Boolean, createdDateTime: LocalDateTime, modifiedDateTime: LocalDateTime): Todo {
@@ -59,10 +58,6 @@ class Todo private constructor(
             todo.goal = goal
             return todo
         }
-    }
-
-    fun initializeTodoTimer() {
-        this.todoTimer = null
     }
 
     fun doesNotUserOwnTodo(user: User): Boolean {
