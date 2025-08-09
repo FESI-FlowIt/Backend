@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
+import java.time.LocalDateTime
 
 @Repository
 interface TodoTimerRepository : JpaRepository<TodoTimer, Long> {
@@ -27,7 +28,7 @@ interface TodoTimerRepository : JpaRepository<TodoTimer, Long> {
         WHERE
             u = :user 
     """)
-    fun hasUserTodoTimer(user: User): TodoTimerUserInfo?
+    fun hasUserTodoTimer(@Param("user") user: User): TodoTimerUserInfo?
 
     @Query("""
         SELECT new com.fesi.flowit.timer.vo.TodoTimerTotalTimeVo(
@@ -46,4 +47,22 @@ interface TodoTimerRepository : JpaRepository<TodoTimer, Long> {
         GROUP BY todoTimer.todo.id
     """)
     fun calculateTotalRunningTime(@Param("todo") todo: Todo): TodoTimerTotalTimeVo?
+
+    @Query(
+        """
+        SELECT timer
+        FROM TodoTimer timer
+        LEFT JOIN FETCH timer.pauseHistories tp 
+        WHERE
+            timer.todo.user = :user
+            AND timer.status = 'FINISHED'
+            AND timer.endedDateTime IS NOT NULL
+            AND timer.startedDateTime BETWEEN :startDateTime AND :endDateTime
+    """
+    )
+    fun findTodoTimersByStatusAndBetween(
+        @Param("startDateTime") startDateTime: LocalDateTime,
+        @Param("endDateTime") endDateTime: LocalDateTime,
+        @Param("user") user: User
+    ): List<TodoTimer>
 }

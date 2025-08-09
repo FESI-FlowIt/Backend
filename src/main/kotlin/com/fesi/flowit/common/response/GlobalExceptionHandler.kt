@@ -16,7 +16,7 @@ class GlobalExceptionHandler {
     @ExceptionHandler(BaseException::class)
     fun handleValidation(ex: BaseException): ResponseEntity<ApiResult<Exception>> {
         return when (ex) {
-            is ValidationException -> {
+            is CommonException -> {
                 println("Validation is failed")
                 ex.toApiResult()
             }
