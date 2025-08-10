@@ -32,6 +32,10 @@ class NoteService(
         val createdDateTime = LocalDateTime.now()
         val todo = todoService.getTodoById(todoId)
 
+        if (todoAlreadyHasNote(todo)) {
+            throw NoteException.fromCode(ApiResultCode.NOTE_CANNOT_CREATE_NOTE)
+        }
+
         val note = Note.of(
             title = title,
             link = link,
@@ -121,4 +125,6 @@ class NoteService(
     fun todoOwnNote(todo: Todo, note: Note): Boolean {
         return note.todo == todo
     }
+
+    fun todoAlreadyHasNote(todo: Todo): Boolean = todo.note != null
 }

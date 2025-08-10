@@ -28,6 +28,8 @@ class NoteServiceTest : StringSpec({
 
     "노트를 등록할 수 있다" {
         val todo = mockk<Todo>(relaxed = true)
+        every { todo.note } returns null
+
         val note = Note.withTodo(
             title = "노트 제목",
             link = "",
