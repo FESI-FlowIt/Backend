@@ -1,8 +1,21 @@
-package com.fesi.flowit.auth.web.response
+package com.fesi.flowit.auth.social.dto
 
+import com.fesi.flowit.user.entity.User
 import io.swagger.v3.oas.annotations.media.Schema
 
-data class RegenerateResponse(
+class KakaoSignInResponse(
+    @field:Schema(
+        description = "회원 이메일",
+        requiredMode = Schema.RequiredMode.REQUIRED
+    )
+    val id: Long,
+
+    @field:Schema(
+        description = "회원 비밀번호",
+        requiredMode = Schema.RequiredMode.REQUIRED
+    )
+    val email: String,
+
     @field:Schema(
         description = "새로 생성된 액세스 토큰",
         requiredMode = Schema.RequiredMode.REQUIRED
@@ -19,7 +32,7 @@ data class RegenerateResponse(
         example = "액세스 토큰 유효 기간",
         requiredMode = Schema.RequiredMode.REQUIRED
     )
-    val expiresIn: Long,
+    val expiresIn: Long
 ) {
     @field:Schema(
         description = "새로 생성된 리프레시 토큰",
@@ -28,16 +41,17 @@ data class RegenerateResponse(
     var refreshToken: String? = null
 
     companion object {
-        fun of(accessToken: String, expiresIn: Long): RegenerateResponse {
-            return RegenerateResponse(
+        fun of(user: User, accessToken: String, expiresIn: Long): KakaoSignInResponse {
+            return KakaoSignInResponse(
+                id = user.id,
+                email = user.email,
                 accessToken = accessToken,
-                tokenType = "Bearer",
                 expiresIn = expiresIn
             )
         }
     }
 
-    fun with(refreshToken: String): RegenerateResponse {
+    fun with(refreshToken: String): KakaoSignInResponse {
         this.refreshToken = refreshToken
         return this
     }

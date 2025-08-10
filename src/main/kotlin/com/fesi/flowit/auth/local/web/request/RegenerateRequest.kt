@@ -1,4 +1,4 @@
-package com.fesi.flowit.auth.web.request
+package com.fesi.flowit.auth.local.web.request
 
 import io.swagger.v3.oas.annotations.media.Schema
 

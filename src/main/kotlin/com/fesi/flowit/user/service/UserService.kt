@@ -58,11 +58,7 @@ class UserService(
         val tokenInfo = jwtProcessor.unpack(accessToken)
         val authentication = jwtProcessor.getAuthentication(tokenInfo)
 
-        val user = repository.findByEmail(authentication.name)
-            ?: throw UserNotExistsException.fromCodeWithMsg(
-                ApiResultCode.AUTH_USER_NOT_EXISTS,
-                "Cannot find user from given token"
-            )
+        val user = authentication.principal as User
 
         return UserResponse.from(user)
     }

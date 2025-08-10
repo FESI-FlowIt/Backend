@@ -16,7 +16,9 @@ import com.fesi.flowit.user.service.UserService
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
 import java.time.Duration
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 
 private val log = loggerFor<TodoTimerServiceImpl>()
 
@@ -74,7 +76,6 @@ class TodoTimerServiceImpl(
         val startedTimerDateTime = LocalDateTime.now()
         val todoTimer = todoTimerRepository.save(TodoTimer.startTimer(user, todo, startedTimerDateTime))
         todoTimer.setUser(user)
-        todoTimer.setTodo(todo)
 
         log.debug("TodoTimer Started.. todoTimerId=${todoTimer.id}, userId=${todoTimer.user.id}, todoId: ${todo.id}, started: ${todoTimer.startedDateTime}")
 
@@ -209,13 +210,19 @@ class TodoTimerServiceImpl(
         // 상태 관리
         todoTimer.finishTimer()
         user.initializeTodoTimer()
-        todoTimer.todo.initializeTodoTimer()
 
         return TodoTimerStopResponseDto.of(
             todoTimer.id ?: throw TodoTimerException.fromCode(ApiResultCode.TIMER_TODO_INVALID_ID),
             todoTimer.todo.id ?: throw TodoTimerException.fromCode(ApiResultCode.TODO_INVALID_ID),
             todoTimer.runningTime
         )
+    }
+
+    /**
+     * 해당 범위 내 시작하였으며 종료된 타이머 목록 조회
+     */
+    override fun getFinishedTodoTimerBetween(startDate: LocalDate, endDate: LocalDate, user: User): List<TodoTimer> {
+        return todoTimerRepository.findTodoTimersByStatusAndBetween(startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX), user)
     }
 
     private fun isRunningTimer(todoTimer: TodoTimer): Boolean {

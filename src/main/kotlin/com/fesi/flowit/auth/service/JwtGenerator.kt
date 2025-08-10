@@ -25,7 +25,7 @@ class JwtGenerator(
     private val jwtProcessor: JwtProcessor
 ) {
     private val REFRESH_TOKEN_REGENERATE_BASIS = 3
-    private val ACCESS_TOKEN_EXPIRES_IN: Long = 60
+    private val ACCESS_TOKEN_EXPIRES_IN: Long = 60 * 60
 
     /**
      * access token을 생성한다
@@ -34,7 +34,7 @@ class JwtGenerator(
         val principal = authentication.principal as User
 
         val now = Instant.now()
-        val expiration = now.plus(ACCESS_TOKEN_EXPIRES_IN, ChronoUnit.MINUTES)
+        val expiration = now.plus(ACCESS_TOKEN_EXPIRES_IN, ChronoUnit.SECONDS)
 
         return Pair(
             Jwts.builder()
@@ -47,7 +47,7 @@ class JwtGenerator(
                 .expiration(Date.from(expiration))
                 .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)), Jwts.SIG.HS512)
                 .compact(),
-            ACCESS_TOKEN_EXPIRES_IN * 60
+            ACCESS_TOKEN_EXPIRES_IN
         )
     }
 

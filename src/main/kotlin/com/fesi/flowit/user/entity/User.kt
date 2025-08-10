@@ -6,7 +6,6 @@ import com.fesi.flowit.timer.entity.TodoTimer
 import com.fesi.flowit.todo.entity.Todo
 import jakarta.persistence.*
 import org.springframework.security.core.GrantedAuthority
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 import java.time.LocalDateTime
 import java.util.Objects
@@ -23,6 +22,9 @@ class User(
     @Column(nullable = false)
     @get:JvmName("getPasswd")
     val password: String,
+
+    @Column(nullable = false)
+    val provider: String = "local",
 
     @Column(nullable = false)
     val createdAt: LocalDateTime,
@@ -57,13 +59,23 @@ class User(
         fun of(
             email: String,
             name: String,
-            encrypted: String,
+            password: String,
             createdAt: LocalDateTime,
             updatedAt: LocalDateTime,
             deletedAt: LocalDateTime?,
-            isDeleted: Boolean = false
+            isDeleted: Boolean = false,
+            provider: String = "local",
         ): User {
-            return User(email, name, encrypted, createdAt, updatedAt, deletedAt, isDeleted)
+            return User(
+                email = email,
+                name = name,
+                password = password,
+                createdAt = createdAt,
+                updatedAt = updatedAt,
+                deletedAt = deletedAt,
+                isDeleted = isDeleted,
+                provider = provider
+            )
         }
     }
 
