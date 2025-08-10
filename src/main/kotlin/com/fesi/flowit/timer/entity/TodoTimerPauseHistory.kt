@@ -33,4 +33,8 @@ class TodoTimerPauseHistory(
             totalPausedTime=${totalPausedTime}
         """.trimIndent()
     }
+
+    fun isPausedEnd(): Boolean {
+        return this.pauseEndedDateTime != null
+    }
 }
