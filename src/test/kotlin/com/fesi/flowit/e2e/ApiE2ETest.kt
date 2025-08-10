@@ -140,7 +140,6 @@ class ApiE2ETest(
             response.statusCode shouldBe HttpStatus.OK
         }
     }
-
 })
 
 fun createNewNote(

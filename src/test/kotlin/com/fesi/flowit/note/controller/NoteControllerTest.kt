@@ -9,7 +9,9 @@ import com.fesi.flowit.note.service.NoteService
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
+import io.mockk.runs
 
 class NoteControllerTest : StringSpec({
 
@@ -83,6 +85,22 @@ class NoteControllerTest : StringSpec({
                 content = "노트 내용",
                 wordCount = 2
             )
+        )
+    }
+
+    "노트 삭제 요청을 받을 수 있다" {
+        val service = mockk<NoteService>(relaxed = true)
+        every {
+            service.deleteNote(
+                any(),
+                any()
+            )
+        } just runs
+
+        val controller = NoteControllerImpl(service)
+
+        controller.deleteNote(
+            todoId = 1L, noteId = 1L
         )
     }
 })

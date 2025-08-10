@@ -9,9 +9,7 @@ import com.fesi.flowit.todo.service.TodoService
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.types.instanceOf
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
+import io.mockk.*
 import java.util.*
 
 class NoteServiceTest : StringSpec({
@@ -63,5 +61,20 @@ class NoteServiceTest : StringSpec({
             link = "",
             content = "노트 내용"
         ) shouldBe instanceOf<NoteInfoResponseDto>()
+    }
+
+    "노트를 삭제할 수 있다" {
+        val note = mockk<Note>(relaxed = true)
+        val todo = mockk<Todo>(relaxed = true)
+        every { note.todo } returns todo
+
+        every { todoService.getTodoById(any()) } returns todo
+        every { repository.findById(any()) } returns Optional.of(note)
+        every { repository.deleteById(any()) } just runs
+
+        service.deleteNote(
+            todoId = 1L,
+            noteId = 1L
+        ) shouldBe instanceOf<Unit>()
     }
 })

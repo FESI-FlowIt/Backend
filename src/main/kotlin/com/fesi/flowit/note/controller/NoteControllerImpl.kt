@@ -72,4 +72,16 @@ class NoteControllerImpl(
             )
         )
     }
+
+    @DeleteMapping("/todos/{todoId}/notes/{noteId}")
+    override fun deleteNote(
+        @PathVariable("todoId") todoId: Long,
+        @PathVariable("todoId") noteId: Long
+    ): ResponseEntity<ApiResult<Unit>> {
+        log.debug(">> request deleteNote(${todoId}) ${noteId}")
+
+        service.deleteNote(todoId, noteId)
+
+        return ApiResponse.noContent()
+    }
 }

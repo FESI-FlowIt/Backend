@@ -105,4 +105,32 @@ interface NoteController {
         @PathVariable("noteId") noteId: Long,
         @RequestBody request: NoteModifyRequestDto
     ): ResponseEntity<ApiResult<NoteInfoResponseDto?>>
+
+    @Operation(
+        summary = "노트 삭제",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "204",
+                description = "노트 삭제 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = Any::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun deleteNote(
+        @PathVariable("todoId") todoId: Long,
+        @PathVariable("todoId") noteId: Long
+    ): ResponseEntity<ApiResult<Unit>>
 }
