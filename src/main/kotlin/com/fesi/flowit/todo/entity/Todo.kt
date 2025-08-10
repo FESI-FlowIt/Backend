@@ -1,6 +1,7 @@
 package com.fesi.flowit.todo.entity
 
 import com.fesi.flowit.goal.entity.Goal
+import com.fesi.flowit.note.entity.Note
 import com.fesi.flowit.schedule.entity.Schedule
 import com.fesi.flowit.timer.entity.TodoTimer
 import com.fesi.flowit.user.entity.User
@@ -48,6 +49,14 @@ class Todo private constructor(
     @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     @JoinColumn(name ="todo_timer_id", referencedColumnName = "id")
     var todoTimer: TodoTimer? = null
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @JoinColumn(name ="note_id", referencedColumnName = "id")
+    var note: Note? = null
+        set(value) {
+            field = value
+            value?.todo = this
+        }
 
     companion object {
         fun of(user: User, name: String, isDone: Boolean, createdDateTime: LocalDateTime, modifiedDateTime: LocalDateTime): Todo {

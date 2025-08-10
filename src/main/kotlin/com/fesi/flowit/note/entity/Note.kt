@@ -27,8 +27,7 @@ class Note(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
-    @JoinColumn(name = "todo_id", referencedColumnName = "id")
+    @OneToOne(mappedBy = "note", fetch = FetchType.LAZY)
     var todo: Todo? = null
 
     companion object {

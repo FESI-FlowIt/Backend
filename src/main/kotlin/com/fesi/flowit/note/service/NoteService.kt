@@ -32,18 +32,18 @@ class NoteService(
         val createdDateTime = LocalDateTime.now()
         val todo = todoService.getTodoById(todoId)
 
-        val note = noteRepository.save(
-            Note.withTodo(
-                title = title,
-                link = link,
-                content = content,
-                createdDateTime = createdDateTime,
-                modifiedDateTime = createdDateTime,
-                todo = todo
-            )
+        val note = Note.of(
+            title = title,
+            link = link,
+            content = content,
+            createdDateTime = createdDateTime,
+            modifiedDateTime = createdDateTime,
         )
+        todo.note = note
 
-        return NoteInfoResponseDto.fromNote(note)
+        val save = noteRepository.save(note)
+
+        return NoteInfoResponseDto.fromNote(save)
     }
 
     @Transactional
@@ -100,6 +100,7 @@ class NoteService(
 
         log.debug("Deleted note=(todoId=${todoId}, noteId=${noteId})")
 
+        todo.note = null
         noteRepository.deleteById(noteId)
     }
 
@@ -112,8 +113,8 @@ class NoteService(
         return listOf(NoteFindAllResponseDto.fromNoteWithTodoId(note, todo.id!!))
     }
 
-    fun getNoteById(todoId: Long): Note {
-        return noteRepository.findById(todoId)
+    fun getNoteById(noteId: Long): Note {
+        return noteRepository.findById(noteId)
             .orElseThrow { NoteException.fromCode(ApiResultCode.NOTE_NOT_FOUND) }
     }
 

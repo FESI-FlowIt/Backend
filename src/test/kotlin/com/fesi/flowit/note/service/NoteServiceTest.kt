@@ -11,6 +11,7 @@ import io.kotest.matchers.shouldBe
 import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.instanceOf
 import io.mockk.*
+import java.time.LocalDateTime
 import java.util.*
 
 class NoteServiceTest : StringSpec({
@@ -26,8 +27,19 @@ class NoteServiceTest : StringSpec({
     }
 
     "노트를 등록할 수 있다" {
-        every { todoService.getTodoById(any()) } returns mockk<Todo>()
-        every { repository.save(any()) } returns mockk<Note>(relaxed = true)
+        val todo = mockk<Todo>(relaxed = true)
+        val note = Note.withTodo(
+            title = "노트 제목",
+            link = "",
+            content = "노트 내용",
+            createdDateTime = LocalDateTime.now(),
+            modifiedDateTime = LocalDateTime.now(),
+            todo = todo
+        )
+        note.id = 1L
+
+        every { todoService.getTodoById(any()) } returns todo
+        every { repository.save(any()) } returns note
 
         service.createNote(
             userId = 1,
