@@ -57,7 +57,7 @@ class NoteControllerImpl(
         @PathVariable("noteId") noteId: Long,
         @RequestBody request: NoteModifyRequestDto
     ): ResponseEntity<ApiResult<NoteInfoResponseDto?>>  {
-        log.debug(">> request modifyNote(${todoId}, ${noteId}")
+        log.debug(">> request modifyNote(${todoId}, ${noteId})")
 
         return ApiResponse.ok(
             service.modifyNote(
@@ -75,7 +75,7 @@ class NoteControllerImpl(
         @PathVariable("todoId") todoId: Long,
         @PathVariable("todoId") noteId: Long
     ): ResponseEntity<ApiResult<Unit>> {
-        log.debug(">> request deleteNote(${todoId}, ${noteId}")
+        log.debug(">> request deleteNote(${todoId}, ${noteId})")
 
         service.deleteNote(todoId, noteId)
 

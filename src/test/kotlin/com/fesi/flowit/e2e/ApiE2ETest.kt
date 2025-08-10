@@ -74,9 +74,9 @@ class ApiE2ETest(
     }
 
     Given("발급받은 토큰으로 todo를 생성하면") {
-        val goalId = createNewGoal(accessToken, restTemplate).body!!.result.goalId
+        goalId = createNewGoal(accessToken, restTemplate).body!!.result.goalId
 
-        val response = createNewTodo(accessToken, restTemplate, goalId)
+        val response = createNewTodo(accessToken, restTemplate, goalId!!)
 
         Then("201 CREATED가 응답된다") {
             response.statusCode shouldBe HttpStatus.CREATED
@@ -84,9 +84,9 @@ class ApiE2ETest(
     }
 
     Given("발급받은 토큰으로 note를 생성하면") {
-        val goalId = createNewGoal(accessToken, restTemplate).body!!.result.goalId
+        goalId = createNewGoal(accessToken, restTemplate).body!!.result.goalId
 
-        val todoId = createNewTodo(accessToken, restTemplate, goalId).body!!.result.todoId
+        val todoId = createNewTodo(accessToken, restTemplate, goalId!!).body!!.result.todoId
 
         val response = createNewNote(accessToken, restTemplate, todoId)
 
@@ -96,8 +96,8 @@ class ApiE2ETest(
     }
 
     Given("생성한 note를 상세 조회하면") {
-        val goalId = createNewGoal(accessToken, restTemplate).body!!.result.goalId
-        val todoId = createNewTodo(accessToken, restTemplate, goalId).body!!.result.todoId
+        goalId = createNewGoal(accessToken, restTemplate).body!!.result.goalId
+        val todoId = createNewTodo(accessToken, restTemplate, goalId!!).body!!.result.todoId
 
         val noteId = createNewNote(accessToken, restTemplate, todoId).body!!.result.noteId
 
@@ -116,8 +116,8 @@ class ApiE2ETest(
     }
 
     Given("생성한 note를 수정하면") {
-        val goalId = createNewGoal(accessToken, restTemplate).body!!.result.goalId
-        val todoId = createNewTodo(accessToken, restTemplate, goalId).body!!.result.todoId
+        goalId = createNewGoal(accessToken, restTemplate).body!!.result.goalId
+        val todoId = createNewTodo(accessToken, restTemplate, goalId!!).body!!.result.todoId
 
         val noteId = createNewNote(accessToken, restTemplate, todoId).body!!.result.noteId
 
