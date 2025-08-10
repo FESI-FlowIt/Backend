@@ -8,6 +8,7 @@ import com.fesi.flowit.todo.entity.Todo
 import com.fesi.flowit.todo.service.TodoService
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.shouldNotBe
 import io.kotest.matchers.types.instanceOf
 import io.mockk.*
 import java.util.*
@@ -76,5 +77,25 @@ class NoteServiceTest : StringSpec({
             todoId = 1L,
             noteId = 1L
         ) shouldBe instanceOf<Unit>()
+    }
+
+    "노트 목록을 가져올 수 있다" {
+        val todo = mockk<Todo>(relaxed = true)
+        val note = Note.withTodo(
+            title = "노트 제목",
+            link = "",
+            content = "노트 내용",
+            createdDateTime = LocalDateTime.now(),
+            modifiedDateTime = LocalDateTime.now(),
+            todo = todo
+        )
+        note.id = 1L
+
+        every { todo.note } returns note
+        every { todo.id } returns 1L
+
+        every { todoService.getTodoById(any()) } returns todo
+
+        service.getAllNotes(1L) shouldBe instanceOf<List<NoteInfoResponseDto>>()
     }
 })

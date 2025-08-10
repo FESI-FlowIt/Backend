@@ -4,6 +4,7 @@ import com.fesi.flowit.common.logging.loggerFor
 import com.fesi.flowit.common.response.ApiResultCode
 import com.fesi.flowit.common.response.exceptions.NoteException
 import com.fesi.flowit.note.dto.NoteDetailResponseDto
+import com.fesi.flowit.note.dto.NoteFindAllResponseDto
 import com.fesi.flowit.note.dto.NoteInfoResponseDto
 import com.fesi.flowit.note.entity.Note
 import com.fesi.flowit.note.repository.NoteRepository
@@ -100,6 +101,15 @@ class NoteService(
         log.debug("Deleted note=(todoId=${todoId}, noteId=${noteId})")
 
         noteRepository.deleteById(noteId)
+    }
+
+    @Transactional
+    fun getAllNotes(todoId: Long): List<NoteFindAllResponseDto>? {
+        val todo = todoService.getTodoById(todoId)
+
+        val note = todo.note ?: throw NoteException.fromCode(ApiResultCode.NOTE_NOT_FOUND)
+
+        return listOf(NoteFindAllResponseDto.fromNoteWithTodoId(note, todo.id!!))
     }
 
     fun getNoteById(todoId: Long): Note {
