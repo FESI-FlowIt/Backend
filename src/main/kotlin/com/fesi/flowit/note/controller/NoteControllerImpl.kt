@@ -73,7 +73,7 @@ class NoteControllerImpl(
     @DeleteMapping("/todos/{todoId}/notes/{noteId}")
     override fun deleteNote(
         @PathVariable("todoId") todoId: Long,
-        @PathVariable("todoId") noteId: Long
+        @PathVariable("noteId") noteId: Long
     ): ResponseEntity<ApiResult<Unit>> {
         log.debug(">> request deleteNote(${todoId}, ${noteId})")
 
