@@ -4,7 +4,9 @@ import com.fesi.flowit.common.extensions.generateDateRange
 import com.fesi.flowit.common.extensions.getEndOfWeek
 import com.fesi.flowit.common.extensions.getStartOfWeek
 import com.fesi.flowit.common.extensions.isBeforeOrEquals
+import com.fesi.flowit.heatmap.dto.HeatmapMonthlyResponseDto
 import com.fesi.flowit.heatmap.dto.HeatmapWeeklyResponseDto
+import com.fesi.flowit.heatmap.dto.WeeklyHeatmapOfMonth
 import com.fesi.flowit.heatmap.vo.HeatmapQuarterVo
 import com.fesi.flowit.heatmap.vo.TimeQuarter
 import com.fesi.flowit.timer.entity.TodoTimer
@@ -15,12 +17,16 @@ import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.YearMonth
 
 @Service
 class TodoTimerHeatmapService(
     private val userService: UserService,
     private val todoTimerService: TodoTimerService
 ) : HeatmapService {
+    /**
+     * 주간 히트맵 조회
+     */
     override fun getWeeklyHeatmap(userId: Long, targetDate: LocalDate): List<HeatmapWeeklyResponseDto> {
         val user: User = userService.findUserById(userId)
 
@@ -73,6 +79,73 @@ class TodoTimerHeatmapService(
         return weekDates.map {
             HeatmapWeeklyResponseDto.of(it, heatMapQuarterVoByDateMap[it] ?: HeatmapQuarterVo.createIfNoRecord())
         }
+    }
+
+    /**
+     * 월간 히트맵 조회
+     */
+    override fun getMonthlyHeatmap(userId: Long, targetMonth: YearMonth): HeatmapMonthlyResponseDto {
+        val user: User = userService.findUserById(userId)
+
+        val firstDayOfMonth = targetMonth.atDay(1)
+        val lastDayOfMonth = targetMonth.atEndOfMonth()
+
+        var currentDate = firstDayOfMonth
+        var weekNumber = 1
+
+        val response = HeatmapMonthlyResponseDto.fromYearMonth(targetMonth)
+
+        while (currentDate.isBeforeOrEquals(lastDayOfMonth)) {
+            val mondayOfWeek = maxOf(currentDate.getStartOfWeek(), firstDayOfMonth)
+            val sundayOfWeek = minOf(currentDate.getEndOfWeek(), lastDayOfMonth)
+            val weekDates = generateDateRange(mondayOfWeek, sundayOfWeek)
+
+            val finishedTodoTimers: List<TodoTimer> = todoTimerService.getFinishedTodoTimerBetween(mondayOfWeek, sundayOfWeek, user)
+
+            val heatMapQuarterVoByDateMap: MutableMap<LocalDate, HeatmapQuarterVo> =
+                weekDates.associateWith { HeatmapQuarterVo.createIfNoRecord() }.toMutableMap()
+
+            finishedTodoTimers.forEach { todoTimer ->
+                // 타이머 기록 계산
+                if (todoTimer.isFinishedTimer()) {
+                    processTimeRecord(
+                        heatMapQuarterVoByDateMap,
+                        todoTimer.startedDateTime,
+                        todoTimer.endedDateTime!!,
+                        sundayOfWeek,
+                        HeatmapQuarterVo::addSlotByQuarterVo
+                    )
+                }
+
+                // 일시 중지 기록 차감
+                todoTimer.pauseHistories.forEach {pauseHistory ->
+                    if (pauseHistory.isPausedEnd()) {
+                        processTimeRecord(
+                            heatMapQuarterVoByDateMap,
+                            pauseHistory.pauseStartedDateTime,
+                            pauseHistory.pauseEndedDateTime!!,
+                            sundayOfWeek,
+                            HeatmapQuarterVo::removeSlotByQuarterVo
+                        )
+                    }
+                }
+            }
+
+            // 주간 데이터 변환
+            val totalWeeklyHeatmap = HeatmapQuarterVo.createIfNoRecord()
+
+            heatMapQuarterVoByDateMap.forEach { heatmap ->
+                heatmap.value.updateSlotIntensity()
+                totalWeeklyHeatmap.addSlotByQuarterVo(heatmap.value)
+            }
+
+            response.addHeatmaps(WeeklyHeatmapOfMonth.of(weekNumber, totalWeeklyHeatmap))
+
+            currentDate = sundayOfWeek.plusDays(1)
+            weekNumber++
+        }
+
+        return response
     }
 
     /**
