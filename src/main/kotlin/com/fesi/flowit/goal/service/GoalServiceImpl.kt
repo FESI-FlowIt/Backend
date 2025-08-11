@@ -245,6 +245,7 @@ class GoalServiceImpl(
                 ?: mutableListOf()
 
             TodoSummaryInGoalDetailVo.of(
+                todoId = todo.id!!,
                 name = todo.name,
                 isDone = todo.isDone,
                 files = files,
