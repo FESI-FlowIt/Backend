@@ -66,6 +66,7 @@ enum class ApiResultCode(
     NOTE_INVALID_CONTENT_LENGTH("7003", "Note content must be 1000 words or less"),
     NOTE_GOAL_NOT_FOUND("7004", "No goal connected with note"),
     NOTE_TODO_NOT_FOUND("7005", "No todo connected with note"),
+    NOTE_CANNOT_CREATE_NOTE("7006", "There's already note created. Only 1 note per todo can be created"),
 
     // 9000-9999: Common Code
     RGB_FORMAT_INVALID("9000", "Invalid RGB code format"),

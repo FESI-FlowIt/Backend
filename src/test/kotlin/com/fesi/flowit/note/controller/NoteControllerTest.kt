@@ -25,14 +25,13 @@ class NoteControllerTest : StringSpec({
                 any(),
                 any(),
                 any(),
-                any(),
                 any()
             )
         } returns mockk<NoteInfoResponseDto>()
 
         val controller = NoteControllerImpl(service)
 
-        controller.createNote(todoId = 1L, request, userId = 1)
+        controller.createNote(todoId = 1L, request)
     }
 
     "본문 단어수를 확인할 수 있다" {

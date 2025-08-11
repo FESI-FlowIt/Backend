@@ -28,6 +28,8 @@ class NoteServiceTest : StringSpec({
 
     "노트를 등록할 수 있다" {
         val todo = mockk<Todo>(relaxed = true)
+        every { todo.note } returns null
+
         val note = Note.withTodo(
             title = "노트 제목",
             link = "",
@@ -42,7 +44,6 @@ class NoteServiceTest : StringSpec({
         every { repository.save(any()) } returns note
 
         service.createNote(
-            userId = 1,
             todoId = 1L,
             title = "노트 제목",
             link = "",
