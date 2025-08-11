@@ -40,6 +40,8 @@ enum class ApiResultCode(
     TODO_INVALID_GOAL("4002", "Goal with todo is invalid"),
     TODO_NOT_MATCH_USER("4003", "The user has not this todo"),
 
+    TODO_MATERIAL_UPLOAD_FAIL("4100", "Failed to todo material upload"),
+
     // 5000-5999: Schedule
     SCHED_NOT_FOUND("5000", "Not found schedule"),
     SCHED_INVALID_ID("5001", "Schedule-id is invalid"),

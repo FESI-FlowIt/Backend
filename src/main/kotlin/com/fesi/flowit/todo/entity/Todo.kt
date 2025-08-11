@@ -47,7 +47,10 @@ class Todo private constructor(
     val schedules: MutableList<Schedule> = mutableListOf()
 
     @OneToMany(mappedBy = "todo", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var todoTimers: MutableList<TodoTimer> = mutableListOf()
+    val todoTimers: MutableList<TodoTimer> = mutableListOf()
+
+    @OneToMany(mappedBy = "todo", cascade = [CascadeType.ALL], orphanRemoval = true)
+    val materials: MutableList<TodoMaterial> = mutableListOf()
 
     @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
     @JoinColumn(name ="note_id", referencedColumnName = "id")
@@ -67,6 +70,10 @@ class Todo private constructor(
             todo.goal = goal
             return todo
         }
+    }
+
+    fun addMaterials(material: TodoMaterial) {
+        materials.add(material)
     }
 
     fun doesNotUserOwnTodo(user: User): Boolean {
