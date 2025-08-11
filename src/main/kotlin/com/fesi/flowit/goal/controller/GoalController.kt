@@ -317,4 +317,36 @@ interface GoalController {
         ]
     )
     fun getGoalsSummariesInProgress(@Parameter(hidden = true) @AuthUserId userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>>
+
+    @Operation(
+        summary = "목표 상세 조회",
+        description = """
+            목표 정보 및 파일, 링크, 노트를 비롯한 할 일 정보 목록을 반환합니다.
+            노트는 현재 1:1로 구현되었으나 원래 요구사항에 맞춰 배열로 반환합니다.
+        """
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "조회 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = GoalDetailResponseDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun getGoalDetail(
+        @Parameter(hidden = true) @AuthUserId userId: Long,
+        @PathVariable("goalId") goalId: Long
+    ): ResponseEntity<ApiResult<GoalDetailResponseDto>>
 }

@@ -3,11 +3,12 @@ package com.fesi.flowit.goal.repository
 import com.fesi.flowit.goal.dto.GoalFindAllResponseDto
 import com.fesi.flowit.goal.dto.QGoalFindAllResponseDto
 import com.fesi.flowit.goal.dto.TodoSummaryInGoal
+import com.fesi.flowit.goal.entity.Goal
 import com.fesi.flowit.goal.entity.QGoal
 import com.fesi.flowit.goal.search.GoalSortCriteria
 import com.fesi.flowit.goal.vo.GoalSummaryVo
 import com.fesi.flowit.goal.search.GoalWidgetCondition
-import com.fesi.flowit.todo.entity.QTodo
+import com.fesi.flowit.todo.entity.*
 import com.fesi.flowit.todo.vo.TodoSummaryInGoalCond
 import com.fesi.flowit.user.entity.User
 import com.querydsl.core.types.OrderSpecifier
@@ -56,7 +57,7 @@ class GoalQRepositoryImpl(
             .where(
                 isOwnedBy(user),
                 isOnlyPinned(cond.isPinned),
-                isNotExpireGoal()
+                isNotExpireGoal(cond.isExpiredGoals)
             )
             .offset(pageable.offset)
             .limit(pageable.pageSize.toLong())
@@ -69,7 +70,7 @@ class GoalQRepositoryImpl(
             .where(
                 isOwnedBy(user),
                 isOnlyPinned(cond.isPinned),
-                isNotExpireGoal()
+                isNotExpireGoal(cond.isExpiredGoals)
             )
             .fetchOne() ?: 0
 
@@ -101,6 +102,21 @@ class GoalQRepositoryImpl(
             .fetch()
     }
 
+    /**
+     * 목표에 포함된 할 일 목록 조회
+     */
+    override fun findTodosInGoal(user: User, goal: Goal): List<Todo> {
+        return queryFactory
+            .selectFrom(todo)
+            .leftJoin(todo.materials).fetchJoin()
+            .leftJoin(todo.note).fetchJoin()
+            .where(
+                isOwnedBy(user),
+                isTodoInGoal(goal)
+            )
+            .fetch()
+    }
+
     private fun isOnlyPinned(isPinned: Boolean): BooleanExpression? {
         return if (isPinned) {
             goal.isPinned.eq(true)
@@ -118,8 +134,11 @@ class GoalQRepositoryImpl(
 
     private fun isGoalIdIn(goalIds: List<Long>?): BooleanExpression? = if (goalIds == null) null else goal.id.`in`(goalIds)
     private fun isGoalIdEqual(goalId: Long?): BooleanExpression? = if (goalId == null) null else goal.id.eq(goalId)
-    private fun isNotExpireGoal(): BooleanExpression = goal.dueDateTime.goe(LocalDateTime.now())
+    private fun isNotExpireGoal(isExpired: Boolean?): BooleanExpression? {
+        return if (isExpired == null) null else goal.dueDateTime.goe(LocalDateTime.now())
+    }
     private fun isOwnedBy(user: User?): BooleanExpression? = if (user == null) null else goal.user.eq(user)
     private fun isExistTodo(): BooleanExpression = todo.id.isNotNull
     private fun isTodoDone(isDone: Boolean?): BooleanExpression? = if (isDone == null) null else todo.isDone.eq(isDone)
+    private fun isTodoInGoal(goal: Goal?): BooleanExpression? = if (goal == null) null else todo.goal.eq(goal)
 }

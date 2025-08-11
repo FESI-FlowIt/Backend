@@ -138,4 +138,14 @@ class GoalControllerImpl(
 
         return ApiResponse.ok(goalService.getGoalsSummariesInProgress(userId))
     }
+
+    @GetMapping("/goals/{goalId}/detail")
+    override fun getGoalDetail(
+        @AuthUserId userId: Long,
+        @PathVariable("goalId") goalId: Long
+    ): ResponseEntity<ApiResult<GoalDetailResponseDto>> {
+        log.debug(">> request getGoalDetail(userId=${userId}, goalId=${goalId})")
+
+        return ApiResponse.ok(goalService.getGoalDetail(userId, goalId))
+    }
 }

@@ -29,4 +29,13 @@ interface TodoRepository : JpaRepository<Todo, Long> {
 
     @EntityGraph(attributePaths = ["goal", "user"])
     fun findAllByIdIn(@Param("todoIds") todoIds: List<Long>): List<Todo>
+
+    @Query("""
+        SELECT t
+        FROM Todo t
+        JOIN FETCH t.note n
+        WHERE t.user = :user 
+        AND t.goal.id = :goalId
+    """)
+    fun findTodosThatHasNote(@Param("user") user: User, @Param("goalId") goalId: Long): List<Todo>
 }

@@ -10,7 +10,9 @@ import com.fesi.flowit.goal.repository.GoalQRepository
 import com.fesi.flowit.goal.repository.GoalRepository
 import com.fesi.flowit.goal.vo.GoalSummaryVo
 import com.fesi.flowit.goal.search.GoalWidgetCondition
-import com.fesi.flowit.todo.vo.TodoSummaryInGoalCond
+import com.fesi.flowit.todo.entity.Todo
+import com.fesi.flowit.todo.entity.TodoMaterialType
+import com.fesi.flowit.todo.vo.*
 import com.fesi.flowit.user.entity.User
 import com.fesi.flowit.user.service.UserService
 import jakarta.transaction.Transactional
@@ -143,8 +145,7 @@ class GoalServiceImpl(
         val todoSummariesByGoalIds = goalQRepository.findTodoSummaryByGoalIds(TodoSummaryInGoalCond.of(
             goalId = goalId,
             user = user
-        )
-        )
+        ))
 
         // 달성률 계산
         val todos = goal.todos
@@ -202,7 +203,8 @@ class GoalServiceImpl(
         val todoSummariesByGoalIds = goalQRepository.findTodoSummaryByGoalIds(
             TodoSummaryInGoalCond.of(
                 goalIds = goalIds,
-                user = user)
+                user = user
+            )
         )
 
         // 결과 반환
@@ -210,6 +212,50 @@ class GoalServiceImpl(
 
         val results = convertGoalSummariesFromTodoMap(goalsPage.content, todoMapByGoalId)
         return PageResponse.fromPageWithContents(results, goalsPage)
+    }
+
+    /**
+     * 목표 상세 조회
+     */
+    @Transactional
+    override fun getGoalDetail(userId: Long, goalId: Long): GoalDetailResponseDto {
+        val user: User = userService.findUserById(userId)
+        val goal: Goal = getGoalById(goalId)
+
+        if (doesNotUserOwnGoal(user, goal)) {
+            throw GoalException.fromCode(ApiResultCode.GOAL_NOT_MATCH_USER)
+        }
+
+        // 해당 목표에 포함되는 할 일 조회
+        val todosInGoal: List<Todo> = goalQRepository.findTodosInGoal(user, goal)
+
+        val todoSummaryInGoalDetails = todosInGoal.map { todo ->
+            val files = todo.materials
+                .filter { it.todoMaterialType == TodoMaterialType.FILE }
+                .map { TodoFileMaterial.of(it.name.orEmpty(), it.url) }
+                .toMutableList()
+
+            val links = todo.materials
+                .filter { it.todoMaterialType == TodoMaterialType.LINK }
+                .map { TodoLinkMaterial.of(it.url) }
+                .toMutableList()
+
+            val notes = todo.note
+                ?.let { mutableListOf(TodoNoteMaterial.of(it.title, it.id!!)) }
+                ?: mutableListOf()
+
+            TodoSummaryInGoalDetailVo.of(
+                name = todo.name,
+                isDone = todo.isDone,
+                files = files,
+                links = links,
+                notes = notes
+            )
+        }.toMutableList()
+
+        val doneCount = todosInGoal.count { it.isDone }
+        val progressRate = calculateGoalProgressRate(doneCount, todosInGoal.size)
+        return GoalDetailResponseDto.of(goal.name, goal.color, goal.dueDateTime, progressRate, todoSummaryInGoalDetails)
     }
 
     /**
@@ -270,7 +316,7 @@ class GoalServiceImpl(
         return goals.map { goal ->
             val todos = todoMap[goal.goalId].orEmpty()
             val doneCount = todos.count { it.isDone }
-            val progressRate = if (todos.isNotEmpty()) (doneCount.toDouble() / todos.size * 100).toInt() else 0
+            val progressRate = if (todos.isNotEmpty()) calculateGoalProgressRate(doneCount, todos.size) else 0
 
             GoalSummaryResponseDto.fromTodoSummaryAndProgressRate(
                 goalId = goal.goalId,
@@ -283,5 +329,9 @@ class GoalServiceImpl(
                 progressRate = progressRate
             )
         }
+    }
+
+    private fun calculateGoalProgressRate(doneCount: Number, size: Number): Int {
+        return (doneCount.toDouble() / size.toInt() * 100).toInt()
     }
 }
