@@ -4,9 +4,11 @@ import com.fesi.flowit.common.logging.loggerFor
 import com.fesi.flowit.common.response.ApiResultCode
 import com.fesi.flowit.common.response.exceptions.TodoException
 import com.fesi.flowit.goal.service.GoalService
+import com.fesi.flowit.note.vo.NoteInfoVo
 import com.fesi.flowit.todo.dto.TodoChangeDoneResponseDto
 import com.fesi.flowit.todo.dto.TodoCreateResponseDto
 import com.fesi.flowit.todo.dto.TodoModifyResponseDto
+import com.fesi.flowit.todo.vo.TodoSummaryWithNoteVo
 import com.fesi.flowit.todo.entity.Todo
 import com.fesi.flowit.todo.repository.TodoRepository
 import com.fesi.flowit.todo.vo.TodoSummaryWithDateVo
@@ -129,6 +131,33 @@ class TodoServiceImpl(
     override fun getTodoSummariesWithDateFromDueDate(userId: Long, date: LocalDate): MutableList<TodoSummaryWithDateVo> {
         val user: User = userService.findUserById(userId)
         return getTodoSummariesWithDateFromDueDate(user, date)
+    }
+
+    /**
+     * 노트를 갖는 할 일 목록 조회
+     */
+    override fun getTodosSummariesThatHasNote(
+        userId: Long,
+        goalId: Long
+    ): List<TodoSummaryWithNoteVo> {
+        val user: User = userService.findUserById(userId)
+
+        return todoRepository.findTodosThatHasNote(user, goalId)
+            .map { todo ->
+                TodoSummaryWithNoteVo(
+                    todoId = todo.id!!,
+                    name = todo.name,
+                    isDone = todo.isDone,
+                    note = listOf(
+                        NoteInfoVo(
+                            id = todo.note!!.id!!,
+                            title = todo.note!!.title,
+                            link = todo.note!!.link,
+                            content = todo.note!!.content
+                        )
+                    )
+                )
+            }
     }
 
     override fun getTodoSummariesWithDateFromDueDate(user: User, date: LocalDate): MutableList<TodoSummaryWithDateVo> {

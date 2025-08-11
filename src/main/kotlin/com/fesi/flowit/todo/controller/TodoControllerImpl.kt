@@ -6,6 +6,7 @@ import com.fesi.flowit.common.response.ApiResponse
 import com.fesi.flowit.common.response.ApiResult
 import com.fesi.flowit.todo.dto.*
 import com.fesi.flowit.todo.service.TodoService
+import com.fesi.flowit.todo.vo.TodoSummaryWithNoteVo
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -60,5 +61,14 @@ class TodoControllerImpl(
         todoService.deleteTodoById(userId, todoId)
 
         return ApiResponse.noContent()
+    }
+
+    @GetMapping("/goals/{goalId}/todos")
+    override fun getTodosSummariesThatHasNote(@PathVariable("goalId") goalId: Long,
+                                              @AuthUserId userId: Long
+    ): ResponseEntity<ApiResult<List<TodoSummaryWithNoteVo>>> {
+        log.debug(">> request getTodosSummariesThatHasNote(goalId=${goalId}, userId=${userId})")
+
+        return ApiResponse.ok(todoService.getTodosSummariesThatHasNote(userId, goalId))
     }
 }
