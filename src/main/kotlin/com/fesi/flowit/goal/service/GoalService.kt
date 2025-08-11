@@ -22,4 +22,5 @@ interface GoalService {
     fun searchGoalSummaries(cond: GoalWidgetCondition, pageable: Pageable): PageResponse<GoalSummaryResponseDto>
     fun getGoalSummariesByDueYearMonth(userId: Long, dueYearMonth: YearMonth): GoalsByMonthlyResponseDto
     fun getGoalsSummariesInProgress(userId: Long): List<GoalSummaryResponseDto>
+    fun getGoalDetail(userId: Long, goalId: Long): GoalDetailResponseDto
 }

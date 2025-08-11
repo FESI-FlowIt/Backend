@@ -1,6 +1,5 @@
 package com.fesi.flowit.todo.repository
 
-import com.fesi.flowit.todo.vo.TodoSummaryWithNoteVo
 import com.fesi.flowit.todo.entity.Todo
 import com.fesi.flowit.todo.vo.TodoSummaryWithDateVo
 import com.fesi.flowit.user.entity.User
