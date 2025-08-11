@@ -4,6 +4,12 @@ import io.swagger.v3.oas.annotations.media.Schema
 
 data class TodoSummaryInGoalDetailVo(
     @field:Schema(
+        description = "할 일 ID",
+        example = "1",
+    )
+    val todoId: Long,
+
+    @field:Schema(
         description = "할 일 이름",
         example = "할 일1",
     )
@@ -27,13 +33,14 @@ data class TodoSummaryInGoalDetailVo(
 ) {
     companion object {
         fun of(
+            todoId: Long,
             name: String,
             isDone: Boolean,
             files: MutableList<TodoFileMaterial>,
             links: MutableList<TodoLinkMaterial>,
             notes: MutableList<TodoNoteMaterial>
         ): TodoSummaryInGoalDetailVo {
-            return TodoSummaryInGoalDetailVo(name, isDone, files, links, notes)
+            return TodoSummaryInGoalDetailVo(todoId, name, isDone, files, links, notes)
         }
     }
 }
