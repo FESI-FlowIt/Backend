@@ -3,6 +3,7 @@ package com.fesi.flowit.todo.service
 import com.fesi.flowit.todo.dto.TodoChangeDoneResponseDto
 import com.fesi.flowit.todo.dto.TodoCreateResponseDto
 import com.fesi.flowit.todo.dto.TodoModifyResponseDto
+import com.fesi.flowit.todo.vo.TodoSummaryWithNoteVo
 import com.fesi.flowit.todo.entity.Todo
 import com.fesi.flowit.todo.vo.TodoSummaryWithDateVo
 import com.fesi.flowit.user.entity.User
@@ -17,4 +18,5 @@ interface TodoService {
     fun getTodosByIds(todoIds: List<Long>): List<Todo>
     fun getTodoSummariesWithDateFromDueDate(user: User, date: LocalDate): MutableList<TodoSummaryWithDateVo>
     fun getTodoSummariesWithDateFromDueDate(userId: Long, date: LocalDate): MutableList<TodoSummaryWithDateVo>
+    fun getTodosSummariesThatHasNote(userId: Long, goalId: Long): List<TodoSummaryWithNoteVo>
 }

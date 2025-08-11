@@ -20,14 +20,12 @@ class NoteControllerImpl(
     @PostMapping("/todos/{todoId}/notes")
     override fun createNote(
         @PathVariable("todoId") todoId: Long,
-        @RequestBody request: NoteCreateRequestDto,
-        @AuthUserId userId: Long
+        @RequestBody request: NoteCreateRequestDto
     ): ResponseEntity<ApiResult<NoteInfoResponseDto>> {
         log.debug(">> request createNote(${request})")
 
         return ApiResponse.created(
             service.createNote(
-                userId = userId,
                 todoId = todoId,
                 title = request.title,
                 link = request.link!!,
@@ -57,7 +55,7 @@ class NoteControllerImpl(
         @PathVariable("noteId") noteId: Long,
         @RequestBody request: NoteModifyRequestDto
     ): ResponseEntity<ApiResult<NoteInfoResponseDto?>>  {
-        log.debug(">> request modifyNote(${todoId}, ${noteId}")
+        log.debug(">> request modifyNote(${todoId}, ${noteId})")
 
         return ApiResponse.ok(
             service.modifyNote(
@@ -73,9 +71,9 @@ class NoteControllerImpl(
     @DeleteMapping("/todos/{todoId}/notes/{noteId}")
     override fun deleteNote(
         @PathVariable("todoId") todoId: Long,
-        @PathVariable("todoId") noteId: Long
+        @PathVariable("noteId") noteId: Long
     ): ResponseEntity<ApiResult<Unit>> {
-        log.debug(">> request deleteNote(${todoId}, ${noteId}")
+        log.debug(">> request deleteNote(${todoId}, ${noteId})")
 
         service.deleteNote(todoId, noteId)
 

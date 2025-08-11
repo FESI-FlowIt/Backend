@@ -3,6 +3,7 @@ package com.fesi.flowit.todo.controller
 import com.fesi.flowit.common.auth.AuthUserId
 import com.fesi.flowit.common.response.ApiResult
 import com.fesi.flowit.todo.dto.*
+import com.fesi.flowit.todo.vo.TodoSummaryWithNoteVo
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -130,4 +131,31 @@ interface TodoController {
         @PathVariable("todoId") todoId: Long,
         @Parameter(hidden = true) @AuthUserId userId: Long
     ): ResponseEntity<ApiResult<Unit>>
+
+    @Operation(
+        summary = "노트를 갖는 할 일 목록 조회",
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "할 일 목록 조회 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = TodoCreateResponseDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun getTodosSummariesThatHasNote(@PathVariable("goalId") goalId: Long,
+                                     @Parameter(hidden = true) @AuthUserId userId: Long
+    ): ResponseEntity<ApiResult<List<TodoSummaryWithNoteVo>>>
 }

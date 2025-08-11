@@ -42,8 +42,7 @@ interface NoteController {
     )
     fun createNote(
         @PathVariable("todoId") todoId: Long,
-        @RequestBody request: NoteCreateRequestDto,
-        @Parameter(hidden = true) @AuthUserId userId: Long
+        @RequestBody request: NoteCreateRequestDto
     ): ResponseEntity<ApiResult<NoteInfoResponseDto>>
 
     @Operation(
