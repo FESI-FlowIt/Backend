@@ -20,14 +20,12 @@ class NoteControllerImpl(
     @PostMapping("/todos/{todoId}/notes")
     override fun createNote(
         @PathVariable("todoId") todoId: Long,
-        @RequestBody request: NoteCreateRequestDto,
-        @AuthUserId userId: Long
+        @RequestBody request: NoteCreateRequestDto
     ): ResponseEntity<ApiResult<NoteInfoResponseDto>> {
         log.debug(">> request createNote(${request})")
 
         return ApiResponse.created(
             service.createNote(
-                userId = userId,
                 todoId = todoId,
                 title = request.title,
                 link = request.link!!,

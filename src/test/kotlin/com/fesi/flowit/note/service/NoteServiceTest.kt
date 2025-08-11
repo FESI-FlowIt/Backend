@@ -44,7 +44,6 @@ class NoteServiceTest : StringSpec({
         every { repository.save(any()) } returns note
 
         service.createNote(
-            userId = 1,
             todoId = 1L,
             title = "노트 제목",
             link = "",

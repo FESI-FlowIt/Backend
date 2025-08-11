@@ -23,7 +23,6 @@ class NoteService(
 ) {
     @Transactional
     fun createNote(
-        userId: Long,
         todoId: Long,
         title: String,
         link: String,
