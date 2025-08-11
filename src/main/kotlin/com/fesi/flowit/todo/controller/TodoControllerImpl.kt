@@ -67,13 +67,24 @@ class TodoControllerImpl(
     }
 
     @PostMapping("/todos/{todoId}/file")
-    fun uploadTodoFile(
+    override fun uploadTodoFile(
         @AuthUserId userId: Long,
         @PathVariable("todoId") todoId: Long,
         @RequestParam file: MultipartFile
     ): ResponseEntity<ApiResult<TodoFileResponseDto>> {
         log.debug(">> request uploadTodoFile(userId=${userId}, todoId=${todoId}, file=${file.originalFilename ?: file.name})")
 
-        return ApiResponse.ok(todoService.uploadTodoFile(userId, todoId, file))
+        return ApiResponse.created(todoService.uploadTodoFile(userId, todoId, file))
+    }
+
+    @PostMapping("todos/{todoId}/link")
+    override fun addTodoLink(
+        @AuthUserId userId: Long,
+        @PathVariable("todoId") todoId: Long,
+        @RequestBody request: TodoMaterialLinkDto
+    ): ResponseEntity<ApiResult<TodoMaterialLinkDto>> {
+        log.debug(">> request addTodoLink(userId=${userId}, todoId=${todoId}, link=${request.link})")
+
+        return ApiResponse.created(todoService.addTodoLink(userId, todoId, request.link))
     }
 }

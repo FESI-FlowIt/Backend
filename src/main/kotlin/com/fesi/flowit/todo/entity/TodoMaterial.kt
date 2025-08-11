@@ -13,14 +13,14 @@ class TodoMaterial private constructor(
     @Enumerated(EnumType.STRING)
     val todoMaterialType: TodoMaterialType,
 
-    @Column(nullable = false)
-    val fileName: String,
+    @Column
+    val name: String? = null,
 
     @Column(nullable = false)
     val url: String,
 
-    @Column(nullable = false)
-    val uniqueKey: String,
+    @Column
+    val uniqueKey: String? = null,
 
     @Column(nullable = false)
     val createdDateTime: LocalDateTime
@@ -30,15 +30,39 @@ class TodoMaterial private constructor(
     val id: Long? = null
 
     companion object {
-        fun of(
+        fun createFileMaterial(
             todo: Todo,
-            todoMaterialType: TodoMaterialType,
+            todoMaterialType: TodoMaterialType = TodoMaterialType.FILE,
             name: String,
             url: String,
             uniqueKey: String,
             createdDateTime: LocalDateTime
         ): TodoMaterial {
-            return TodoMaterial(todo, todoMaterialType, name, url, uniqueKey, createdDateTime)
+            return TodoMaterial(
+                todo = todo,
+                todoMaterialType = todoMaterialType,
+                name = name,
+                url = url,
+                uniqueKey = uniqueKey,
+                createdDateTime = createdDateTime)
+        }
+
+        fun createLinkMaterial(
+            todo: Todo,
+            todoMaterialType: TodoMaterialType = TodoMaterialType.LINK,
+            name: String? = null,
+            url: String,
+            uniqueKey: String? = null,
+            createdDateTime: LocalDateTime
+        ): TodoMaterial {
+            return TodoMaterial(
+                todo = todo,
+                todoMaterialType = todoMaterialType,
+                name = name,
+                url = url,
+                uniqueKey = uniqueKey,
+                createdDateTime = createdDateTime
+            )
         }
     }
 }

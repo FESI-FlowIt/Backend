@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.multipart.MultipartFile
 
 interface TodoController {
     @Operation(
@@ -130,4 +131,60 @@ interface TodoController {
         @PathVariable("todoId") todoId: Long,
         @Parameter(hidden = true) @AuthUserId userId: Long
     ): ResponseEntity<ApiResult<Unit>>
+
+    @Operation(
+        summary = "할 일 첨부파일 추가",
+        description = "첨부파일을 S3에 업로드합니다."
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "201",
+                description = "할 일 업로드 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = TodoFileResponseDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun uploadTodoFile(
+        @Parameter(hidden = true) @AuthUserId userId: Long,
+        @PathVariable("todoId") todoId: Long,
+        @RequestParam file: MultipartFile
+    ): ResponseEntity<ApiResult<TodoFileResponseDto>>
+
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "201",
+                description = "할 일 링크 추가 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = TodoMaterialLinkDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun addTodoLink(
+        @Parameter(hidden = true) @AuthUserId userId: Long,
+        @PathVariable("todoId") todoId: Long,
+        @RequestBody request: TodoMaterialLinkDto
+    ): ResponseEntity<ApiResult<TodoMaterialLinkDto>>
 }

@@ -7,10 +7,7 @@ import com.fesi.flowit.common.response.ApiResultCode
 import com.fesi.flowit.common.response.exceptions.ExternalApiException
 import com.fesi.flowit.common.response.exceptions.TodoException
 import com.fesi.flowit.goal.service.GoalService
-import com.fesi.flowit.todo.dto.TodoChangeDoneResponseDto
-import com.fesi.flowit.todo.dto.TodoCreateResponseDto
-import com.fesi.flowit.todo.dto.TodoFileResponseDto
-import com.fesi.flowit.todo.dto.TodoModifyResponseDto
+import com.fesi.flowit.todo.dto.*
 import com.fesi.flowit.todo.entity.Todo
 import com.fesi.flowit.todo.entity.TodoMaterial
 import com.fesi.flowit.todo.entity.TodoMaterialType
@@ -147,7 +144,7 @@ class TodoServiceImpl(
         val s3FileUploadVo: AwsS3FileUploadVo = awsS3Service.uploadFile(todoMaterialKeyBase, uniqueKey, file)
 
         if (s3FileUploadVo.isUploaded) {
-            val todoMaterial = TodoMaterial.of(
+            val todoMaterial = TodoMaterial.createFileMaterial(
                 todo = todo,
                 todoMaterialType =TodoMaterialType.FILE,
                 name = s3FileUploadVo.fileName,
@@ -161,11 +158,41 @@ class TodoServiceImpl(
 
             log.debug("Todo material is uploaded to S3 bucket.. userId=${user.id}, key=${uniqueKey}, fileName=${s3FileUploadVo.fileName}")
 
-            return TodoFileResponseDto.of(todoId, savedTodoMaterial.url, savedTodoMaterial.fileName)
+            return TodoFileResponseDto.of(
+                todoId,
+                savedTodoMaterial.url,
+                savedTodoMaterial.name ?: throw TodoException.fromCode(ApiResultCode.TODO_MATERIAL_UPLOAD_FAIL)
+            )
         } else {
             log.warn("Failed to upload todo material in S3 bucket.. userId=${user.id}, key=${uniqueKey}, fileName=${s3FileUploadVo.fileName}")
             throw ExternalApiException.fromCode(ApiResultCode.TODO_MATERIAL_UPLOAD_FAIL)
         }
+    }
+
+    @Transactional
+    override fun addTodoLink(userId: Long, todoId: Long, link: String): TodoMaterialLinkDto {
+        val user: User = userService.findUserById(userId)
+        val todo: Todo = getTodoById(todoId)
+
+        if (todo.doesNotUserOwnTodo(user)) {
+            throw TodoException.fromCode(ApiResultCode.TODO_NOT_MATCH_USER)
+        }
+
+        val createdDateTime = LocalDateTime.now()
+
+        val linkMaterial = TodoMaterial.createLinkMaterial(
+            todo = todo,
+            todoMaterialType = TodoMaterialType.LINK,
+            url = link,
+            createdDateTime = createdDateTime
+        )
+
+        val savedLinkMaterial = todoMaterialRepository.save(linkMaterial)
+        todo.addMaterials(savedLinkMaterial)
+
+        log.debug("Added todo link to todoId=${todoId}, url=${savedLinkMaterial.url}")
+
+        return TodoMaterialLinkDto.of(link)
     }
 
     /**
