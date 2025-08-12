@@ -2,6 +2,7 @@ package com.fesi.flowit.todo.controller
 
 import com.fesi.flowit.common.auth.AuthUserId
 import com.fesi.flowit.common.response.ApiResult
+import com.fesi.flowit.common.response.PageResponse
 import com.fesi.flowit.todo.dto.*
 import com.fesi.flowit.todo.vo.TodoSummaryWithNoteVo
 import io.swagger.v3.oas.annotations.Operation
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import org.springframework.data.domain.Pageable
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestBody
@@ -213,6 +215,7 @@ interface TodoController {
         ]
     )
     fun getTodosSummariesThatHasNote(@PathVariable("goalId") goalId: Long,
-                                     @Parameter(hidden = true) @AuthUserId userId: Long
-    ): ResponseEntity<ApiResult<List<TodoSummaryWithNoteVo>>>
+                                     @Parameter(hidden = true) @AuthUserId userId: Long,
+                                     pageable: Pageable
+    ): ResponseEntity<ApiResult<PageResponse<TodoSummaryWithNoteVo>>>
 }

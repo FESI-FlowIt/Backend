@@ -4,10 +4,12 @@ import com.fesi.flowit.common.auth.AuthUserId
 import com.fesi.flowit.common.logging.loggerFor
 import com.fesi.flowit.common.response.ApiResponse
 import com.fesi.flowit.common.response.ApiResult
+import com.fesi.flowit.common.response.PageResponse
 import com.fesi.flowit.todo.dto.*
 import com.fesi.flowit.todo.service.TodoService
 import com.fesi.flowit.todo.vo.TodoSummaryWithNoteVo
 import io.swagger.v3.oas.annotations.tags.Tag
+import org.springframework.data.domain.Pageable
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
@@ -91,10 +93,11 @@ class TodoControllerImpl(
 
     @GetMapping("/goals/{goalId}/todos")
     override fun getTodosSummariesThatHasNote(@PathVariable("goalId") goalId: Long,
-                                              @AuthUserId userId: Long
-    ): ResponseEntity<ApiResult<List<TodoSummaryWithNoteVo>>> {
+                                              @AuthUserId userId: Long,
+                                              pageable: Pageable
+    ): ResponseEntity<ApiResult<PageResponse<TodoSummaryWithNoteVo>>> {
         log.debug(">> request getTodosSummariesThatHasNote(goalId=${goalId}, userId=${userId})")
 
-        return ApiResponse.ok(todoService.getTodosSummariesThatHasNote(userId, goalId))
+        return ApiResponse.ok(todoService.getTodosSummariesThatHasNote(userId, goalId, pageable))
     }
 }
