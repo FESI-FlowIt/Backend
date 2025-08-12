@@ -280,8 +280,8 @@ class GoalServiceImpl(
     override fun getGoalsSummariesInProgress(userId: Long): List<GoalSummaryResponseDto> {
         val user: User = userService.findUserById(userId)
 
-        // 마감일이 지나지 않은 목표 조회
-        val inProgressGoals: List<GoalSummaryVo> = goalRepository.findGoalsInProgress(user)
+        // 마감일이 지나지 않은 목표 조회 -> 일시적인 요구사항 변경으로 인해 모든 목표 조회
+        val inProgressGoals: List<GoalSummaryVo> = goalRepository.findGoalsByUser(user)
 
         // 해당 목표에 대한 할 일 조회
         val inProgressGoalIds: List<Long> = inProgressGoals.map { it.goalId }

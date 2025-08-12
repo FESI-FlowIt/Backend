@@ -44,4 +44,14 @@ interface GoalRepository : JpaRepository<Goal, Long> {
             AND g.dueDateTime > CURRENT_TIMESTAMP
     """)
     fun findGoalsInProgress(@Param("user") user: User): List<GoalSummaryVo>
+
+    @Query("""
+       SELECT new com.fesi.flowit.goal.vo.GoalSummaryVo(
+             g.id, g.name, g.color, g.createdDateTime, g.dueDateTime, g.isPinned
+        ) 
+        FROM Goal g
+        WHERE
+            g.user = :user
+    """)
+    fun findGoalsByUser(@Param("user") user: User): List<GoalSummaryVo>
 }
