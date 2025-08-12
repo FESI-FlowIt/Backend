@@ -4,6 +4,7 @@ import com.fesi.flowit.common.cloud.aws.AwsS3FileUploadVo
 import com.fesi.flowit.common.cloud.aws.AwsS3Service
 import com.fesi.flowit.common.logging.loggerFor
 import com.fesi.flowit.common.response.ApiResultCode
+import com.fesi.flowit.common.response.PageResponse
 import com.fesi.flowit.common.response.exceptions.ExternalApiException
 import com.fesi.flowit.common.response.exceptions.TodoException
 import com.fesi.flowit.goal.service.GoalService
@@ -23,6 +24,8 @@ import com.fesi.flowit.user.entity.User
 import com.fesi.flowit.user.service.UserService
 import jakarta.transaction.Transactional
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDate
@@ -220,26 +223,33 @@ class TodoServiceImpl(
      */
     override fun getTodosSummariesThatHasNote(
         userId: Long,
-        goalId: Long
-    ): List<TodoSummaryWithNoteVo> {
+        goalId: Long,
+        pageable: Pageable
+    ): PageResponse<TodoSummaryWithNoteVo> {
         val user: User = userService.findUserById(userId)
 
-        return todoRepository.findTodosThatHasNote(user, goalId)
-            .map { todo ->
-                TodoSummaryWithNoteVo(
-                    todoId = todo.id!!,
-                    name = todo.name,
-                    isDone = todo.isDone,
-                    note = listOf(
-                        NoteInfoVo(
-                            id = todo.note!!.id!!,
-                            title = todo.note!!.title,
-                            link = todo.note!!.link,
-                            content = todo.note!!.content
-                        )
+        val totalCount = todoRepository.countTodosThatHasNote(user, goalId)
+
+        val todos = todoRepository.findTodosThatHasNote(user, goalId, pageable)
+
+        val contents = todos.map { todo ->
+            TodoSummaryWithNoteVo(
+                todoId = todo.id!!,
+                name = todo.name,
+                isDone = todo.isDone,
+                note = listOf(
+                    NoteInfoVo(
+                        id = todo.note!!.id!!,
+                        title = todo.note!!.title,
+                        link = todo.note!!.link,
+                        content = todo.note!!.content
                     )
                 )
-            }
+            )
+        }
+
+        val page = PageImpl(contents, pageable, totalCount)
+        return PageResponse.fromPageWithContents(contents, page)
     }
 
     override fun getTodoSummariesWithDateFromDueDate(user: User, date: LocalDate): MutableList<TodoSummaryWithDateVo> {

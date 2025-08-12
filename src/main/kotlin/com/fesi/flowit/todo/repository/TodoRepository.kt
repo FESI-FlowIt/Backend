@@ -3,6 +3,7 @@ package com.fesi.flowit.todo.repository
 import com.fesi.flowit.todo.entity.Todo
 import com.fesi.flowit.todo.vo.TodoSummaryWithDateVo
 import com.fesi.flowit.user.entity.User
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.EntityGraph
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
@@ -36,6 +37,23 @@ interface TodoRepository : JpaRepository<Todo, Long> {
         JOIN FETCH t.note n
         WHERE t.user = :user 
         AND t.goal.id = :goalId
+        ORDER BY t.id DESC
     """)
-    fun findTodosThatHasNote(@Param("user") user: User, @Param("goalId") goalId: Long): List<Todo>
+    fun findTodosThatHasNote(
+        @Param("user") user: User,
+        @Param("goalId") goalId: Long,
+        pageable: Pageable
+    ): List<Todo>
+
+    @Query("""
+        SELECT count(t)
+        FROM Todo t
+        WHERE t.user = :user 
+        AND t.goal.id = :goalId
+        AND t.note IS NOT NULL
+    """)
+    fun countTodosThatHasNote(
+        @Param("user") user: User,
+        @Param("goalId") goalId: Long,
+    ): Long
 }

@@ -39,11 +39,11 @@ interface TodoTimerRepository : JpaRepository<TodoTimer, Long> {
         FROM TodoTimer todoTimer
         LEFT JOIN TodoTimerPauseHistory pausedHistory
           ON pausedHistory.timer = todoTimer
+             AND pausedHistory.pauseEndedDateTime IS NOT NULL
         WHERE
             todoTimer.todo = :todo
             AND todoTimer.status = 'FINISHED'
             AND todoTimer.endedDateTime IS NOT NULL 
-            AND pausedHistory.pauseEndedDateTime IS NOT NULL
         GROUP BY todoTimer.todo.id
     """)
     fun calculateTotalRunningTime(@Param("todo") todo: Todo): TodoTimerTotalTimeVo?
