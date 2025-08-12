@@ -14,6 +14,7 @@ class Note(
     @Column(nullable = false)
     var link: String,
 
+    @Lob
     @Column(nullable = false)
     var content: String,
 
