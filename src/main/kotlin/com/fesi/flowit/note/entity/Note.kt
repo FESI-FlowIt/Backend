@@ -14,8 +14,7 @@ class Note(
     @Column(nullable = false)
     var link: String,
 
-    @Lob
-    @Column(nullable = false)
+    @Column(nullable = false, length = 10000)
     var content: String,
 
     @CreatedDate
