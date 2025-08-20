@@ -10,69 +10,69 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RequestParam
 
-interface KakaoAuthController {
-
-    @Operation(
-        summary = "카카오 로그인",
-        description = """
-            [GET] http://IP:PORT/oauth?code=xyz
-        """
-    )
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "카카오 로그인 성공",
-                content = [Content(
-                    mediaType = "application/json",
-                    schema = Schema(implementation = KakaoSignInResponse::class)
-                )]
-            ),
-            ApiResponse(
-                responseCode = "401",
-                description = "인증 실패",
-                content = [Content(
-                    mediaType = "application/json",
-                    schema = Schema(implementation = String::class)
-                )]
-            ),
-            ApiResponse(
-                responseCode = "400",
-                description = "잘못된 요청 데이터",
-                content = [Content(
-                    mediaType = "application/json",
-                    schema = Schema(implementation = String::class)
-                )]
-            )
-        ]
-    )
-    fun signIn(@RequestParam code: String): ResponseEntity<ApiResult<KakaoSignInResponse>>
-
-    @Operation(
-        summary = "리다이렉션",
-        description = """
-            [GET] http://IP:PORT/oauth/callback
-        """
-    )
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "리다이렉션 성공",
-                content = [Content(
-                    mediaType = "application/json",
-                    schema = Schema(implementation = String::class)
-                )]
-            ),
-            ApiResponse(
-                responseCode = "400",
-                description = "잘못된 요청 데이터",
-                content = [Content(
-                    mediaType = "application/json",
-                    schema = Schema(implementation = String::class)
-                )]
-            )
-        ]
-    )
-    fun callback(code: String): String
-}
+//interface KakaoAuthController {
+//
+//    @Operation(
+//        summary = "카카오 로그인",
+//        description = """
+//            [GET] http://IP:PORT/oauth?code=xyz
+//        """
+//    )
+//    @ApiResponses(
+//        value = [
+//            ApiResponse(
+//                responseCode = "200",
+//                description = "카카오 로그인 성공",
+//                content = [Content(
+//                    mediaType = "application/json",
+//                    schema = Schema(implementation = KakaoSignInResponse::class)
+//                )]
+//            ),
+//            ApiResponse(
+//                responseCode = "401",
+//                description = "인증 실패",
+//                content = [Content(
+//                    mediaType = "application/json",
+//                    schema = Schema(implementation = String::class)
+//                )]
+//            ),
+//            ApiResponse(
+//                responseCode = "400",
+//                description = "잘못된 요청 데이터",
+//                content = [Content(
+//                    mediaType = "application/json",
+//                    schema = Schema(implementation = String::class)
+//                )]
+//            )
+//        ]
+//    )
+//    fun signIn(@RequestParam code: String): ResponseEntity<ApiResult<KakaoSignInResponse>>
+//
+//    @Operation(
+//        summary = "리다이렉션",
+//        description = """
+//            [GET] http://IP:PORT/oauth/callback
+//        """
+//    )
+//    @ApiResponses(
+//        value = [
+//            ApiResponse(
+//                responseCode = "200",
+//                description = "리다이렉션 성공",
+//                content = [Content(
+//                    mediaType = "application/json",
+//                    schema = Schema(implementation = String::class)
+//                )]
+//            ),
+//            ApiResponse(
+//                responseCode = "400",
+//                description = "잘못된 요청 데이터",
+//                content = [Content(
+//                    mediaType = "application/json",
+//                    schema = Schema(implementation = String::class)
+//                )]
+//            )
+//        ]
+//    )
+//    fun callback(code: String): String
+//}
