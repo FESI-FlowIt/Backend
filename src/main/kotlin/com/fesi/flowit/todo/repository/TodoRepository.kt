@@ -34,7 +34,7 @@ interface TodoRepository : JpaRepository<Todo, Long> {
     @Query("""
         SELECT t
         FROM Todo t
-        JOIN FETCH t.note n
+        JOIN FETCH t.notes n
         WHERE t.user = :user 
         AND t.goal.id = :goalId
         ORDER BY t.id DESC
@@ -50,7 +50,7 @@ interface TodoRepository : JpaRepository<Todo, Long> {
         FROM Todo t
         WHERE t.user = :user 
         AND t.goal.id = :goalId
-        AND t.note IS NOT NULL
+        AND EXISTS (SELECT 1 FROM t.notes n)
     """)
     fun countTodosThatHasNote(
         @Param("user") user: User,

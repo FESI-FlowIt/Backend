@@ -233,18 +233,14 @@ class TodoServiceImpl(
         val todos = todoRepository.findTodosThatHasNote(user, goalId, pageable)
 
         val contents = todos.map { todo ->
+            val noteInfoVos = todo.notes.map { note ->
+                NoteInfoVo.fromNote(note)
+            }
             TodoSummaryWithNoteVo(
                 todoId = todo.id!!,
                 name = todo.name,
                 isDone = todo.isDone,
-                note = listOf(
-                    NoteInfoVo(
-                        id = todo.note!!.id!!,
-                        title = todo.note!!.title,
-                        link = todo.note!!.link,
-                        content = todo.note!!.content
-                    )
-                )
+                note = noteInfoVos
             )
         }
 

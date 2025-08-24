@@ -31,10 +31,6 @@ class NoteService(
         val createdDateTime = LocalDateTime.now()
         val todo = todoService.getTodoById(todoId)
 
-        if (todoAlreadyHasNote(todo)) {
-            throw NoteException.fromCode(ApiResultCode.NOTE_CANNOT_CREATE_NOTE)
-        }
-
         val note = Note.of(
             title = title,
             link = link,
@@ -42,7 +38,7 @@ class NoteService(
             createdDateTime = createdDateTime,
             modifiedDateTime = createdDateTime,
         )
-        todo.note = note
+        todo.addNote(note)
 
         val save = noteRepository.save(note)
 
@@ -103,7 +99,9 @@ class NoteService(
 
         log.debug("Deleted note=(todoId=${todoId}, noteId=${noteId})")
 
-        todo.note = null
+        todo.notes.remove(note)
+        note.todo = null
+
         noteRepository.deleteById(noteId)
     }
 
@@ -111,9 +109,13 @@ class NoteService(
     fun getAllNotes(todoId: Long): List<NoteFindAllResponseDto>? {
         val todo = todoService.getTodoById(todoId)
 
-        val note = todo.note ?: throw NoteException.fromCode(ApiResultCode.NOTE_NOT_FOUND)
+        if (todo.notes.size == 0) {
+            throw NoteException.fromCode(ApiResultCode.NOTE_NOT_FOUND)
+        }
 
-        return listOf(NoteFindAllResponseDto.fromNoteWithTodoId(note, todo.id!!))
+        return todo.notes.map { note ->
+            NoteFindAllResponseDto.fromNoteWithTodoId(note, todo.id!!)
+        }
     }
 
     fun getNoteById(noteId: Long): Note {
@@ -124,6 +126,4 @@ class NoteService(
     fun todoOwnNote(todo: Todo, note: Note): Boolean {
         return note.todo == todo
     }
-
-    fun todoAlreadyHasNote(todo: Todo): Boolean = todo.note != null
 }

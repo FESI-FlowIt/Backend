@@ -240,9 +240,7 @@ class GoalServiceImpl(
                 .map { TodoLinkMaterial.of(it.url) }
                 .toMutableList()
 
-            val notes = todo.note
-                ?.let { mutableListOf(TodoNoteMaterial.of(it.title, it.id!!)) }
-                ?: mutableListOf()
+            val notes = todo.notes.map { TodoNoteMaterial.of(it.title, it.id!!) }.toMutableList()
 
             TodoSummaryInGoalDetailVo.of(
                 todoId = todo.id!!,

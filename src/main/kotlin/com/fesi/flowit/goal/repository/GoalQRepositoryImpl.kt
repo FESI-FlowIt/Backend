@@ -109,7 +109,7 @@ class GoalQRepositoryImpl(
         return queryFactory
             .selectFrom(todo)
             .leftJoin(todo.materials).fetchJoin()
-            .leftJoin(todo.note).fetchJoin()
+            .leftJoin(todo.notes).fetchJoin()
             .where(
                 isOwnedBy(user),
                 isTodoInGoal(goal)
