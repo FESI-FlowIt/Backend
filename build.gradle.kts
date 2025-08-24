@@ -44,6 +44,8 @@ dependencies {
 	implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
 	implementation("io.jsonwebtoken:jjwt-api:0.12.6")
 
+	implementation("org.apache.httpcomponents.client5:httpclient5:5.4.1")
+
 	kapt("com.querydsl:querydsl-apt:5.0.0:jakarta")
 	kapt("jakarta.annotation:jakarta.annotation-api")
 	kapt("jakarta.persistence:jakarta.persistence-api")

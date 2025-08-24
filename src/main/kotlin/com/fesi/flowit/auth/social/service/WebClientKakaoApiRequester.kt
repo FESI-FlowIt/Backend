@@ -11,16 +11,16 @@ import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
 
-private val log = loggerFor<KakaoApiRequester>()
+private val log = loggerFor<WebClientKakaoApiRequester>()
 
 @Component
-class KakaoApiRequester(
+class WebClientKakaoApiRequester(
     private val webClient: WebClient
-) {
+) : KakaoApi {
     private val CONTENT_TYPE_FORM_UTF8 = "application/x-www-form-urlencoded; charset=UTF-8"
     private val BEARER_AUTH_TYPE = "Bearer "
 
-    fun requestAccessToken(uri: String, body: KakaoTokenRequestDto): KakaoTokenResponseDto? {
+    override fun requestAccessToken(uri: String, body: KakaoTokenRequestDto): KakaoTokenResponseDto? {
         val formData = body.toFormData()
         log.debug(">>request access token for kakao service: formData ${formData}")
 
@@ -55,7 +55,7 @@ class KakaoApiRequester(
         return response
     }
 
-    fun requestUserInfo(uri: String, accessToken: String): KakaoUserInfoResponseDto? {
+    override fun requestUserInfo(uri: String, accessToken: String): KakaoUserInfoResponseDto? {
         log.debug(">>request user info for kakao service")
 
         val response = webClient.get()
