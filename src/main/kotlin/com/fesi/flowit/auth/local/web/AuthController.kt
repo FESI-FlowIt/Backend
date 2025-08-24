@@ -26,7 +26,7 @@ class AuthController(
     override fun signIn(
         @RequestBody signInRequest: SignInRequest
     ): ResponseEntity<ApiResult<SignInResponse>> {
-        log.debug(">> request signIn(${signInRequest})")
+        log.debug(">> request signIn(${signInRequest.email})")
         val dto = SignInDto.from(signInRequest)
         val authResponse = service.signIn(dto)
 
