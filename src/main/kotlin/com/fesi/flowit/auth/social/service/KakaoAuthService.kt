@@ -25,7 +25,7 @@ class KakaoAuthService(
     private val clientId: String,
     @Value("\${auth.kakao.request-uri}")
     private val requestUri: String,
-    private val kakaoApiRequester: KakaoApiRequester,
+    private val kakaoApiRequester: RestClientKakaoApiRequester,
     private val userRepository: UserRepository,
     private val jwtGenerator: JwtGenerator,
     private val authenticationManager: AuthenticationManager
