@@ -31,12 +31,13 @@ class NoteService(
         val createdDateTime = LocalDateTime.now()
         val todo = todoService.getTodoById(todoId)
 
-        val note = Note.of(
+        val note = Note.withTodo(
             title = title,
             link = link,
             content = content,
             createdDateTime = createdDateTime,
             modifiedDateTime = createdDateTime,
+            todo = todo
         )
         todo.addNote(note)
 
