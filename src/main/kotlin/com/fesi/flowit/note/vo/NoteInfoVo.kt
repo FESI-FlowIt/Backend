@@ -1,5 +1,6 @@
 package com.fesi.flowit.note.vo
 
+import com.fesi.flowit.note.entity.Note
 import io.swagger.v3.oas.annotations.media.Schema
 
 data class NoteInfoVo(
@@ -26,4 +27,12 @@ data class NoteInfoVo(
         example = "노트 내용",
     )
     val content: String
-)
+) {
+    companion object {
+        fun fromNote(note: Note): NoteInfoVo {
+            return NoteInfoVo(
+                note.id!!, note.title, note.link, note.content
+            )
+        }
+    }
+}

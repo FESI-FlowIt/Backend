@@ -27,8 +27,13 @@ class Note(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null
 
-    @OneToOne(mappedBy = "note", fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "todo_id")
     var todo: Todo? = null
+        set(todo) {
+            field = todo
+            todo?.addNote(this)
+        }
 
     companion object {
         fun of(title: String, link: String, content: String, createdDateTime: LocalDateTime, modifiedDateTime: LocalDateTime): Note {
