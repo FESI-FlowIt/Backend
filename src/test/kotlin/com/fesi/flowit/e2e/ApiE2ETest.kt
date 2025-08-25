@@ -172,7 +172,7 @@ fun createNewGoal(
     val goalRequest = GoalCreateRequestDto(
         name = "테스트 목표",
         color = "#000000",
-        dueDateTime = "2025-08-19".toLocalDateTime()
+        dueDateTime = "2225-08-19".toLocalDateTime()
     )
     val headers = HttpHeaders().apply { setBearerAuth(accessToken) }
 

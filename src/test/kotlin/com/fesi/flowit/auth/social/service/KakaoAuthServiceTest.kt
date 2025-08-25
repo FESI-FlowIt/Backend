@@ -5,7 +5,6 @@ import com.fesi.flowit.auth.social.dto.KakaoAccount
 import com.fesi.flowit.auth.social.dto.KakaoTokenResponseDto
 import com.fesi.flowit.auth.social.dto.KakaoUserInfoResponseDto
 import com.fesi.flowit.auth.social.dto.Profile
-import com.fesi.flowit.common.response.ApiResultCode
 import com.fesi.flowit.common.response.exceptions.AuthException
 import com.fesi.flowit.user.entity.User
 import com.fesi.flowit.user.repository.UserRepository
@@ -20,14 +19,14 @@ import java.util.*
 
 class KakaoAuthServiceTest : StringSpec({
 
-    lateinit var requester: KakaoApiRequester
+    lateinit var requester: RestClientKakaoApiRequester
     lateinit var service: KakaoAuthService
     lateinit var userRepository: UserRepository
     lateinit var jwtGenerator: JwtGenerator
     lateinit var authenticationManager: AuthenticationManager
 
     beforeEach {
-        requester = mockk<KakaoApiRequester>()
+        requester = mockk<RestClientKakaoApiRequester>()
         userRepository = mockk<UserRepository>()
         jwtGenerator = mockk<JwtGenerator>()
         authenticationManager = mockk<AuthenticationManager>()
