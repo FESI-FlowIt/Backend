@@ -70,4 +70,8 @@ data class HeatmapQuarterVo(
         afternoon.updateIntensity()
         evening.updateIntensity()
     }
+
+    fun getAllWorkingTime(): Int {
+        return dawn.minutes + morning.minutes + afternoon.minutes + evening.minutes
+    }
 }

@@ -8,6 +8,8 @@ import com.fesi.flowit.goal.entity.QGoal
 import com.fesi.flowit.goal.search.GoalSortCriteria
 import com.fesi.flowit.goal.vo.GoalSummaryVo
 import com.fesi.flowit.goal.search.GoalWidgetCondition
+import com.fesi.flowit.note.entity.Note
+import com.fesi.flowit.note.entity.QNote.note
 import com.fesi.flowit.todo.entity.*
 import com.fesi.flowit.todo.vo.TodoSummaryInGoalCond
 import com.fesi.flowit.user.entity.User
@@ -105,16 +107,30 @@ class GoalQRepositoryImpl(
     /**
      * 목표에 포함된 할 일 목록 조회
      */
-    override fun findTodosInGoal(user: User, goal: Goal): List<Todo> {
-        return queryFactory
+    override fun findTodosInGoal(user: User, goal: Goal, isTodoDone: Boolean?): List<Todo> {
+        val todos: List<Todo> = queryFactory
             .selectFrom(todo)
             .leftJoin(todo.materials).fetchJoin()
-            .leftJoin(todo.note).fetchJoin()
             .where(
                 isOwnedBy(user),
+                isTodoDone(isTodoDone),
                 isTodoInGoal(goal)
             )
             .fetch()
+
+        val todoIds = todos.map { todo -> todo.id }
+
+        val notes: List<Note> = queryFactory
+            .selectFrom(note)
+            .where(note.todo.id.`in`(todoIds))
+            .fetch()
+
+        val notesByTodoId = notes.groupBy { note -> note.todo?.id }
+        todos.forEach { todo ->
+            todo.notes.clear()
+            todo.notes.addAll(notesByTodoId[todo.id] ?: emptyList())
+        }
+        return todos
     }
 
     private fun isOnlyPinned(isPinned: Boolean): BooleanExpression? {

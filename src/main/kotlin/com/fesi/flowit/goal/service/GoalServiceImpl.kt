@@ -227,7 +227,7 @@ class GoalServiceImpl(
         }
 
         // 해당 목표에 포함되는 할 일 조회
-        val todosInGoal: List<Todo> = goalQRepository.findTodosInGoal(user, goal)
+        val todosInGoal: List<Todo> = goalQRepository.findTodosInGoal(user, goal, false)
 
         val todoSummaryInGoalDetails = todosInGoal.map { todo ->
             val files = todo.materials
@@ -240,9 +240,7 @@ class GoalServiceImpl(
                 .map { TodoLinkMaterial.of(it.url) }
                 .toMutableList()
 
-            val notes = todo.note
-                ?.let { mutableListOf(TodoNoteMaterial.of(it.title, it.id!!)) }
-                ?: mutableListOf()
+            val notes = todo.notes.map { TodoNoteMaterial.of(it.title, it.id!!) }.toMutableList()
 
             TodoSummaryInGoalDetailVo.of(
                 todoId = todo.id!!,

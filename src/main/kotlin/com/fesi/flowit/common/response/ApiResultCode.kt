@@ -70,6 +70,7 @@ enum class ApiResultCode(
 
     // 9000-9999: Common Code
     RGB_FORMAT_INVALID("9000", "Invalid RGB code format"),
+    DAY_OF_WEEK_INVALID("9001", "Day of week value cannot exceed 7")
 
     ;
 }

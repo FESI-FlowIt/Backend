@@ -28,7 +28,7 @@ class NoteServiceTest : StringSpec({
 
     "노트를 등록할 수 있다" {
         val todo = mockk<Todo>(relaxed = true)
-        every { todo.note } returns null
+        every { todo.notes } returns mutableListOf()
 
         val note = Note.withTodo(
             title = "노트 제목",
@@ -104,7 +104,7 @@ class NoteServiceTest : StringSpec({
         )
         note.id = 1L
 
-        every { todo.note } returns note
+        every { todo.notes } returns mutableListOf(note)
         every { todo.id } returns 1L
 
         every { todoService.getTodoById(any()) } returns todo

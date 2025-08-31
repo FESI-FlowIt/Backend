@@ -52,13 +52,8 @@ class Todo private constructor(
     @OneToMany(mappedBy = "todo", cascade = [CascadeType.ALL], orphanRemoval = true)
     val materials: MutableList<TodoMaterial> = mutableListOf()
 
-    @OneToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
-    @JoinColumn(name ="note_id", referencedColumnName = "id")
-    var note: Note? = null
-        set(value) {
-            field = value
-            value?.todo = this
-        }
+    @OneToMany(mappedBy = "todo", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var notes: MutableList<Note> = mutableListOf()
 
     companion object {
         fun of(user: User, name: String, isDone: Boolean, createdDateTime: LocalDateTime, modifiedDateTime: LocalDateTime): Todo {
@@ -78,5 +73,9 @@ class Todo private constructor(
 
     fun doesNotUserOwnTodo(user: User): Boolean {
         return this.user != user
+    }
+
+    fun addNote(note: Note) {
+        notes.add(note)
     }
 }
