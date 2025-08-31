@@ -4,6 +4,7 @@ import com.fesi.flowit.common.auth.AuthUserId
 import com.fesi.flowit.common.logging.loggerFor
 import com.fesi.flowit.common.response.ApiResponse
 import com.fesi.flowit.common.response.ApiResult
+import com.fesi.flowit.heatmap.dto.HeatmapInsightWeeklyResponseDto
 import com.fesi.flowit.heatmap.dto.HeatmapMonthlyResponseDto
 import com.fesi.flowit.heatmap.dto.HeatmapWeeklyResponseDto
 import com.fesi.flowit.heatmap.service.HeatmapService
@@ -32,6 +33,16 @@ class TodoTimerHeatmapController(
         log.debug("request getWeeklyHeatmap(userId=${userId}, date=${date})")
 
         return ApiResponse.ok(heatmapService.getWeeklyHeatmap(userId, date))
+    }
+
+    @GetMapping("/heatmaps/todo-timers/insight/weekly/{date}")
+    override fun getWeeklyHeatmapInsight(
+        @AuthUserId userId: Long,
+        @PathVariable("date") date: LocalDate
+    ): ResponseEntity<ApiResult<List<HeatmapInsightWeeklyResponseDto>>> {
+        log.debug("request getWeeklyHeatmapInsight(userId=${userId}, date=${date}}")
+
+        return ApiResponse.ok(heatmapService.getWeeklyInsight(userId, date))
     }
 
     @GetMapping("/heatmaps/todo-timers/monthly/{yearMonth}")
