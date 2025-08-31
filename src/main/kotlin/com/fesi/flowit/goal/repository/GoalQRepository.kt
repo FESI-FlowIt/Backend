@@ -15,5 +15,5 @@ interface GoalQRepository {
     fun findAllGoalsByUser(user: User): List<GoalFindAllResponseDto>
     fun searchGoals(user: User, cond: GoalWidgetCondition, pageable: Pageable): Page<GoalSummaryVo>
     fun findTodoSummaryByGoalIds(cond: TodoSummaryInGoalCond): List<TodoSummaryInGoal>
-    fun findTodosInGoal(user: User, goal: Goal): List<Todo>
+    fun findTodosInGoal(user: User, goal: Goal, isTodoDone: Boolean?): List<Todo>
 }

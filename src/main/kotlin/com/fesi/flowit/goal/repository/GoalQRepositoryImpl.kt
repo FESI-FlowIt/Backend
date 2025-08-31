@@ -107,12 +107,13 @@ class GoalQRepositoryImpl(
     /**
      * 목표에 포함된 할 일 목록 조회
      */
-    override fun findTodosInGoal(user: User, goal: Goal): List<Todo> {
+    override fun findTodosInGoal(user: User, goal: Goal, isTodoDone: Boolean?): List<Todo> {
         val todos: List<Todo> = queryFactory
             .selectFrom(todo)
             .leftJoin(todo.materials).fetchJoin()
             .where(
                 isOwnedBy(user),
+                isTodoDone(isTodoDone),
                 isTodoInGoal(goal)
             )
             .fetch()
