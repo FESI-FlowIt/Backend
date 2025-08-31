@@ -6,10 +6,7 @@ import com.fesi.flowit.common.extensions.getStartOfWeek
 import com.fesi.flowit.common.extensions.isBeforeOrEquals
 import com.fesi.flowit.common.response.ApiResultCode
 import com.fesi.flowit.common.response.exceptions.TodoTimerException
-import com.fesi.flowit.heatmap.dto.HeatmapInsightWeeklyResponseDto
-import com.fesi.flowit.heatmap.dto.HeatmapMonthlyResponseDto
-import com.fesi.flowit.heatmap.dto.HeatmapWeeklyResponseDto
-import com.fesi.flowit.heatmap.dto.WeeklyHeatmapOfMonth
+import com.fesi.flowit.heatmap.dto.*
 import com.fesi.flowit.heatmap.vo.HeatmapInsightMsg
 import com.fesi.flowit.heatmap.vo.HeatmapQuarterVo
 import com.fesi.flowit.heatmap.vo.TimeQuarter
@@ -156,7 +153,7 @@ class TodoTimerHeatmapService(
     /**
      * 주간 인사이트 메시지
      */
-    override fun getWeeklyInsight(userId: Long, date: LocalDate): List<HeatmapInsightWeeklyResponseDto> {
+    override fun getWeeklyInsight(userId: Long, date: LocalDate): HeatmapInsightWeeklyResponseDto {
         val weeklyHeatmapData = getWeeklyHeatmap(userId, date)
 
         val maxWorkingDays: MutableList<Int> = mutableListOf()
@@ -201,7 +198,40 @@ class TodoTimerHeatmapService(
             insights.add(HeatmapInsightMsg.WEEKLY_HIGHEST_DAY.format.format(maxWorkingDaysStr, maxWorkingLocalTime))
         }
 
-        return listOf(HeatmapInsightWeeklyResponseDto.of(date, insights))
+        return HeatmapInsightWeeklyResponseDto.of(date, insights)
+    }
+
+    /**
+     * 월간 인사이트 메시지
+     */
+    override fun getMonthlyInsight(userId: Long, yearMonth: YearMonth): HeatmapInsightMonthlyResponseDto {
+        val monthlyHeatmapData = getMonthlyHeatmap(userId, yearMonth)
+
+        val maxWorkingWeeks: MutableList<Int> = mutableListOf()
+        var maxWorkingTime = 0
+
+        for (i in 1..monthlyHeatmapData.weeklyHeatmaps.size) {
+            val weeklyHeatmapData = monthlyHeatmapData.weeklyHeatmaps[i - 1]
+
+            // 최대 작업 시간 확인
+            val workingTimeInWeek = weeklyHeatmapData.timeSlots.getAllWorkingTime()
+
+            if (maxWorkingTime < workingTimeInWeek) {
+                maxWorkingTime = workingTimeInWeek
+                maxWorkingWeeks.clear()
+                maxWorkingWeeks.add(i)
+            } else if (maxWorkingTime == workingTimeInWeek) {
+                maxWorkingWeeks.add(i)
+            }
+        }
+
+        val insights: MutableList<String> = mutableListOf()
+        // 최대 시간 메시지
+        if (hasData(maxWorkingTime)) {
+            insights.add(HeatmapInsightMsg.MONTHLY_HIGHEST_WEEK.format.format(maxWorkingWeeks.joinToString(",")))
+        }
+
+        return HeatmapInsightMonthlyResponseDto.of(yearMonth, insights)
     }
 
     /**

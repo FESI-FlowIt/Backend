@@ -2,6 +2,7 @@ package com.fesi.flowit.heatmap.controller
 
 import com.fesi.flowit.common.auth.AuthUserId
 import com.fesi.flowit.common.response.ApiResult
+import com.fesi.flowit.heatmap.dto.HeatmapInsightMonthlyResponseDto
 import com.fesi.flowit.heatmap.dto.HeatmapInsightWeeklyResponseDto
 import com.fesi.flowit.heatmap.dto.HeatmapMonthlyResponseDto
 import com.fesi.flowit.heatmap.dto.HeatmapWeeklyResponseDto
@@ -118,5 +119,39 @@ interface HeatmapController {
     fun getWeeklyHeatmapInsight(
         @Parameter(hidden = true) @AuthUserId userId: Long,
         @PathVariable("date") date: LocalDate
-    ): ResponseEntity<ApiResult<List<HeatmapInsightWeeklyResponseDto>>>
+    ): ResponseEntity<ApiResult<HeatmapInsightWeeklyResponseDto>>
+
+    @Operation(
+        summary = "월간 인사이트 메시지 조회",
+        description = """ 
+           1. 최대 기록: 같은 작업 시간이 있으면 둘 다 메시지에 포함됨
+        """
+    )
+    @ApiResponses(
+        value = [
+            ApiResponse(
+                responseCode = "200",
+                description = "월간 인사이트 메시지 조회 성공",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = HeatmapInsightMonthlyResponseDto::class)
+                )]
+            ),
+            ApiResponse(
+                responseCode = "400",
+                description = "올바르지 않은 요청 혹은 유효하지 않은 파라미터 값",
+                content = [Content(
+                    mediaType = "application/json",
+                    schema = Schema(implementation = ApiResult.Exception::class)
+                )]
+            )
+        ]
+    )
+    fun getMonthlyHeatmapInsight(
+        @Parameter(hidden = true) @AuthUserId userId: Long,
+
+        @PathVariable("yearMonth")
+        @DateTimeFormat(pattern = "yyyy-MM")
+        yearMonth: YearMonth
+    ): ResponseEntity<ApiResult<HeatmapInsightMonthlyResponseDto>>
 }
