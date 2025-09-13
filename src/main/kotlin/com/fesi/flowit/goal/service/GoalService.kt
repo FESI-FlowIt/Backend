@@ -1,17 +1,26 @@
 package com.fesi.flowit.goal.service
 
-import com.fesi.flowit.goal.dto.GoalsByMonthlyResponseDto
-import com.fesi.flowit.goal.dto.GoalCreateResponseDto
-import com.fesi.flowit.goal.dto.GoalFindAllResponseDto
-import com.fesi.flowit.goal.dto.GoalSummaryResponseDto
+import com.fesi.flowit.common.response.PageResponse
+import com.fesi.flowit.goal.dto.*
 import com.fesi.flowit.goal.entity.Goal
+import com.fesi.flowit.goal.search.GoalWidgetCondition
+import com.fesi.flowit.user.entity.User
+import org.springframework.data.domain.Pageable
 import java.time.LocalDateTime
 import java.time.YearMonth
 
 interface GoalService {
-    fun createGoal(name: String, color: String, dueDateTime: LocalDateTime): GoalCreateResponseDto
-    fun getAllGoals(): List<GoalFindAllResponseDto>
-    fun getGoalById(goalId: Long): Goal?
-    fun getGoalsSummaries(): List<GoalSummaryResponseDto>
-    fun getGoalSummariesByDueYearMonth(dueYearMonth: YearMonth): GoalsByMonthlyResponseDto
+    fun createGoal(userId: Long, name: String, color: String, dueDateTime: LocalDateTime): GoalInfoResponseDto
+    fun modifyGoal(goalId: Long, userId: Long, name: String, color: String, dueDateTime: LocalDateTime): GoalInfoResponseDto
+    fun changePinStatus(goalId: Long, userId: Long, isPinned: Boolean): GoalChangePinResponseDto
+    fun deleteGoalById(userId: Long, goalId: Long)
+    fun getAllGoals(userId: Long): List<GoalFindAllResponseDto>
+    fun getGoalById(goalId: Long): Goal
+    fun doesNotUserOwnGoal(user: User, goal: Goal): Boolean
+    fun getGoalsSummary(userId: Long, goalId: Long): GoalSummaryResponseDto
+    fun getGoalsSummariesInDashboard(userId: Long): List<GoalSummaryResponseDto>
+    fun searchGoalSummaries(cond: GoalWidgetCondition, pageable: Pageable): PageResponse<GoalSummaryResponseDto>
+    fun getGoalSummariesByDueYearMonth(userId: Long, dueYearMonth: YearMonth): GoalsByMonthlyResponseDto
+    fun getGoalsSummariesInProgress(userId: Long): List<GoalSummaryResponseDto>
+    fun getGoalDetail(userId: Long, goalId: Long): GoalDetailResponseDto
 }

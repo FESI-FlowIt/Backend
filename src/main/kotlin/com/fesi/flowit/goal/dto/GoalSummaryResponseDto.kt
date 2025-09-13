@@ -1,7 +1,8 @@
 package com.fesi.flowit.goal.dto
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import com.fesi.flowit.common.util.REGEX_RGB_CODE
+import com.fesi.flowit.common.extensions.REGEX_RGB_CODE
+import com.querydsl.core.annotations.QueryProjection
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
 
@@ -69,7 +70,7 @@ data class GoalSummaryResponseDto(
     }
 }
 
-data class TodoSummaryInGoal(
+data class TodoSummaryInGoal @QueryProjection constructor(
     @field:Schema(
         description = "할 일 ID",
         example = "1",

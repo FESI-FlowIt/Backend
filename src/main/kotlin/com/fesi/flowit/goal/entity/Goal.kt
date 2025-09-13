@@ -1,24 +1,19 @@
 package com.fesi.flowit.goal.entity
 
 import com.fesi.flowit.todo.entity.Todo
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.OneToMany
-import jakarta.persistence.Table
+import com.fesi.flowit.user.entity.User
+import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
 import org.springframework.data.annotation.LastModifiedDate
 import java.time.LocalDateTime
 
-/**
- * @todo 회원과 연관 관계 설정 필요
- */
-
 @Entity
-@Table(name = "goal")
+@Table(name = "goals")
 class Goal private constructor(
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    var user: User,
+
     @Column(nullable = false)
     var name: String,
 
@@ -26,7 +21,7 @@ class Goal private constructor(
     var color: String = "#000000",
 
     @Column(nullable = false)
-    val isPinned: Boolean = false,
+    var isPinned: Boolean = false,
 
     @CreatedDate
     @Column(nullable = false)
@@ -37,20 +32,20 @@ class Goal private constructor(
     var modifiedDateTime: LocalDateTime = LocalDateTime.now(),
 
     @Column(nullable = false)
-    val dueDateTime: LocalDateTime,
+    var dueDateTime: LocalDateTime,
 ) {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
 
-    @OneToMany(mappedBy = "goal")
+    @OneToMany(mappedBy = "goal", cascade = [CascadeType.ALL], orphanRemoval = true)
     val todos: MutableList<Todo> = mutableListOf()
 
     companion object {
         fun of(
-            name: String, color: String, isPinned: Boolean,
+            user: User, name: String, color: String, isPinned: Boolean,
             createdDateTime: LocalDateTime, modifiedDateTime: LocalDateTime, dueDateTime: LocalDateTime,
         ): Goal {
-            return Goal(name, color, isPinned, createdDateTime, modifiedDateTime, dueDateTime)
+            return Goal(user, name, color, isPinned, createdDateTime, modifiedDateTime, dueDateTime)
         }
     }
 

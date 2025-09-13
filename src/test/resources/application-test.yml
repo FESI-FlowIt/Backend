@@ -1,0 +1,35 @@
+spring:
+  servlet:
+    multipart:
+      enabled: ${MULTIPART_ENABLED}
+      max-file-size: ${MULTIPART_MAX-FILE-SIZE}
+      max-request-size: ${MULTIPART_MAX-REQUEST-SIZE}
+      file-size-threshold: ${MULTIPART_FILE-SIZE-THRESHOLD}
+
+  datasource:
+    url: ${TEST_DB_URL}
+    username: ${TEST_DB_USERNAME}
+    driver-class-name: ${TEST_DB_DRIVER_CLASS_NAME}
+
+  jpa:
+    hibernate:
+      ddl-auto: ${TEST_HIBERNATE_DDL_AUTO}
+    properties:
+      hibernate:
+        dialect: ${TEST_HIBERNATE_DIALECT}
+
+auth:
+  secret-key: ${TEST_SECRET_KEY}
+  kakao:
+    client-id: ${TEST_KAKAO_CLIENT_ID}
+    request-uri: ${TEST_KAKAO_REQUEST_URI}
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_CREDENTIALS_ACCESS-KEY}
+      secret-key: ${AWS_CREDENTIALS_SECRET-KEY}
+    region: ${AWS_REGION}
+    s3:
+      bucket-name: ${AWS_S3_BUCKET}
+      todo-materials-base: ${AWS_S3_TODO-MATERIALS-BASE}

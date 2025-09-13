@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fesi.flowit.common.response.ApiResultCode
 import com.fesi.flowit.common.response.exceptions.GoalException
 import com.fesi.flowit.common.serializers.LocalDateTimeDeserializer
-import com.fesi.flowit.common.util.REGEX_RGB_CODE
-import com.fesi.flowit.common.util.isRGBColor
+import com.fesi.flowit.common.extensions.REGEX_RGB_CODE
+import com.fesi.flowit.common.extensions.isRGBColor
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
 

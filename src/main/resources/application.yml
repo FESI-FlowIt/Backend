@@ -1,4 +1,11 @@
 spring:
+  servlet:
+    multipart:
+      enabled: ${MULTIPART_ENABLED}
+      max-file-size: ${MULTIPART_MAX-FILE-SIZE}
+      max-request-size: ${MULTIPART_MAX-REQUEST-SIZE}
+      file-size-threshold: ${MULTIPART_FILE-SIZE-THRESHOLD}
+
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
@@ -8,13 +15,32 @@ spring:
   jpa:
     hibernate:
       ddl-auto: ${HIBERNATE_DDL_AUTO}
+      format_sql: ${HIBERNATE_FORMAT_SQL}
+      highlight_sql: ${HIBERNATE.HIGHLIGHT_SQL}
     properties:
       hibernate:
         dialect: ${HIBERNATE_DIALECT}
     show-sql: ${HIBERNATE_SHOW-SQL}
+    open-in-view: ${JPA_OSIV}
 
 springdoc:
   swagger-ui:
     path: ${SWAGGER_PATH}
     disable-swagger-default-url: ${SWAGGER_DISABLE_DEFAULT_URL}
     tags-sorter: ${SWAGGER_TAGS_SORTER}
+
+auth:
+  secret-key: ${SECRET_KEY}
+  kakao:
+    client-id: ${KAKAO_CLIENT_ID}
+    request-uri: ${KAKAO_REQUEST_URI}
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_CREDENTIALS_ACCESS-KEY}
+      secret-key: ${AWS_CREDENTIALS_SECRET-KEY}
+    region: ${AWS_REGION}
+    s3:
+      bucket-name: ${AWS_S3_BUCKET}
+      todo-materials-base: ${AWS_S3_TODO-MATERIALS-BASE}
