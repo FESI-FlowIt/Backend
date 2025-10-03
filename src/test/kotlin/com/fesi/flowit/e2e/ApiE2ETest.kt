@@ -1,7 +1,7 @@
 package com.fesi.flowit.e2e
 
-import com.fesi.flowit.auth.local.web.request.SignInRequest
-import com.fesi.flowit.auth.local.web.response.SignInResponse
+import com.fesi.flowit.auth.dto.SignInRequestDto
+import com.fesi.flowit.auth.dto.SignInResponseDto
 import com.fesi.flowit.common.response.ApiResult
 import com.fesi.flowit.goal.dto.GoalCreateRequestDto
 import com.fesi.flowit.goal.dto.GoalInfoResponseDto
@@ -48,7 +48,7 @@ class ApiE2ETest(
         print(signUpResponse.body!!.result)
 
         // 2. 로그인
-        val signInRequest = SignInRequest(
+        val signInRequest = SignInRequestDto(
             email = "y@gmail.com",
             password = "blahblah"
         )
@@ -56,7 +56,7 @@ class ApiE2ETest(
             "/auths/signIn",
             HttpMethod.POST,
             HttpEntity(signInRequest),
-            object : ParameterizedTypeReference<ApiResult.Success<SignInResponse>>() {}
+            object : ParameterizedTypeReference<ApiResult.Success<SignInResponseDto>>() {}
         )
 
         accessToken = signInResponse.body!!.result.accessToken

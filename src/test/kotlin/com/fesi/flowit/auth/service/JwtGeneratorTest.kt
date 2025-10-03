@@ -2,8 +2,8 @@ package com.fesi.flowit.auth.service
 
 import com.fesi.flowit.auth.vo.RefreshToken
 import com.fesi.flowit.auth.repository.TokenRepository
-import com.fesi.flowit.common.auth.JwtProcessor
-import com.fesi.flowit.common.auth.dto.TokenInfo
+import com.fesi.flowit.auth.service.JwtProcessor
+import com.fesi.flowit.auth.vo.TokenInfo
 import com.fesi.flowit.user.entity.User
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe

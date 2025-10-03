@@ -1,16 +1,16 @@
 package com.fesi.flowit.user.service
 
-import com.fesi.flowit.common.auth.JwtProcessor
-import com.fesi.flowit.common.auth.PasswordEncryptor
+import com.fesi.flowit.auth.service.JwtProcessor
+import com.fesi.flowit.auth.service.PasswordEncryptor
 import com.fesi.flowit.common.response.ApiResultCode
+import com.fesi.flowit.common.response.exceptions.AuthException
 import com.fesi.flowit.user.entity.User
-import com.fesi.flowit.common.response.exceptions.UserAlreadySignedUpException
-import com.fesi.flowit.common.response.exceptions.UserNotExistsException
 import com.fesi.flowit.user.repository.UserRepository
 import com.fesi.flowit.user.service.dto.UserDto
 import com.fesi.flowit.user.web.response.UserResponse
 import com.fesi.flowit.user.web.response.UserSignedUpResponse
 import jakarta.transaction.Transactional
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
@@ -30,7 +30,7 @@ class UserService(
         val (email, name, password) = dto
 
         if (repository.findByEmail(email) != null) {
-            throw UserAlreadySignedUpException()
+            throw AuthException.withCodeAndStatus(ApiResultCode.AUTH_USER_ALREADY_EXISTS, HttpStatus.CONFLICT)
         }
 
         val encrypted = encryptor.encrypt(password)
@@ -64,6 +64,6 @@ class UserService(
     }
 
     fun findUserById(userId: Long): User {
-        return repository.findById(userId).orElseThrow { UserNotExistsException.fromCode(ApiResultCode.AUTH_USER_NOT_EXISTS) }
+        return repository.findById(userId).orElseThrow { AuthException.fromCode(ApiResultCode.AUTH_USER_NOT_EXISTS) }
     }
 }

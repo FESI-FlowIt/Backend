@@ -1,10 +1,10 @@
 package com.fesi.flowit.common.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fesi.flowit.common.auth.CustomAccessDeniedHandler
-import com.fesi.flowit.common.auth.CustomAuthenticationEntryPointHandler
-import com.fesi.flowit.common.auth.JwtAuthenticationFilter
-import com.fesi.flowit.common.auth.SocialAuthenticationProvider
+import com.fesi.flowit.common.response.security.AccessDeniedHandlerImpl
+import com.fesi.flowit.common.response.security.AuthenticationEntryPointHandlerImpl
+import com.fesi.flowit.auth.filter.JwtAuthenticationFilter
+import com.fesi.flowit.auth.social.service.SocialAuthenticationProvider
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
@@ -57,8 +57,8 @@ class SecurityConfig(
                     .anyRequest().permitAll()
             }
             .exceptionHandling {
-                it.authenticationEntryPoint(CustomAuthenticationEntryPointHandler(objectMapper))
-                it.accessDeniedHandler(CustomAccessDeniedHandler(objectMapper))
+                it.authenticationEntryPoint(AuthenticationEntryPointHandlerImpl(objectMapper))
+                it.accessDeniedHandler(AccessDeniedHandlerImpl(objectMapper))
             }
             .addFilterBefore(
                 jwtAuthenticationFilter,

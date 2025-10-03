@@ -1,8 +1,10 @@
 package com.fesi.flowit.auth.service
 
 import com.fesi.flowit.auth.repository.TokenRepository
+import com.fesi.flowit.auth.vo.AccessToken
 import com.fesi.flowit.auth.vo.RefreshToken
-import com.fesi.flowit.common.auth.JwtProcessor
+import com.fesi.flowit.common.response.ApiResultCode
+import com.fesi.flowit.common.response.exceptions.AuthException
 import com.fesi.flowit.user.entity.User
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
@@ -30,23 +32,25 @@ class JwtGenerator(
     /**
      * access token을 생성한다
      */
-    fun generateToken(authentication: Authentication): Pair<String, Long> {
+    fun generateToken(authentication: Authentication): AccessToken {
         val principal = authentication.principal as User
 
-        val now = Instant.now()
-        val expiration = now.plus(ACCESS_TOKEN_EXPIRES_IN, ChronoUnit.SECONDS)
+        val createdTime = Instant.now()
+        val expiration = createdTime.plus(ACCESS_TOKEN_EXPIRES_IN, ChronoUnit.SECONDS)
 
-        return Pair(
-            Jwts.builder()
-                .subject(principal.email)
-                .claim(
-                    "userId",
-                    principal.id.toString()
-                )
-                .issuedAt(Date.from(now))
-                .expiration(Date.from(expiration))
-                .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)), Jwts.SIG.HS512)
-                .compact(),
+        val accessToken: String = Jwts.builder()
+            .subject(principal.email)
+            .claim(
+                "userId",
+                principal.id.toString()
+            )
+            .issuedAt(Date.from(createdTime))
+            .expiration(Date.from(expiration))
+            .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)), Jwts.SIG.HS512)
+            .compact()
+
+        return AccessToken.of(
+            accessToken,
             ACCESS_TOKEN_EXPIRES_IN
         )
     }
@@ -87,14 +91,14 @@ class JwtGenerator(
         if (isRefreshTokenExpired(oldRefreshToken)) {
             revokeRefreshToken(oldRefreshToken)
         }
+
         val refreshToken = generateRefreshToken(unpack.userId)
         storeRefreshToken(refreshToken)
         return refreshToken.token
     }
 
     internal fun findRefreshToken(id: Long): RefreshToken {
-        val token = tokenRepository.findByUserIdAndRevoked(id, false)
-        return token!!
+        return tokenRepository.findByUserIdAndRevoked(id, false) ?: throw AuthException.fromCode(ApiResultCode.AUTH_NOT_FOUND_REFRESH_TOKEN)
     }
 
     /**
@@ -152,7 +156,7 @@ class JwtGenerator(
             .claim(
                 "userId",
                 id.toString()
-            ) // Long을 String으로 저장 (JWT에서 Long이 Integer로 변환되어 값 손실 방지)
+            )
             .issuedAt(Date.from(now))
             .expiration(Date.from(expiration))
             .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)), Jwts.SIG.HS512)

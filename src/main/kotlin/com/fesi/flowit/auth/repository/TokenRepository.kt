@@ -10,7 +10,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface TokenRepository : JpaRepository<RefreshToken, Long> {
-    fun findByUserId(userId: Long): RefreshToken?
     fun findByUserIdAndRevoked(userId: Long, revoked: Boolean): RefreshToken?
     fun findByTokenAndRevoked(token: String, revoked: Boolean): RefreshToken?
 

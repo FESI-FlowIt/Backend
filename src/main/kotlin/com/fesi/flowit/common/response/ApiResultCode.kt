@@ -26,6 +26,9 @@ enum class ApiResultCode(
     AUTH_FAIL_TO_FETCH_TOKEN("1005", "Fail to fetch token"),
     AUTH_FAIL_TO_FETCH_USER_INFO("1006", "Fail to fetch user info"),
     AUTH_FAIL_TO_SIGNUP_DUPLICATE_USER("1007", "User already signed up using other auth"),
+    AUTH_NOT_FOUND_REFRESH_TOKEN("1008", "Refresh token not found"),
+    AUTH_INVALID_USER("1009", "Invalid user"),
+    AUTH_USER_ALREADY_EXISTS("1010", "User already exists"),
 
     // 3000-3999: Goal
     GOAL_NOT_FOUND("3000", "Not found goal."),

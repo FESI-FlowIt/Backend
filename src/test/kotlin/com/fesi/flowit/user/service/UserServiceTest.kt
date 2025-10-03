@@ -1,12 +1,11 @@
 package com.fesi.flowit.user.service
 
-import com.fesi.flowit.common.auth.JwtProcessor
-import com.fesi.flowit.common.auth.PasswordEncryptor
-import com.fesi.flowit.common.auth.dto.TokenInfo
+import com.fesi.flowit.auth.service.JwtProcessor
+import com.fesi.flowit.auth.service.PasswordEncryptor
+import com.fesi.flowit.auth.vo.TokenInfo
 import com.fesi.flowit.common.auth.dto.valid
+import com.fesi.flowit.common.response.ApiResultCode
 import com.fesi.flowit.common.response.exceptions.AuthException
-import com.fesi.flowit.common.response.exceptions.TokenExpiredException
-import com.fesi.flowit.common.response.exceptions.UserAlreadySignedUpException
 import com.fesi.flowit.user.entity.User
 import com.fesi.flowit.user.repository.UserRepository
 import com.fesi.flowit.user.service.dto.UserDto
@@ -56,7 +55,7 @@ class UserServiceTest : StringSpec({
     "이미 가입한 사용자는 회원가입할 수 없다" {
         every { repository.findByEmail(ofType<String>()) } returns (mockk<User>(relaxed = true))
 
-        shouldThrow<UserAlreadySignedUpException> {
+        shouldThrow<AuthException> {
             service.add(UserDto("user@gmail.com", "test", "password"))
         }
 
@@ -84,8 +83,8 @@ class UserServiceTest : StringSpec({
     }
 
     "만료된 액세스 토큰일 경우 회원 정보 검색에 실패한다" {
-        every { jwtProcessor.unpack(any())} throws TokenExpiredException()
-        shouldThrow<TokenExpiredException> {
+        every { jwtProcessor.unpack(any())} throws AuthException.fromCode(ApiResultCode.AUTH_TOKEN_EXPIRED)
+        shouldThrow<AuthException> {
             service.findUserByToken("accessToken")
         }
     }
