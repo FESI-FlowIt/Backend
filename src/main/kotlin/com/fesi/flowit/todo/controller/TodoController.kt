@@ -6,7 +6,6 @@ import com.fesi.flowit.common.response.PageResponse
 import com.fesi.flowit.todo.dto.*
 import com.fesi.flowit.todo.vo.TodoSummaryWithNoteVo
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -45,7 +44,7 @@ interface TodoController {
     )
     fun createTodo(
         @RequestBody request: TodoCreateRequestDto,
-        @Parameter(hidden = true) @AuthUserId userId: Long
+        @AuthUserId userId: Long
     ): ResponseEntity<ApiResult<TodoCreateResponseDto>>
 
     @Operation(
@@ -74,7 +73,7 @@ interface TodoController {
     )
     fun modifyTodo(@PathVariable("todoId") todoId: Long,
                    @RequestBody request: TodoModifyRequestDto,
-                   @Parameter(hidden = true) @AuthUserId userId: Long
+                   @AuthUserId userId: Long
     ): ResponseEntity<ApiResult<TodoModifyResponseDto>>
 
     @Operation(
@@ -103,7 +102,7 @@ interface TodoController {
     )
     fun changeDoneStatus(@PathVariable("todoId") todoId: Long,
                          @RequestBody request: TodoChangeDoneRequestDto,
-                         @Parameter(hidden = true) @AuthUserId userId: Long
+                         @AuthUserId userId: Long
     ): ResponseEntity<ApiResult<TodoChangeDoneResponseDto>>
 
     @Operation(
@@ -132,7 +131,7 @@ interface TodoController {
     )
     fun deleteTodo(
         @PathVariable("todoId") todoId: Long,
-        @Parameter(hidden = true) @AuthUserId userId: Long
+        @AuthUserId userId: Long
     ): ResponseEntity<ApiResult<Unit>>
 
     @Operation(
@@ -160,7 +159,7 @@ interface TodoController {
         ]
     )
     fun uploadTodoFile(
-        @Parameter(hidden = true) @AuthUserId userId: Long,
+        @AuthUserId userId: Long,
         @PathVariable("todoId") todoId: Long,
         @RequestParam file: MultipartFile
     ): ResponseEntity<ApiResult<TodoFileResponseDto>>
@@ -186,7 +185,7 @@ interface TodoController {
         ]
     )
     fun addTodoLink(
-        @Parameter(hidden = true) @AuthUserId userId: Long,
+        @AuthUserId userId: Long,
         @PathVariable("todoId") todoId: Long,
         @RequestBody request: TodoMaterialLinkDto
     ): ResponseEntity<ApiResult<TodoMaterialLinkDto>>
@@ -215,7 +214,7 @@ interface TodoController {
         ]
     )
     fun getTodosSummariesThatHasNote(@PathVariable("goalId") goalId: Long,
-                                     @Parameter(hidden = true) @AuthUserId userId: Long,
+                                     @AuthUserId userId: Long,
                                      pageable: Pageable
     ): ResponseEntity<ApiResult<PageResponse<TodoSummaryWithNoteVo>>>
 }
