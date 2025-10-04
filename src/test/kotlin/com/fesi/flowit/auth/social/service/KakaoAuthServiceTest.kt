@@ -1,10 +1,12 @@
 package com.fesi.flowit.auth.social.service
 
 import com.fesi.flowit.auth.service.JwtGenerator
-import com.fesi.flowit.auth.social.dto.KakaoAccount
-import com.fesi.flowit.auth.social.dto.KakaoTokenResponseDto
-import com.fesi.flowit.auth.social.dto.KakaoUserInfoResponseDto
-import com.fesi.flowit.auth.social.dto.Profile
+import com.fesi.flowit.auth.social.kakao.dto.KakaoAccount
+import com.fesi.flowit.auth.social.kakao.dto.KakaoTokenResponseDto
+import com.fesi.flowit.auth.social.kakao.dto.KakaoUserInfoResponseDto
+import com.fesi.flowit.auth.social.kakao.dto.Profile
+import com.fesi.flowit.auth.social.kakao.service.KakaoAuthService
+import com.fesi.flowit.auth.social.kakao.service.RestClientKakaoApiRequester
 import com.fesi.flowit.common.response.exceptions.AuthException
 import com.fesi.flowit.user.entity.User
 import com.fesi.flowit.user.repository.UserRepository

@@ -6,7 +6,6 @@ import com.fesi.flowit.common.response.PageResponse
 import com.fesi.flowit.goal.dto.*
 import com.fesi.flowit.goal.search.GoalSortCriteria
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -48,7 +47,7 @@ interface GoalController {
     )
     fun createGoal(
         @RequestBody request: GoalCreateRequestDto,
-        @Parameter(hidden = true) @AuthUserId userId: Long
+        @AuthUserId userId: Long
     ): ResponseEntity<ApiResult<GoalInfoResponseDto>>
     @Operation(
         summary = "목표 수정",
@@ -77,7 +76,7 @@ interface GoalController {
     fun modifyGoal(
         @PathVariable("goalId") goalId: Long,
         @RequestBody request: GoalModifyRequestDto,
-        @Parameter(hidden = true) @AuthUserId userId: Long
+        @AuthUserId userId: Long
     ): ResponseEntity<ApiResult<GoalInfoResponseDto>>
 
     @Operation(
@@ -107,7 +106,7 @@ interface GoalController {
     fun changePinStatus(
         @PathVariable("goalId") goalId: Long,
         @RequestBody request: GoalChangePinRequestDto,
-        @Parameter(hidden = true) @AuthUserId userId: Long
+        @AuthUserId userId: Long
     ): ResponseEntity<ApiResult<GoalChangePinResponseDto>>
 
     @Operation(
@@ -136,7 +135,7 @@ interface GoalController {
     )
     fun deleteGoal(
         @PathVariable("goalId") goalId: Long,
-        @Parameter(hidden = true) @AuthUserId userId: Long
+        @AuthUserId userId: Long
     ): ResponseEntity<ApiResult<Unit>>
 
     @Operation(
@@ -168,7 +167,7 @@ interface GoalController {
             )
         ]
     )
-    fun getAllGoals(@Parameter(hidden = true) @AuthUserId userId: Long): ResponseEntity<ApiResult<List<GoalFindAllResponseDto>>>
+    fun getAllGoals(@AuthUserId userId: Long): ResponseEntity<ApiResult<List<GoalFindAllResponseDto>>>
 
     @Operation(
         summary = "목표 조회",
@@ -196,7 +195,7 @@ interface GoalController {
     )
     fun getGoalSummary(
         @PathVariable("goalId") goalId: Long,
-        @Parameter(hidden = true) @AuthUserId userId: Long
+        @AuthUserId userId: Long
     ): ResponseEntity<ApiResult<GoalSummaryResponseDto>>
 
     @Operation(
@@ -225,7 +224,7 @@ interface GoalController {
         ]
     )
     fun searchGoalSummaries(
-        @Parameter(hidden = true) @AuthUserId userId: Long,
+        @AuthUserId userId: Long,
         @RequestParam("isPinned") isPinned: Boolean,
         @RequestParam("sortedBy") sortedBy: GoalSortCriteria,
         pageable: Pageable
@@ -255,7 +254,7 @@ interface GoalController {
             )
         ]
     )
-    fun getGoalSummariesInDashboard(@Parameter(hidden = true) @AuthUserId userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>>
+    fun getGoalSummariesInDashboard(@AuthUserId userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>>
 
     @Operation(
         summary = "월 별 목표 조회 (캘린더)",
@@ -281,7 +280,7 @@ interface GoalController {
             )
         ]
     )
-    fun getGoalsByDueMonth(@Parameter(hidden = true) @AuthUserId userId: Long,
+    fun getGoalsByDueMonth(@AuthUserId userId: Long,
 
                            @RequestParam(name = "date", required = true)
                            @DateTimeFormat(pattern = "yyyy-MM")
@@ -316,7 +315,7 @@ interface GoalController {
             )
         ]
     )
-    fun getGoalsSummariesInProgress(@Parameter(hidden = true) @AuthUserId userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>>
+    fun getGoalsSummariesInProgress(@AuthUserId userId: Long): ResponseEntity<ApiResult<List<GoalSummaryResponseDto>>>
 
     @Operation(
         summary = "목표 상세 조회",
@@ -346,7 +345,7 @@ interface GoalController {
         ]
     )
     fun getGoalDetail(
-        @Parameter(hidden = true) @AuthUserId userId: Long,
+        @AuthUserId userId: Long,
         @PathVariable("goalId") goalId: Long
     ): ResponseEntity<ApiResult<GoalDetailResponseDto>>
 }

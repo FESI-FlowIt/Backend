@@ -1,17 +1,15 @@
 package com.fesi.flowit.user.service
 
-import com.fesi.flowit.common.auth.JwtProcessor
-import com.fesi.flowit.common.auth.PasswordEncryptor
-import com.fesi.flowit.common.auth.dto.TokenInfo
+import com.fesi.flowit.auth.service.JwtProcessor
+import com.fesi.flowit.auth.service.PasswordEncryptor
+import com.fesi.flowit.auth.vo.TokenInfo
 import com.fesi.flowit.common.auth.dto.valid
+import com.fesi.flowit.common.response.ApiResultCode
 import com.fesi.flowit.common.response.exceptions.AuthException
-import com.fesi.flowit.common.response.exceptions.TokenExpiredException
-import com.fesi.flowit.common.response.exceptions.UserAlreadySignedUpException
 import com.fesi.flowit.user.entity.User
 import com.fesi.flowit.user.repository.UserRepository
-import com.fesi.flowit.user.service.dto.UserDto
-import com.fesi.flowit.user.web.response.UserResponse
-import com.fesi.flowit.user.web.response.UserSignedUpResponse
+import com.fesi.flowit.user.dto.SignUpResponseDto
+import com.fesi.flowit.user.dto.UserExistCheckResponseDto
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.should
@@ -39,7 +37,7 @@ class UserServiceTest : StringSpec({
         every { repository.findByEmail(ofType<String>()) } returns null
         every { repository.save(ofType<User>()) } returns (mockk<User>(relaxed = true))
 
-        service.add(UserDto("user@gmail.com", "test", "password"))
+        service.signUp("user@gmail.com", "test", "password")
 
         verify { repository.save(ofType<User>()) }
     }
@@ -48,7 +46,7 @@ class UserServiceTest : StringSpec({
         every { repository.findByEmail(ofType<String>()) } returns null
         every { repository.save(ofType<User>()) } returns (mockk<User>(relaxed = true))
 
-        service.add(UserDto("user@gmail.com", "test", "password"))
+        service.signUp("user@gmail.com", "test", "password")
 
         verify { encryptor.encrypt(any()) }
     }
@@ -56,8 +54,8 @@ class UserServiceTest : StringSpec({
     "이미 가입한 사용자는 회원가입할 수 없다" {
         every { repository.findByEmail(ofType<String>()) } returns (mockk<User>(relaxed = true))
 
-        shouldThrow<UserAlreadySignedUpException> {
-            service.add(UserDto("user@gmail.com", "test", "password"))
+        shouldThrow<AuthException> {
+            service.signUp("user@gmail.com", "test", "password")
         }
 
         verify { repository.findByEmail(ofType<String>()) }
@@ -65,10 +63,10 @@ class UserServiceTest : StringSpec({
 
     "이메일로 등록된 회원이 있는지 확인한다" {
         every { repository.findByEmail(ofType<String>()) } returns (mockk<User>(relaxed = true))
-        service.hasUserWithEmail("user@gmail.com") shouldBe(UserSignedUpResponse(true))
+        service.checkExistUserByEmail("user@gmail.com") shouldBe(UserExistCheckResponseDto(true))
 
         every { repository.findByEmail(ofType<String>()) } returns null
-        service.hasUserWithEmail("user@gmail.com") shouldBe(UserSignedUpResponse(false))
+        service.checkExistUserByEmail("user@gmail.com") shouldBe(UserExistCheckResponseDto(false))
     }
 
     "액세스 토큰으로 회원 정보를 찾는다" {
@@ -80,12 +78,12 @@ class UserServiceTest : StringSpec({
         every { repository.findByEmail(any()) } returns (mockk<User>(relaxed = true))
         every { jwtProcessor.getAuthentication(tokenInfo) } returns authentication
 
-        service.findUserByToken("accessToken") should beInstanceOf<UserResponse>()
+        service.findUserByToken("accessToken") should beInstanceOf<SignUpResponseDto>()
     }
 
     "만료된 액세스 토큰일 경우 회원 정보 검색에 실패한다" {
-        every { jwtProcessor.unpack(any())} throws TokenExpiredException()
-        shouldThrow<TokenExpiredException> {
+        every { jwtProcessor.unpack(any())} throws AuthException.fromCode(ApiResultCode.AUTH_TOKEN_EXPIRED)
+        shouldThrow<AuthException> {
             service.findUserByToken("accessToken")
         }
     }

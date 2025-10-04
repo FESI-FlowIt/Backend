@@ -17,19 +17,7 @@ class GlobalExceptionHandler {
     fun handleValidation(ex: BaseException): ResponseEntity<ApiResult<Exception>> {
         return when (ex) {
             is CommonException -> {
-                println("Validation is failed")
-                ex.toApiResult()
-            }
-            is InvalidPasswordException -> {
-                println("SignIn: Password is invalid")
-                ex.toApiResult()
-            }
-            is UserNotExistsException -> {
-                println("SignIn: User not exists")
-                ex.toApiResult()
-            }
-            is UserAlreadySignedUpException -> {
-                println("SignUp: User for given email already signed up")
+                /* You can handle exceptions case-by-case */
                 ex.toApiResult()
             }
             else -> ex.toApiResult()

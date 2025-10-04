@@ -1,8 +1,9 @@
 package com.fesi.flowit.auth.local.service
 
-import com.fesi.flowit.auth.local.service.dto.SignInDto
+import com.fesi.flowit.auth.service.AuthService
 import com.fesi.flowit.auth.service.JwtGenerator
-import com.fesi.flowit.common.auth.JwtProcessor
+import com.fesi.flowit.auth.vo.AccessToken
+import com.fesi.flowit.auth.service.JwtProcessor
 import com.fesi.flowit.user.entity.User
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
@@ -35,7 +36,7 @@ class AuthServiceTest : StringSpec({
         every { authenticationManager.authenticate(any()) } throws RuntimeException()
 
         shouldThrow<RuntimeException> {
-            service.signIn(SignInDto("user@gmail.com", "password"))
+            service.signIn("user@gmail.com", "password")
         }
     }
 
@@ -43,9 +44,9 @@ class AuthServiceTest : StringSpec({
         val authentication = mockk<Authentication>(relaxed = true)
         every { authentication.principal } returns mockk<User>(relaxed = true)
         every { authenticationManager.authenticate(any()) } returns authentication
-        every { jwtGenerator.generateToken(any()) } returns Pair("newAccessToken", 3600)
+        every { jwtGenerator.generateToken(any()) } returns AccessToken("newAccessToken", 3600)
 
-        service.signIn(SignInDto("user@gmail.com", "password"))
+        service.signIn("user@gmail.com", "password")
 
         verify { jwtGenerator.generateToken(ofType<Authentication>()) }
     }
@@ -54,9 +55,9 @@ class AuthServiceTest : StringSpec({
         val authentication = mockk<Authentication>(relaxed = true)
         every { authentication.principal } returns mockk<User>(relaxed = true)
         every { authenticationManager.authenticate(any()) } returns authentication
-        every { jwtGenerator.generateToken(any()) } returns Pair("newAccessToken", 3600)
+        every { jwtGenerator.generateToken(any()) } returns AccessToken("newAccessToken", 3600)
 
-        service.signIn(SignInDto("user@gmail.com", "password"))
+        service.signIn("user@gmail.com", "password")
 
         verify { jwtGenerator.handleRefreshToken(ofType<Authentication>()) }
     }
@@ -66,7 +67,7 @@ class AuthServiceTest : StringSpec({
         val authentication = mockk<Authentication>(relaxed = true)
         every { jwtProcessor.getAuthenticationFromId(any()) } returns authentication
         hasUserDetails(authentication)
-        every { jwtGenerator.generateToken(any()) } returns Pair("newAccessToken", 3600)
+        every { jwtGenerator.generateToken(any()) } returns AccessToken("newAccessToken", 3600)
 
         service.regenerate("refresh_token")
 
@@ -78,7 +79,7 @@ class AuthServiceTest : StringSpec({
         val authentication = mockk<Authentication>(relaxed = true)
         every { jwtProcessor.getAuthenticationFromId(any()) } returns authentication
         hasUserDetails(authentication)
-        every { jwtGenerator.generateToken(any()) } returns Pair("newAccessToken", 3600)
+        every { jwtGenerator.generateToken(any()) } returns AccessToken("newAccessToken", 3600)
         every { jwtGenerator.handleRefreshTokenWith(any()) } returns "refresh_token"
 
         val response = service.regenerate("refresh_token")
@@ -91,7 +92,7 @@ class AuthServiceTest : StringSpec({
         val authentication = mockk<Authentication>(relaxed = true)
         every { jwtProcessor.getAuthenticationFromId(any()) } returns authentication
         hasUserDetails(authentication)
-        every { jwtGenerator.generateToken(any()) } returns Pair("newAccessToken", 3600)
+        every { jwtGenerator.generateToken(any()) } returns AccessToken("newAccessToken", 3600)
         every { jwtGenerator.handleRefreshTokenWith(any()) } returns "newRefreshToken"
 
         val response = service.regenerate("refresh_token")

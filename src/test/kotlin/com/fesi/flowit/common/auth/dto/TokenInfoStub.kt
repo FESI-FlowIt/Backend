@@ -1,5 +1,6 @@
 package com.fesi.flowit.common.auth.dto
 
+import com.fesi.flowit.auth.vo.TokenInfo
 import java.util.*
 
 fun TokenInfo.Companion.valid(): TokenInfo {

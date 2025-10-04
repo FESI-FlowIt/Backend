@@ -1,9 +1,10 @@
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.fesi.flowit.common.response.exceptions.FailToParseJwtException
-import com.fesi.flowit.common.auth.JwtAuthenticationFilter
-import com.fesi.flowit.common.auth.JwtProcessor
-import com.fesi.flowit.common.auth.dto.TokenInfo
+import com.fesi.flowit.auth.filter.JwtAuthenticationFilter
+import com.fesi.flowit.auth.service.JwtProcessor
+import com.fesi.flowit.auth.vo.TokenInfo
 import com.fesi.flowit.common.auth.dto.valid
+import com.fesi.flowit.common.response.ApiResultCode
+import com.fesi.flowit.common.response.exceptions.AuthException
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
 import io.mockk.*
@@ -70,7 +71,7 @@ class JwtAuthenticationFilterTest : StringSpec({
         val invalidToken = "invalid.jwt.token"
         request.addHeader("Authorization", "Bearer $invalidToken")
 
-        val exception = FailToParseJwtException()
+        val exception = AuthException.fromCode(ApiResultCode.AUTH_TOKEN_INVALID)
         every { jwtProcessor.handle(invalidToken) } throws exception
 
         filter.doFilterInternal(request, response, chain)
@@ -83,7 +84,7 @@ class JwtAuthenticationFilterTest : StringSpec({
         val invalidUserToken = "invalid.user.token"
         request.addHeader("Authorization", "Bearer $invalidUserToken")
 
-        val exception = FailToParseJwtException()
+        val exception = AuthException.fromCode(ApiResultCode.AUTH_TOKEN_INVALID)
         every { jwtProcessor.handle(invalidUserToken) } throws exception
 
         filter.doFilterInternal(request, response, chain)

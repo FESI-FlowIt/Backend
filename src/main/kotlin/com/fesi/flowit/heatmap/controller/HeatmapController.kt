@@ -7,7 +7,6 @@ import com.fesi.flowit.heatmap.dto.HeatmapInsightWeeklyResponseDto
 import com.fesi.flowit.heatmap.dto.HeatmapMonthlyResponseDto
 import com.fesi.flowit.heatmap.dto.HeatmapWeeklyResponseDto
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -47,8 +46,7 @@ interface HeatmapController {
         ]
     )
     fun getWeeklyHeatmap(
-        @Parameter(hidden = true) @AuthUserId userId: Long,
-
+        @AuthUserId userId: Long,
         @PathVariable("date") date: LocalDate
     ): ResponseEntity<ApiResult<List<HeatmapWeeklyResponseDto>>>
 
@@ -80,9 +78,7 @@ interface HeatmapController {
         ]
     )
     fun getMonthlyHeatmap(
-        @Parameter(hidden = true)
-        @AuthUserId 
-        userId: Long,
+        @AuthUserId userId: Long,
 
         @PathVariable(name = "yearMonth")
         @DateTimeFormat(pattern = "yyyy-MM")
@@ -117,7 +113,7 @@ interface HeatmapController {
         ]
     )
     fun getWeeklyHeatmapInsight(
-        @Parameter(hidden = true) @AuthUserId userId: Long,
+        @AuthUserId userId: Long,
         @PathVariable("date") date: LocalDate
     ): ResponseEntity<ApiResult<HeatmapInsightWeeklyResponseDto>>
 
@@ -148,7 +144,7 @@ interface HeatmapController {
         ]
     )
     fun getMonthlyHeatmapInsight(
-        @Parameter(hidden = true) @AuthUserId userId: Long,
+        @AuthUserId userId: Long,
 
         @PathVariable("yearMonth")
         @DateTimeFormat(pattern = "yyyy-MM")

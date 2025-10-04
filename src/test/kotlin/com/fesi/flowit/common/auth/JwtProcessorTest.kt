@@ -1,12 +1,12 @@
 package com.fesi.flowit.common.auth
 
+import com.fesi.flowit.auth.service.JwtProcessor
+import com.fesi.flowit.auth.service.UserDetailsServiceImpl
+import com.fesi.flowit.auth.vo.TokenInfo
 import com.fesi.flowit.common.auth.dto.*
 import com.fesi.flowit.common.auth.dto.expired
 import com.fesi.flowit.common.response.exceptions.AuthException
-import com.fesi.flowit.common.response.exceptions.FailToParseJwtException
-import com.fesi.flowit.common.response.exceptions.TokenExpiredException
 import com.fesi.flowit.user.repository.UserRepository
-import io.jsonwebtoken.ExpiredJwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import io.kotest.assertions.throwables.shouldNotThrow
@@ -22,12 +22,12 @@ class JwtProcessorTest : StringSpec({
     val secretKey =
         "40e96460271ece5c44153b6c90bccdc1965cfc8b21568dcb92ade8064173226b4509b3c31faa83d20b53ad35a6b529d42a4e98f967a072bbbde244b9af8236ff"
     lateinit var userRepository: UserRepository
-    lateinit var customUserDetailsService: CustomUserDetailsService
+    lateinit var customUserDetailsService: UserDetailsServiceImpl
     lateinit var jwtProcessor: JwtProcessor
 
     beforeEach {
         userRepository = mockk<UserRepository>()
-        customUserDetailsService = mockk<CustomUserDetailsService>()
+        customUserDetailsService = mockk<UserDetailsServiceImpl>()
         jwtProcessor = JwtProcessor(secretKey, userRepository, customUserDetailsService)
     }
 
@@ -57,7 +57,7 @@ class JwtProcessorTest : StringSpec({
             .signWith(wrongKey)
             .compact()
 
-        shouldThrow<FailToParseJwtException> {
+        shouldThrow<AuthException> {
             jwtProcessor.unpack(token)
         }
     }
@@ -65,7 +65,7 @@ class JwtProcessorTest : StringSpec({
     "토큰이 만료되었을 때" {
         val expiredToken = jwtProcessor.pack(TokenInfo.expired())
 
-        shouldThrow<TokenExpiredException> {
+        shouldThrow<AuthException> {
             jwtProcessor.unpack(expiredToken)
         }
     }
@@ -73,7 +73,7 @@ class JwtProcessorTest : StringSpec({
     "토큰이 만료되지 않았을 때" {
         val freshToken = jwtProcessor.pack(TokenInfo.valid())
 
-        shouldNotThrow<TokenExpiredException> {
+        shouldNotThrow<AuthException> {
             jwtProcessor.unpack(freshToken)
         }
     }
