@@ -1,70 +1,108 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="WARN" monitorInterval="60">
+<Configuration status="WARN" monitorInterval="30">
 
-  <Properties>
-    <!-- 로그 형식: 날짜, 스레드, 레벨, 로거 이름, 라인번호, 메시지 -->
-    <Property name="LOG_PATTERN">
-      %style{%d{yyyy-MM-dd HH:mm:ss}} %-5level %style{[%15.15t]} %style{%-40.40logger{3}}{cyan} %style{:} %msg%n
-    </Property>
+    <!-- 전역 변수 정의 -->
+    <Properties>
+        <Property name="LOG_PATH">./logs</Property>
+        <Property name="CHARSET">UTF-8</Property>
+        <Property name="PATTERN_CONSOLE">%style{%d{yyyy-MM-dd HH:mm:ss.SSS}} %highlight{%-5level} [%style{%t}{bright,blue}] %style{%C{1.}}{bright,yellow} [%style{%method}{cyan}:%style{%L}{magenta}] - %msg%n%throwable</Property>
+        <Property name="PATTERN_FILE">%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5level] [%t] %c{1.} [%method:%L] - %msg%n%throwable</Property>
+        <Property name="PATTERN_JSON_FIELDS">
+            "timestamp": "%d{yyyy-MM-dd'T'HH:mm:ss.SSS'Z'}",
+            "level": "%level",
+            "thread": "%t",
+            "logger": "%c{1.}",
+            "method": "%method",
+            "line": "%L",
+            "message": "%enc{%msg}{JSON}",
+            "exception": "%enc{%ex}{JSON}",
+            "mdc": "%X"
+        </Property>
+        <!-- 애플리케이션별 로그 파일명 -->
+        <Property name="FLOWIT_DEBUG_LOG_FILE">${LOG_PATH}/flowit.log</Property>
+    </Properties>
 
-    <!-- 로그 파일 경로 -->
-    <Property name="LOG_PATH">./logs</Property>
-  </Properties>
+    <Appenders>
+        <!-- 콘솔 출력 -->
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <PatternLayout pattern="${PATTERN_CONSOLE}" charset="${CHARSET}"/>
+            <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+        </Console>
 
-  <Appenders>
-    <!-- Console: 개발 시 실시간 확인용 -->
-    <Console name="Console" target="SYSTEM_OUT">
-      <PatternLayout pattern="${LOG_PATTERN}" disableAnsi="false"/>
-    </Console>
+        <!-- 디버그 로그 파일 (DEBUG 레벨 이상) -->
+        <RollingFile name="DEBUG_FILE"
+                     fileName="${FLOWIT_DEBUG_LOG_FILE}"
+                     filePattern="${LOG_PATH}/archive/debug.%d{yyyy-MM-dd}.%i.log">
+            <PatternLayout pattern="${PATTERN_FILE}" charset="${CHARSET}"/>
+            <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="30" fileIndex="max"/>
+        </RollingFile>
 
-    <!-- File: 메인 로그 파일 (일일 롤링) -->
-    <RollingFile name="FileAppender"
-      fileName="${LOG_PATH}/application.log"
-      filePattern="${LOG_PATH}/application.%d{yyyy-MM-dd}.%i.log.gz">
+        <!-- Async Appender -->
+        <Async name="ASYNC_DEBUG" bufferSize="8192" includeLocation="true">
+            <AppenderRef ref="DEBUG_FILE"/>
+        </Async>
+    </Appenders>
 
-      <PatternLayout pattern="${LOG_PATTERN}"/>
+    <Loggers>
+        <Logger name="com.fesi.flowit" level="DEBUG" additivity="false">
+            <AppenderRef ref="STDOUT"/>
+            <AppenderRef ref="ASYNC_DEBUG"/>
+        </Logger>
 
-      <Policies>
-        <!-- 매일 자정에 롤링 -->
-        <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
-        <!-- 50MB 넘으면 롤링 -->
-        <SizeBasedTriggeringPolicy size="50MB"/>
-      </Policies>
+        <!-- 데이터베이스 관련 로그 -->
+        <Logger name="org.springframework.jdbc" level="DEBUG" additivity="false">
+            <AppenderRef ref="STDOUT"/>
+            <AppenderRef ref="ASYNC_DEBUG"/>
+        </Logger>
 
-      <!-- 최대 14개 파일 보관 (2주) -->
-      <DefaultRolloverStrategy max="14">
-        <Delete basePath="${LOG_PATH}" maxDepth="1">
-          <IfFileName glob="application.*.log.gz"/>
-          <!-- 14일 지난 파일 자동 삭제 -->
-          <IfLastModified age="14d"/>
-        </Delete>
-      </DefaultRolloverStrategy>
-    </RollingFile>
-  </Appenders>
+        <Logger name="org.hibernate.SQL" level="DEBUG" additivity="false">
+            <AppenderRef ref="STDOUT"/>
+            <AppenderRef ref="ASYNC_DEBUG"/>
+        </Logger>
 
-  <Loggers>
-    <!-- 애플리케이션 로거: 디버그 레벨로 상세 로그 -->
-    <Logger name="com.fesi.flowit" level="DEBUG" additivity="false">
-      <AppenderRef ref="Console"/>
-      <AppenderRef ref="FileAppender"/>
-    </Logger>
+        <Logger name="org.hibernate.type.descriptor.sql.BasicBinder" level="TRACE" additivity="false">
+            <AppenderRef ref="STDOUT"/>
+            <AppenderRef ref="ASYNC_DEBUG"/>
+        </Logger>
 
-    <!-- Hibernate SQL 로그 -->
-    <Logger name="org.hibernate.SQL" level="WARN" additivity="false">
-      <AppenderRef ref="Console"/>
-      <AppenderRef ref="FileAppender"/>
-    </Logger>
+        <!-- JPA/Hibernate 로그 -->
+        <Logger name="org.hibernate" level="DEBUG" additivity="false">
+            <AppenderRef ref="STDOUT" level="DEBUG"/>
+            <AppenderRef ref="ASYNC_DEBUG" level="DEBUG"/>
+        </Logger>
 
-    <!-- Spring Data JPA 관련 -->
-    <Logger name="org.springframework.data.jpa" level="WARN" additivity="false">
-      <AppenderRef ref="Console"/>
-      <AppenderRef ref="FileAppender"/>
-    </Logger>
+        <!-- HikariCP 커넥션 풀 로그 -->
+        <Logger name="com.zaxxer.hikari" level="INFO" additivity="false">
+            <AppenderRef ref="STDOUT"/>
+            <AppenderRef ref="ASYNC_DEBUG"/>
+        </Logger>
 
-    <!-- 루트 로거: 나머지 모든 로그 처리 -->
-    <Root level="INFO">
-      <AppenderRef ref="Console"/>
-      <AppenderRef ref="FileAppender"/>
-    </Root>
-  </Loggers>
+        <!-- PostgreSQL 드라이버 로그 -->
+        <Logger name="org.postgresql" level="INFO" additivity="false">
+            <AppenderRef ref="STDOUT"/>
+            <AppenderRef ref="ASYNC_DEBUG"/>
+        </Logger>
+
+        <!-- 서드파티 라이브러리 로그 레벨 조정 -->
+        <Logger name="org.apache.http" level="DEBUG" additivity="false">
+            <AppenderRef ref="STDOUT"/>
+            <AppenderRef ref="ASYNC_DEBUG"/>
+        </Logger>
+
+        <Logger name="org.apache.catalina" level="INFO" additivity="false">
+            <AppenderRef ref="STDOUT"/>
+            <AppenderRef ref="ASYNC_DEBUG"/>
+        </Logger>
+
+        <!-- Root Logger -->
+        <Root level="INFO">
+            <AppenderRef ref="STDOUT"/>
+            <AppenderRef ref="ASYNC_DEBUG" level="DEBUG"/>
+        </Root>
+    </Loggers>
 </Configuration>
