@@ -1,9 +1,9 @@
-package com.fesi.flowit.user.web.response
+package com.fesi.flowit.user.dto
 
 import com.fesi.flowit.user.entity.User
 import java.time.LocalDateTime
 
-data class UserResponse(
+data class SignUpResponseDto(
     var id: Long,
     val email: String,
     val name: String,
@@ -11,8 +11,8 @@ data class UserResponse(
     val updatedAt: LocalDateTime
 ) {
     companion object {
-        fun from(user: User): UserResponse {
-            return UserResponse(
+        fun from(user: User): SignUpResponseDto {
+            return SignUpResponseDto(
                 user.id,
                 user.email,
                 user.name,

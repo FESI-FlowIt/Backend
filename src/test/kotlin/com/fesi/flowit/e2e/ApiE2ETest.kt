@@ -11,8 +11,8 @@ import com.fesi.flowit.note.dto.NoteInfoResponseDto
 import com.fesi.flowit.note.dto.NoteModifyRequestDto
 import com.fesi.flowit.todo.dto.TodoCreateRequestDto
 import com.fesi.flowit.todo.dto.TodoCreateResponseDto
-import com.fesi.flowit.user.web.request.UserRequest
-import com.fesi.flowit.user.web.response.UserResponse
+import com.fesi.flowit.user.dto.SignUpRequestDto
+import com.fesi.flowit.user.dto.SignUpResponseDto
 import io.kotest.core.spec.style.BehaviorSpec
 import io.kotest.matchers.comparables.shouldBeGreaterThan
 import io.kotest.matchers.shouldBe
@@ -34,7 +34,7 @@ class ApiE2ETest(
 
     beforeSpec {
         // 1. 회원가입
-        val signUpRequest = UserRequest(
+        val signUpRequest = SignUpRequestDto(
             email = "y@gmail.com",
             name = "gsh",
             password = "blahblah"
@@ -43,7 +43,7 @@ class ApiE2ETest(
             "/users",
             HttpMethod.POST,
             HttpEntity(signUpRequest),
-            object : ParameterizedTypeReference<ApiResult.Success<UserResponse>>() {}
+            object : ParameterizedTypeReference<ApiResult.Success<SignUpResponseDto>>() {}
         )
         print(signUpResponse.body!!.result)
 

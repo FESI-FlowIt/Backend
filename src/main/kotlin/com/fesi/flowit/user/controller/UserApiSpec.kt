@@ -1,16 +1,15 @@
-package com.fesi.flowit.user.web
+package com.fesi.flowit.user.controller
 
 import com.fesi.flowit.common.response.ApiResult
-import com.fesi.flowit.user.web.request.UserRequest
-import com.fesi.flowit.user.web.response.UserResponse
-import com.fesi.flowit.user.web.response.UserSignedUpResponse
+import com.fesi.flowit.user.dto.SignUpRequestDto
+import com.fesi.flowit.user.dto.SignUpResponseDto
+import com.fesi.flowit.user.dto.UserExistCheckResponseDto
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.ExampleObject
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
-import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -37,7 +36,7 @@ interface UserApiSpec {
                 description = "회원가입 성공",
                 content = [Content(
                     mediaType = "application/json",
-                    schema = Schema(implementation = UserResponse::class)
+                    schema = Schema(implementation = SignUpResponseDto::class)
                 )]
             ),
             ApiResponse(
@@ -59,7 +58,7 @@ interface UserApiSpec {
         ]
     )
     @PostMapping("/users")
-    fun signUp(@RequestBody userRequest: UserRequest): ResponseEntity<ApiResult<UserResponse>>
+    fun signUp(@RequestBody userRequest: SignUpRequestDto): ResponseEntity<ApiResult<SignUpResponseDto>>
 
     @Operation(
         summary = "이메일 회원가입 여부 확인",
@@ -74,7 +73,7 @@ interface UserApiSpec {
                 description = "사용자 회원가입 여부 (result.exists 값으로 구분)",
                 content = [Content(
                     mediaType = "application/json",
-                    schema = Schema(implementation = UserSignedUpResponse::class),
+                    schema = Schema(implementation = UserExistCheckResponseDto::class),
                     examples = [ExampleObject(
                         summary = "notRegistered",
                         name = "해당 이메일로 회원가입한 사용자가 없습니다",
@@ -107,7 +106,7 @@ interface UserApiSpec {
             )
         ]
     )
-    fun hasSignedUp(@RequestParam email: String): ResponseEntity<ApiResult<UserSignedUpResponse>>
+    fun hasSignedUp(@RequestParam email: String): ResponseEntity<ApiResult<UserExistCheckResponseDto>>
 
     @Operation(
         summary = "사용자 정보 조회",
@@ -122,7 +121,7 @@ interface UserApiSpec {
                 description = "회원 정보 조회",
                 content = [Content(
                     mediaType = "application/json",
-                    schema = Schema(implementation = UserResponse::class),
+                    schema = Schema(implementation = SignUpResponseDto::class),
                     examples = [ExampleObject(
                         summary = "userInfo",
                         name = "정상적으로 회원 정보를 조회한 경우",
@@ -166,5 +165,5 @@ interface UserApiSpec {
             ),
         ]
     )
-    fun getUserInfo(request: HttpServletRequest): ResponseEntity<ApiResult<UserResponse>>
+    fun getUserInfo(request: HttpServletRequest): ResponseEntity<ApiResult<SignUpResponseDto>>
 }
